@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path=""/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/pathv"/>
-	<classpathentry kind="lib" path="C:/Users/kayne/Desktop/test/ant.jar/ant.jar"/>
-	<classpathentry kind="lib" path="D:/schematron/myjava/saxon9he.jar"/>
-	<classpathentry kind="output" path=""/>
-</classpath>
