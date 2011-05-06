@@ -60,6 +60,11 @@ public final class SchematronResult {
   private String svrl;
 
   /**
+   * An ArrayList to store (String) message of diagnostic-reference found.
+   */
+  private final ArrayList<String> diagnosticReference =  new ArrayList(); 
+  
+  /**
    * An ArrayList to store (String) message of failed assertion found.
    */
   private final ArrayList<String> failedAssertions =  new ArrayList(); 
@@ -130,6 +135,12 @@ public final class SchematronResult {
 	  
 	  return this.successfulReports;
   }
+  
+public ArrayList<String> getdiagnosticReference(){
+	  
+	  return this.diagnosticReference;
+  }
+
   //chandan
   
 
@@ -197,7 +208,7 @@ public final class SchematronResult {
    * The message will be stored in failedAssertions and successfulReports by SVRL handler.
    */
   private void parseSVRL() throws IOException, SAXException, ParserConfigurationException {
-    SVRLHandler handler = new SVRLHandler(this.failedAssertions, this.successfulReports);  
+    SVRLHandler handler = new SVRLHandler(this.failedAssertions, this.successfulReports, this.diagnosticReference);  
     //Print the every source file name and validation result to console
     //use SVRLHandler class to parse the svrl content
     //System.out.println(this.svrl);

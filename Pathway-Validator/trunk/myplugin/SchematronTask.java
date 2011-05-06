@@ -89,6 +89,9 @@ import org.apache.tools.ant.types.Reference;
  */
 public final class SchematronTask extends Task {
 
+	public Iterator<String> failed_itr;
+	public Iterator<String> success_itr;
+	
   /**
    * Specify the query language binding of schematron to use
    * (Schematron 1.n is counted as a language!)
@@ -494,25 +497,43 @@ public final class SchematronTask extends Task {
       if (this.file.exists() && this.file.canRead() && this.file.isFile()) {
         SchematronResult result = doValidate(this.file);
 //chandan
-        SchematronResult chanResult = new SchematronResult(result.getSystemID());
-        chanResult.setSVRL(result.getSVRLAsString());
+        //SchematronResult chanResult = new SchematronResult(result.getSystemID());
+       // chanResult.setSVRL(result.getSVRLAsString());
         
-        Iterator<String> itr = chanResult.getfailedAssertions().iterator();
-        while (itr.hasNext()) {
-          String element = itr.next();
-          System.out.print("failed  " + element);
+       // Iterator<String> itr = result.getfailedAssertions().iterator();
+        
+        /*printing the failed asserts*/  
+        Iterator<String> itr1;
+    	itr1= result.getfailedAssertions().iterator();
+     /*   while (itr1.hasNext()) {
+          String element = itr1.next();
+          System.out.print("failed  "+ element);
           System.out.println();
         }
         System.out.println();
+    */
+        /*printing the failed diagnostic reports*/  
        
-         itr = chanResult.getsuccessfulReports().iterator();
-        while (itr.hasNext()) {
-          String element = itr.next();
+        failed_itr= result.getdiagnosticReference().iterator();
+        
+        /*  while (failed_itr.hasNext()) {
+            String element = failed_itr.next();
+            System.out.print(element);
+            System.out.println();
+          }
+          System.out.println();
+         */
+          /*printing the success reports*/
+        
+        success_itr = result.getsuccessfulReports().iterator();
+        
+        /*while (success_itr.hasNext()) {
+          String element = success_itr.next();
           System.out.print("success " + element);
           System.out.println();
         }
         System.out.println();
-        
+        */
 //chandan
         report.add(result);
         fileProcessed++;

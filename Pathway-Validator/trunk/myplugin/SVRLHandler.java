@@ -71,12 +71,26 @@ public final class SVRLHandler extends DefaultHandler {
    */
   private static final String SUCCESSFUL_REPORT_ELT = "svrl:successful-report";
 
+  //chandan
+  /**
+   * Static name for diagnostic-reference.
+   */
+  private static final String DIAGNOSTIC_REFERENCE_ELT = "svrl:diagnostic-reference";
+ //chandan
+  
   /**
    * Static name for test attribute.
    * Currently not used because test condition are not showed in the console output
    */
   private static final String TEST_ATT = "test";
 
+  //chandan
+  /**
+   * Static name for diagnostic attribute.
+   */
+  //private static final String DIAGNOSTIC_ATT = "diagnostic";
+  //chandan
+  
   /**
    * Static name for location attribute.
    */
@@ -95,6 +109,10 @@ public final class SVRLHandler extends DefaultHandler {
   private StringBuffer message = new StringBuffer();
 
   /**
+   * StringBuffer for storing the diagnostic message
+   */
+  private StringBuffer diag_attr=new StringBuffer();
+  /**
    * String to store the element name that are currently being produced
    */
   private String lastElement;
@@ -103,6 +121,11 @@ public final class SVRLHandler extends DefaultHandler {
    * An ArrayList to store (String) message of failed assertion found.
    */
   private ArrayList<String> failedAssertions;
+
+  /**
+   * An ArrayList to store (String) message of diagnostic-reference found.
+   */
+  private ArrayList<String> diagnosticReference;
 
   /**
    * An ArrayList to store (String) message of successful reports found.
@@ -126,9 +149,10 @@ public final class SVRLHandler extends DefaultHandler {
    * Constructor for SVRLHandler that require reference of failedAssertions and successfulReports.
    * @param failedAssertions & successfulReports to store validation message result.
    */
-  public SVRLHandler(ArrayList<String> failedAssertions, ArrayList<String> successfulReports) {
+  public SVRLHandler(ArrayList<String> failedAssertions, ArrayList<String> successfulReports, ArrayList<String> diagnosticReference) {
     this.failedAssertions = failedAssertions;
     this.successfulReports = successfulReports;
+    this.diagnosticReference=diagnosticReference;
   }
 
 // Handler methods --------------------------------------------------------------------------------
@@ -149,6 +173,12 @@ public final class SVRLHandler extends DefaultHandler {
     } else if (rawName.equals(TEXT_ELT) && underAssertorReport == true) {
       // clean the buffer to start collecting text of svrl:text
       getCharacters();
+      this.diag_attr.setLength(0);
+    }
+    else if (rawName.equals(DIAGNOSTIC_REFERENCE_ELT)) {
+    	//this.diag_attr.setLength(0);
+    	//this.diag_attr.append("GraphId="+attributes.getValue(DIAGNOSTIC_ATT));
+      getCharacters();
     }
     //chandan
     //System.out.println("the  last processed element--"+ this.lastElement);
@@ -161,7 +191,8 @@ public final class SVRLHandler extends DefaultHandler {
   public void endElement(String namespaceURL, String localName, String rawName) {
     // reach the end of svrl:text and collect the text data
     if (rawName.equals(TEXT_ELT) && underAssertorReport == true) {
-      this.message.append(" - " + getCharacters());
+    	diag_attr.append(getCharacters());
+    	this.message.append(" - " + diag_attr );
       //check the last element name to decide where to store the validation message
       if (this.lastElement.equals(FAILED_ASSERT_ELT)) {
         this.failedAssertions.add(getMessage());
@@ -170,10 +201,14 @@ public final class SVRLHandler extends DefaultHandler {
       }
       underAssertorReport = false;
     }
-    this.lastElement = "";
    //chandan
-   // System.out.println("message for the element--"+ this.message);
+    else if(rawName.equals(DIAGNOSTIC_REFERENCE_ELT)){
+    	//this.diagnosticReference.add(diag_attr+":"+getCharacters()+" ");
+       this.diagnosticReference.add("error @ GraphId : "+getCharacters()+" - "+diag_attr);
+       this.diag_attr.setLength(0);
+    }
   //chandan
+    this.lastElement = "";
   }
 
   /**

@@ -1,7 +1,7 @@
 package myplugin;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -11,10 +11,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
-import org.apache.tools.ant.types.Path;
 import org.pathvisio.gui.swing.PvDesktop;
 import org.pathvisio.plugin.Plugin;
 
@@ -25,25 +26,51 @@ public class HelloPlugin implements Plugin,ActionListener
 {
 	private PvDesktop desktop;
 	JButton valbutton;
+	JTextArea jta;
 	public void init(PvDesktop desktop) 
-	{
+	{   
 		// save the desktop reference so we can use it later
 		this.desktop = desktop;
 		
 		// register our action in the "Help" menu.
 		desktop.registerMenuAction ("Help", helloAction);
-		JPanel mySideBarPanel = new JPanel ();
-        mySideBarPanel.setLayout (new FlowLayout(FlowLayout.CENTER));
-        mySideBarPanel.add (new JLabel ("Hello SideBar"), BorderLayout.CENTER);
+		
+		JPanel mySideBarPanel = new JPanel (new GridBagLayout());
+		jta=new JTextArea();
+		jta.setEditable(false);
+		JScrollPane scrollPane = new JScrollPane(jta);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        //c.fill = GridBagConstraints.HORIZONTAL;
+        //add(textField, c);
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1.0;
+        c.weighty = 1.0;
+        mySideBarPanel.add(scrollPane,c);
+        //jta.setCaretPosition(jta.getDocument().getLength());
+
+        // mySideBarPanel.setLayout (new FlowLayout(FlowLayout.CENTER));
+      /* for(int i=0;i<8;i++){
+        jta.append("error @ GraphId : e02bf - An interaction should not start and end with Line arrowheads."+"\n");
+        }*/
         valbutton=new JButton("validate");
         valbutton.setActionCommand("display");
         valbutton.addActionListener(this);
         mySideBarPanel.add(valbutton);
+        
         // get a reference to the sidebar
         JTabbedPane sidebarTabbedPane = desktop.getSideBarTabbedPane();
         
+        //JTabbedPane bottomTabbedPane= new JTabbedPane();
+        //bottomTabbedPane.add("validation",mySideBarPanel);
+        
+        sidebarTabbedPane.add("pathway-validator", mySideBarPanel);
+        //JPanel mypanel=new JPanel();
+        //mypanel.add(bottomTabbedPane);
+        //desktop.getFrame().add(mypanel);
+       // desktop.getFrame().validate();
         // add or panel with a given Title
-        sidebarTabbedPane.add("Title", mySideBarPanel);
+        
         //sidebarTabbedPane.setLayout(DEFAULT);
 
     	//sidebarTabbedPane.add(new JButton("Button 1"));
@@ -82,22 +109,27 @@ public class HelloPlugin implements Plugin,ActionListener
 		if ("display".equals(e.getActionCommand())) {
 			
 			SchematronTask st=new SchematronTask();
-            st.setSchema(new File("D:\\schematron\\input.sch"));
+            st.setSchema(new File("D:\\schematron\\mimschema.sch"));
             st.setQueryLanguageBinding("xslt2");
             //st.setOutputEncoding(null);
             st.setOutputDir("C:\\Users\\kayne\\Desktop");
             st.setFormat("svrl");
-            st.setFile(new File("D:\\schematron\\input.xml"));
-            st.setClasspath(Path.systemClasspath);
+            st.setFile(new File("D:\\schematron\\new1.mimml"));
+            //st.setClasspath(Path.systemClasspath);
             //st.setFileDirParameter(null);
             //st.setArchiveNameParameter(null);
             //st.setFileNameParameter(null);
             //st.setarchiveDirParameter(null);
-            st.setPhase(null);
-           st.execute();
-	
-	System.out.println("Hello World!-"+Path.systemClasspath);	
-        System.out.println("yes ");    
+            //st.setPhase(null);
+            st.execute();
+            jta.setText(null);
+            while (st.failed_itr.hasNext()) {
+            	jta.append(st.failed_itr.next()+"\n");
+          }
+           //jta.setCaretPosition(jta.getDocument().getLength());
+	        //System.out.println("Hello World!-"+Path.systemClasspath);	
+            System.out.println("validate button pressed ");    
+		
 		} 
 		
 	}
