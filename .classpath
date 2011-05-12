@@ -5,5 +5,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/pathv"/>
 	<classpathentry kind="lib" path="resources/ant.jar"/>
 	<classpathentry kind="lib" path="resources/saxon9he.jar"/>
+	<classpathentry kind="lib" path="D:/ecwork/newplugin/resources/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/ecwork/newplugin/resources/mimVis.jar"/>
+	<classpathentry kind="lib" path="D:/ecwork/newplugin/resources/xbean.jar"/>
+	<classpathentry kind="lib" path="D:/ecwork/newplugin/resources/org.bridgedb.jar"/>
+	<classpathentry kind="lib" path="D:/ecwork/newplugin/resources/jdom.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
