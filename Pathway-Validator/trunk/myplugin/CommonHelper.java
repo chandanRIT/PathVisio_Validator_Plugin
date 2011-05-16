@@ -59,7 +59,7 @@ import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.apache.xmlbeans.*;
 
-import org.pathvisio.debug.Logger;
+import org.pathvisio.core.debug.Logger;
 
 /**
  * A utility class of helper methods and variables used in both import and export.
