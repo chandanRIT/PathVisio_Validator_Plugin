@@ -18,12 +18,12 @@ import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
-import org.pathvisio.Engine;
-import org.pathvisio.gui.swing.PvDesktop;
-import org.pathvisio.gui.swing.SwingEngine;
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.GpmlFormat;
-import org.pathvisio.plugin.Plugin;
+import org.pathvisio.core.Engine;
+import org.pathvisio.desktop.PvDesktop;
+import org.pathvisio.gui.SwingEngine;
+import org.pathvisio.core.model.ConverterException;
+import org.pathvisio.core.model.GpmlFormat;
+import org.pathvisio.desktop.plugin.Plugin;
 
 /**
  * A tutorial implementation of a PathVisio plug-in
