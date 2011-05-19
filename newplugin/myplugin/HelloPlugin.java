@@ -1,12 +1,15 @@
 package myplugin;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URI;
+import java.util.concurrent.ExecutionException;
 //import java.io.IOException;
 
 import javax.swing.AbstractAction;
@@ -24,21 +27,28 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 //import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
+import javax.swing.SwingWorker;
+
+import org.pathvisio.core.ApplicationEvent;
 import org.pathvisio.core.Engine;
+import org.pathvisio.core.Engine.ApplicationEventListener;
 import org.pathvisio.core.model.ConverterException;
 import org.pathvisio.core.model.Pathway;
 import org.pathvisio.core.model.PathwayElement;
+import org.pathvisio.core.preferences.GlobalPreference;
 import org.pathvisio.core.preferences.Preference;
 import org.pathvisio.core.preferences.PreferenceManager;
+import org.pathvisio.core.util.ProgressKeeper;
 import org.pathvisio.core.view.VPathwayElement;
 import org.pathvisio.desktop.PvDesktop;
 import org.pathvisio.desktop.plugin.Plugin;
+import org.pathvisio.gui.ProgressDialog;
 
 
 /**
  * A tutorial implementation of a PathVisio plug-in
  */
-public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
+public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener, ApplicationEventListener
 {
 	private PvDesktop desktop;
 	//private JButton valbutton;
@@ -96,7 +106,8 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
 		
 		// save the desktop reference so we can use it later
 		this.desktop = desktop;
-		
+		eng=desktop.getSwingEngine().getEngine();
+		 eng.addApplicationEventListener(this);
 		// register our action in the "Help" menu.
 		desktop.registerMenuAction ("Help", helloAction);
 		
@@ -138,6 +149,12 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
         //bottomTabbedPane.add("validation",mySideBarPanel);
         
         sidebarTabbedPane.add("pathway-validator", mySideBarPanel);
+        //setting the winx, winy values 
+        
+        //code for setting the winx and winy of main window of pathvisio in preference file
+        //PreferenceManager.getCurrent().set(GlobalPreference.WIN_X, "0");
+        //PreferenceManager.getCurrent().set(GlobalPreference.WIN_Y,"0");
+        
         //JPanel mypanel=new JPanel();
         //mypanel.add(bottomTabbedPane);
         //desktop.getFrame().add(mypanel);
@@ -161,7 +178,7 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
 		{
 			// The NAME property of an action is used as 
 			// the label of the menu item
-			putValue (NAME, "Welcome message");
+			putValue (NAME, "Pathway Validator Help");
 		}
 		
 		/**
@@ -171,12 +188,83 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
 		public void actionPerformed(ActionEvent arg0) 
 		{	//currentPathwayFile=new File("C:\\Users\\kayne\\Desktop\\currentPathwaytmp.mimml");
 		
-			JOptionPane.showMessageDialog(
+			try
+            {
+                Desktop browser= Desktop.getDesktop();// = new Desktop();
+                browser.browse(new URI("http://pathvisio.org/wiki/PathwayValidatorHelp"));
+            }
+            catch (Exception ex)
+            {
+                ex.printStackTrace();
+            }
+			/*JOptionPane.showMessageDialog(
 					desktop.getFrame(), 
-					"Hello World");	
+					"Hello World");*/	
 		}
 	}
 
+	//chandan validate method using SwingWorker<T,V> which uses a separate thread to do the task
+	public SchematronTask processTask(ProgressKeeper pk, ProgressDialog d, SwingWorker<SchematronTask, Object> sw) {
+		sw.execute();
+		d.setVisible(true);
+		try {
+			return sw.get();
+		} catch (ExecutionException e)
+		{
+			System.out.println("ExecutionException---"+e.getMessage());
+			return null;
+		} catch (InterruptedException e) {
+			System.out.println("Interrupted Exception---"+e.getMessage());
+			return null;
+		}
+	}
+
+	public SchematronTask validatePathway()
+	{
+		final ProgressKeeper pk = new ProgressKeeper();
+		final ProgressDialog d = new ProgressDialog(desktop.getFrame(),"", pk, false, true);
+		SwingWorker<SchematronTask, Object> sw = new SwingWorker<SchematronTask, Object>() {
+			protected SchematronTask doInBackground() {
+				pk.setTaskName("Validating pathway");
+				
+					MIMFormat mimf=new MIMFormat();
+					SchematronTask st=new SchematronTask();
+					try {
+					mimf.doExport(currentPathwayFile, eng.getActivePathway());
+					st.setSchema(schemaFile);
+		            st.setQueryLanguageBinding("xslt2");
+		            //st.setOutputEncoding(null);
+		            st.setOutputDir(currentPathwayFile.getParent());
+		            st.setFormat("svrl");
+		            st.setFile(currentPathwayFile);
+		            //st.setClasspath(Path.systemClasspath);
+		            //st.setFileDirParameter(null);
+		            //st.setArchiveNameParameter(null);
+		            //st.setFileNameParameter(null);
+		            //st.setarchiveDirParameter(null);
+		            //st.setPhase(null);
+		            st.execute();
+					} catch (ConverterException e1) {
+					// TODO Auto-generated catch block
+					System.out.println("converter Exception--"+e1.getMessage());
+					e1.printStackTrace();
+					return null;
+					}
+				
+				finally {
+					pk.finished();
+				}
+
+				return st;
+			}
+		};
+
+		return processTask(pk, d, sw);
+	}
+
+	
+	//chandan
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -194,17 +282,20 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
 			}
 			
 			
-			 eng=desktop.getSwingEngine().getEngine();
-		
+			 //eng=desktop.getSwingEngine().getEngine();
+			 
+			SchematronTask st;
 			if(eng.hasVPathway()){
-				MIMFormat mimf=new MIMFormat();
+				st=validatePathway();
+				
+				/*MIMFormat mimf=new MIMFormat();
 				try {
 				mimf.doExport(currentPathwayFile, eng.getActivePathway());
 				} catch (ConverterException e1) {
 				// TODO Auto-generated catch block
 				System.out.println("converter Exception");
 				e1.printStackTrace();
-				}
+				}*/
 				
 				/*exporting the pathway in gpml format and then accesing the file object */
 			/*try {
@@ -223,7 +314,7 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
 			return;
 			}
 			
-			SchematronTask st=new SchematronTask();
+			/*SchematronTask st=new SchematronTask();
             st.setSchema(schemaFile);
             st.setQueryLanguageBinding("xslt2");
             //st.setOutputEncoding(null);
@@ -236,8 +327,9 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
             //st.setFileNameParameter(null);
             //st.setarchiveDirParameter(null);
             //st.setPhase(null);
-            st.execute();
+            st.execute();*/
             //jta.setText(null);
+			
             StringBuffer sbf=new StringBuffer();
             String tempSt,tempsubSt;pth=eng.getActivePathway();
             int errorCounter=0;
@@ -248,14 +340,17 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
             	//jta.(tempSt+"\n");
             	
             	tempsubSt=null;
-            	tempsubSt=tempSt.substring(18+9,18+9+5);
+            	//tempsubSt=tempSt.substring(18+9,18+9+5);
+            	tempsubSt=tempSt.substring(tempSt.indexOf(' ')+22,tempSt.indexOf('>')-1);
             	//System.out.println("the id--"+tempsubSt);
             	
             	if(tempsubSt!=null){
             	pe=pth.getElementById(tempsubSt);
     			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-    			vpe.highlight(col2);
-    			}
+    			if(vpe!=null)
+    				vpe.highlight(col2);
+    			else System.out.println("Exception @ id "+tempsubSt);
+            	}
             	else System.out.println("no id provided thus no highlight");
             }
             jta.setText(sbf.toString());
@@ -291,7 +386,7 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
 	@Override
 	public void hyperlinkUpdate(HyperlinkEvent arg0) {
 		// TODO Auto-generated method stub
-		if (arg0.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+		if (arg0.getEventType()== HyperlinkEvent.EventType.ACTIVATED) {
 			
 			if(prevPwe!=null){
 			prevPwe.highlight(col2);
@@ -303,6 +398,16 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener
 			vpe.highlight(col1);
 			prevPwe=vpe;
 	    }
+	}
+	@Override
+	public void applicationEvent(ApplicationEvent e) {
+		// TODO Auto-generated method stub
+		//System.out.println("event occured");
+		if( e.getType()==ApplicationEvent.PATHWAY_OPENED){
+			jta.setText("");
+			System.out.println("event pathway opened occured");
+		}
+		
 	}
 	
 }
