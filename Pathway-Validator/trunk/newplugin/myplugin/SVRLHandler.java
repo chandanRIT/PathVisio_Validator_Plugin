@@ -62,7 +62,8 @@ public final class SVRLHandler extends DefaultHandler {
 	 * used as a flag to put only the first <svrl:diagnostic-reference> element's value in the output if there are more than one present in the svrl:failed-assert element
 	 */
 	private int svrlDiagRefCounter=0;
-    //chandan
+    private String roleAttribute;
+	//chandan
 	
 	/**
    * Static name for failed assertions.
@@ -172,6 +173,7 @@ public final class SVRLHandler extends DefaultHandler {
     // detect svrl:failed-assert and svrl:successful-report element
     if (rawName.equals(FAILED_ASSERT_ELT)) {
       svrlDiagRefCounter=0;
+      this.roleAttribute=attributes.getValue("role");
       this.message.append("[assert] " + attributes.getValue(LOCATION_ATT));
       this.lastElement = FAILED_ASSERT_ELT;
       underAssertorReport = true;
@@ -218,7 +220,7 @@ public final class SVRLHandler extends DefaultHandler {
     	if(svrlDiagRefCounter==1){
     	//the output containing the graphid and the diagonostic message 
     		 temp = getCharacters();
-    	this.diagnosticReference.add("error @ GraphId : "+"<a href='"+temp+"'>"+temp+"</a>"+" - "+diag_attr);
+    	this.diagnosticReference.add(this.roleAttribute+" @ GraphId : "+"<a href='"+temp+"'>"+temp+"</a>"+" - "+diag_attr);
     	}
     	//this.diagnosticReference.add(getCharacters());
        

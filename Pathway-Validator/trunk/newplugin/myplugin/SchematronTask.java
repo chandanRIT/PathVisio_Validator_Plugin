@@ -503,8 +503,8 @@ public final class SchematronTask extends Task {
        // Iterator<String> itr = result.getfailedAssertions().iterator();
         
         /*printing the failed asserts*/  
-        Iterator<String> itr1;
-    	itr1= result.getfailedAssertions().iterator();
+        //Iterator<String> itr1;
+    	//itr1= result.getfailedAssertions().iterator();
      /*   while (itr1.hasNext()) {
           String element = itr1.next();
           System.out.print("failed  "+ element);
