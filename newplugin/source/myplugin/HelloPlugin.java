@@ -1,7 +1,7 @@
 package myplugin;
 
 import java.awt.Color;
-import java.awt.Desktop;
+//import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.net.URI;
+//import java.net.URI;
 import java.util.concurrent.ExecutionException;
 //import java.io.IOException;
 
@@ -27,10 +27,11 @@ import javax.swing.JTabbedPane;
 //import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
+//import javax.swing.filechooser.FileNameExtensionFilter;
 //import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
-import javax.swing.SwingWorker;
+import org.jdesktop.swingworker.SwingWorker;
 
 import org.pathvisio.core.ApplicationEvent;
 import org.pathvisio.core.Engine;
@@ -45,6 +46,8 @@ import org.pathvisio.core.view.VPathwayElement;
 import org.pathvisio.desktop.PvDesktop;
 import org.pathvisio.desktop.plugin.Plugin;
 import org.pathvisio.gui.ProgressDialog;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 
 /**
@@ -219,20 +222,16 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener, App
 		 */
 
 		public void actionPerformed(ActionEvent arg0) 
-		{	//currentPathwayFile=new File("C:\\Users\\kayne\\Desktop\\currentPathwaytmp.mimml");
-		
-			try
-            {
-                Desktop browser= Desktop.getDesktop();// = new Desktop();
-                browser.browse(new URI("http://pathvisio.org/wiki/PathwayValidatorHelp"));
-            }
-            catch (Exception ex)
-            {
-                ex.printStackTrace();
-            }
-			/*JOptionPane.showMessageDialog(
-					desktop.getFrame(), 
-					"Hello World");*/	
+		{	
+             try
+             {
+                 BrowserLauncher bl = new BrowserLauncher(null);
+                 bl.openURLinBrowser("http://pathvisio.org/wiki/PathwayValidatorHelp");
+             }
+             catch (Exception ex)
+             {
+                 ex.printStackTrace();
+             }	
 		}
 	}
 
@@ -374,7 +373,7 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener, App
 		
 	//chandan
 	
-	@Override
+	//@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		//VPathwayElement vpe=null;
@@ -480,8 +479,23 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener, App
 		    chooser.setApproveButtonText("use schema");
 		    chooser.setAcceptAllFileFilterUsed(false);
 			chooser.setCurrentDirectory(PreferenceManager.getCurrent().getFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR));
-		    FileNameExtensionFilter filter = new FileNameExtensionFilter("schema files (*.sch)", "sch");
-		    chooser.setFileFilter(filter);
+		    
+			chooser.addChoosableFileFilter(new FileFilter() {
+				public boolean accept(File f) {
+					if(f.isDirectory()) return true;
+					String ext = f.toString().substring(f.toString().length() - 3);
+					if(ext.equalsIgnoreCase("sch")) {
+						return true;
+					}
+					return false;
+				}
+				public String getDescription() {
+					return "schema files (*.sch)";
+				}
+
+			});
+
+			
 		    }
 		    int returnVal = chooser.showOpenDialog(desktop.getFrame());
 		    
@@ -509,7 +523,7 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener, App
 		}
 		
 	}
-	@Override
+	//@Override
 	public void hyperlinkUpdate(HyperlinkEvent arg0) {
 		// TODO Auto-generated method stub
 		if (arg0.getEventType()== HyperlinkEvent.EventType.ACTIVATED) {
@@ -525,7 +539,7 @@ public class HelloPlugin implements Plugin,ActionListener,HyperlinkListener, App
 			prevPwe=vpe;
 	    }
 	}
-	@Override
+	//@Override
 	public void applicationEvent(ApplicationEvent e) {
 		// TODO Auto-generated method stub
 		//System.out.println("event occured");
