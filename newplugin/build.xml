@@ -1,19 +1,16 @@
 <?xml version="1.0"?>
 <project name="newplugin" default="build-install" basedir=".">
-	<!-- always be java 1.5 compatible -->
-	<property name="ant.build.javac.target" value="1.5" />
-	<property name="ant.build.javac.source" value="1.5" />
 	
 	<property name="base.name" value="ValidatorPlugin" />
 	<property name="jar.name" value="${base.name}.jar" />
-    <property name="build.Vplugin.dir" value="build/ValidatorPlugins"/>
-
-    <property environment="env" />
+    
+	<property environment="env" />
 	<property name="install.dir" value="${user.home}/.PathVisio/plugins" />
-	<property name="pathvisio.dir" value="D:/pathvsource" />
+	<property name="pathvisio.dir" value="../PathvisioTrunk" />
 	<property name="lib.dir" value="${pathvisio.dir}/lib" />
     <property name="validator.lib" value="lib"/>
-    
+	<property name="images.dir" value="images"/>
+	<property name="XSLs.dir" value="XSLs"/>
 	
 	<path id="project.class.path">
 		<pathelement location="${pathvisio.dir}/pathvisio.jar" />
@@ -25,19 +22,25 @@
 
     <path id="validator.path">
        <path refid="project.class.path"/>
-       <pathelement location="${build.Vplugin.dir}"/>
        <fileset dir="${validator.lib}">
          <include name="commons-collections-3.2.1.jar"/>
          <include name="ant.jar"/>
          <include name="mimVis.jar" />
          <include name="xbean.jar"/>
 		 <include name="saxon9he.jar"/>
-         </fileset>
+         <include name="jsr173_1.0_api.jar"/>
+        </fileset>
      </path>
 	
 	<target name="prepare">
 		<mkdir dir="build" />
-		
+		<copy todir="build/images">
+					<fileset dir="${images.dir}"/>
+		</copy>
+		<copy todir="build/XSLs">
+					<fileset dir="${XSLs.dir}"/>
+		</copy>
+				
 			<fail message="Can't find ${pathvisio.dir}/pathvisio.jar, please specify the path to pathvisio with -Dpathvisio.dir=....">
 				<condition>
 					<not>
@@ -48,26 +51,22 @@
 	</target>
 
 	<target name="build" depends="prepare">
-		<javac srcdir="source" includes="**/*.java" debug="true" destdir="build">
+		<javac srcdir="." includes="**/*.java" debug="true" destdir="build">
 			<classpath refid="validator.path" />
 			<compilerarg value="-Xlint"/>
 		</javac>
 	</target>
 
     <target name="jar" depends="build">
-    	
-    	<manifestclasspath property="manifest.cp" jarfile="${jar.name}">
-    					<classpath refid="project.class.path" />
-    	</manifestclasspath>
-    	
+    
     	<unjar dest="build">
-			<fileset dir="lib" includes="**/*.jar"/>
+		<fileset dir="lib" includes="**/*.jar" excludes="saxon9he.jar"/>
 		</unjar>	
 		
     	<jar jarfile="${jar.name}">
 			<fileset dir="build" includes="**/*.*" />
 			<manifest>
-				<attribute name="Class-Path" value="${manifest.cp}"/>
+				<attribute name="Class-Path" value="C:\Users\kayne\Desktop\saxon9he\net\sf\saxon"/>
 				<attribute name="PathVisio-Plugin-Class" value="myplugin.HelloPlugin"/>
 			</manifest>
 		</jar>
