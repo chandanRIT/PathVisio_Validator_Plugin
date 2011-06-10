@@ -10,7 +10,6 @@
 	<property name="lib.dir" value="${pathvisio.dir}/lib" />
     <property name="validator.lib" value="lib"/>
 	<property name="images.dir" value="images"/>
-	<property name="XSLs.dir" value="XSLs"/>
 	
 	<path id="project.class.path">
 		<pathelement location="${pathvisio.dir}/pathvisio.jar" />
@@ -24,21 +23,23 @@
        <path refid="project.class.path"/>
        <fileset dir="${validator.lib}">
          <include name="commons-collections-3.2.1.jar"/>
-         <include name="ant.jar"/>
          <include name="mimVis.jar" />
          <include name="xbean.jar"/>
-		 <include name="saxon9he.jar"/>
-         <include name="jsr173_1.0_api.jar"/>
+		 <include name="saxon9.jar"/>
+       	 <include name="saxon9-dom.jar"/>
+       	 <include name="jsr173_1.0_api.jar"/>
         </fileset>
      </path>
 	
 	<target name="prepare">
 		<mkdir dir="build" />
-		<copy todir="build/images">
-					<fileset dir="${images.dir}"/>
+		
+		<copy todir="build">
+			<fileset dir="${images.dir}"/>
 		</copy>
-		<copy todir="build/XSLs">
-					<fileset dir="${XSLs.dir}"/>
+		
+		<copy todir="build">
+			<fileset dir="XSLs"/>
 		</copy>
 				
 			<fail message="Can't find ${pathvisio.dir}/pathvisio.jar, please specify the path to pathvisio with -Dpathvisio.dir=....">
@@ -59,17 +60,16 @@
 
     <target name="jar" depends="build">
     
-    	<unjar dest="build">
-		<fileset dir="lib" includes="**/*.jar" excludes="saxon9he.jar"/>
-		</unjar>	
-		
+    	
     	<jar jarfile="${jar.name}">
-			<fileset dir="build" includes="**/*.*" />
-			<manifest>
-				<attribute name="Class-Path" value="C:\Users\kayne\Desktop\saxon9he\net\sf\saxon"/>
-				<attribute name="PathVisio-Plugin-Class" value="myplugin.HelloPlugin"/>
-			</manifest>
-		</jar>
+    		<manifest>
+    				<attribute name="PathVisio-Plugin-Class" value="org.pathvisio.plugins.ValidatorPlugin"/>
+    		</manifest>
+    		    		
+    		<fileset dir="build" includes="**/*.*" />
+			<zipgroupfileset dir="${validator.lib}" includes="*.jar"/>
+    				
+    	</jar>
     
     </target>
 
