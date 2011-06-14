@@ -123,6 +123,8 @@ public class SaxonTransformer {
         StringWriter sw2=new StringWriter();
         Result result2= new StreamResult(sw2);
         transformer.transform(inputSource, result2);
+        //to produce the svrl output in a file in the user's temp directory
+        transformer.transform(inputSource,new StreamResult( new File(System.getProperty("user.home"),"svrlOutput.svrl")));
         System.out.println("svrl cretaed");
         
         //System.out.println(sw.toString());
