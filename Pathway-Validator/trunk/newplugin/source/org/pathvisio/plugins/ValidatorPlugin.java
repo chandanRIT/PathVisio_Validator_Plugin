@@ -36,6 +36,8 @@ import javax.swing.UIDefaults.ActiveValue;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXTransformerFactory;
 //import javax.swing.filechooser.FileNameExtensionFilter;
 //import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
@@ -77,8 +79,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	private static Pathway pth;
 	private static final  Color col1= new Color(255,0,0),col2=new Color(0,0,255);
 	//private final  SchematronTask st=new SchematronTask();
-	private final static SaxonTransformer saxTfr = new SaxonTransformer();
-	private final static MIMFormat mimf=new MIMFormat();
+	private  static SaxonTransformer saxTfr ;
+	private  static MIMFormat mimf;//=new MIMFormat();
 	private final static JFileChooser chooser=new JFileChooser();
 	private final static JButton valbutton=new JButton("Validate");
 	private static int errorCounter,prevSelect;
@@ -93,13 +95,14 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
     //final String imageUrlW="<img width='15' height='15' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
     private final String imageUrlW="<img width='15' height='15' src='"+imageW_UrlSrcAttr+"'></img> &nbsp;";
     private static JCheckBox jcb;
-    private JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER),
+    private JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.LEFT),
     wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
-	
+	private static boolean doExport;
 	
 	public ValidatorPlugin(){
 		
 		 System.out.println("init callled");
+		
 		 //errorCounter=0;prevSelect=0;
 		 //jta=new JEditorPane("text/html","");
 		 //schemaFile=null;
@@ -135,22 +138,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	
 	public void init(PvDesktop desktop) 
 	{   
-		if(currentPathwayFile==null){
-			//comment the below line for normal jfile chooser functionality
-			//schemaFile=new File("D:\\schematron\\mimschema.sch");
-			//commented below to remove  hardcode
-			//currentPathwayFile=new File("C:\\Users\\kayne\\Desktop\\currentPathwaytmp.mimml");
-			try {
-				currentPathwayFile=File.createTempFile("pvv","val");currentPathwayFile.deleteOnExit();
-			} catch (Exception e) {
-				System.out.println("Exception in creating current pathway temp file "+e);
-				e.printStackTrace();
-				
-			}
-			//col1=new Color(255,0,0);
-			//col2=new Color(0,0,255);
-		}
-			
 		//chandan : creating a button for choosing the schema file 
 		//chooseSchema=new JButton("Choose Ruleset");
 		chooseSchema.setActionCommand("choose");
@@ -162,6 +149,12 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		if(PreferenceManager.getCurrent().getInt(SchemaPreference.CHECK_BOX_STATUS)==1){
 	    	jbcinit=true;
 	    }else jbcinit=false;
+		
+		final JCheckBox svrlOutputChoose= new JCheckBox("Generate SVRL file",false);
+		svrlOutputChoose.setActionCommand("svrlOutputChoose");
+		svrlOutputChoose.addActionListener(this);
+		//svrlOutputChoose.setEnabled(false);
+		
 		
 		//final JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
 		jcBox.setActionCommand("jcBox");
@@ -201,11 +194,13 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         
         c.weighty = 0.0;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = GridBagConstraints.RELATIVE;
+        //c.gridwidth = GridBagConstraints.RELATIVE;
         mySideBarPanel.add(eLabel,c);
         
-        c.gridwidth = GridBagConstraints.REMAINDER;
         mySideBarPanel.add(wLabel,c);
+        
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        mySideBarPanel.add(svrlOutputChoose,c);
         
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
@@ -258,7 +253,23 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         //sidebarTabbedPane.ad
 	     
         //saxTfr.setschemaFile(schemaFile);
-        saxTfr.setInputFile(currentPathwayFile);
+        //saxTfr.setInputFile(currentPathwayFile);
+        
+        if(currentPathwayFile==null){
+			//comment the below line for normal jfile chooser functionality
+			//schemaFile=new File("D:\\schematron\\mimschema.sch");
+			//commented below to remove  hardcode
+			//currentPathwayFile=new File("C:\\Users\\kayne\\Desktop\\currentPathwaytmp.mimml");
+			try {
+				currentPathwayFile=File.createTempFile("pvv","val");currentPathwayFile.deleteOnExit();
+			} catch (Exception e) {
+				System.out.println("Exception in creating current pathway temp file "+e);
+				e.printStackTrace();
+				
+			}
+			//col1=new Color(255,0,0);
+			//col2=new Color(0,0,255);
+		}
         
 	}
 	public void done() {}
@@ -325,9 +336,13 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 					try {
 					
 					System.out.println("b4 mimf export");
-					
-					mimf.doExport(currentPathwayFile, eng.getActivePathway());
-					tempSaxTrnfr.setschemaFile(schemaFile);
+					if(!doExport){
+						mimf.doExport(currentPathwayFile, eng.getActivePathway());
+						System.out.println("doExport called");
+						
+					}
+					doExport=false;
+					SaxonTransformer.setschemaFile(schemaFile);
 					System.out.println("after mimf export and b4 execute");
 					
 					tempSaxTrnfr.produceSvrlAndThenParse();
@@ -515,9 +530,21 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			System.out.println("choose schema button pressed");
 			//JFileChooser
 			//chooser = new JFileChooser();
-		    if(chooser.getDialogTitle()==null){
-		    
-		    	System.out.println("called only  once");
+			if(chooser.getDialogTitle()==null){
+				   System.out.println("choose pressed for 1st time");
+			new Thread(){ 
+			  public void run(){
+			   	
+				   try {
+					   System.out.println("This thread for saxtranform runs");
+					   saxTfr= new SaxonTransformer();SaxonTransformer.setInputFile(currentPathwayFile);
+				   } catch (TransformerConfigurationException e1) {
+					   e1.printStackTrace();
+				   }
+			   }
+		   }.start();
+				
+				
 		    	chooser.setDialogTitle("Choose Ruleset");
 		    	chooser.setApproveButtonText("Open");
 		    	chooser.setAcceptAllFileFilterUsed(false);
@@ -580,13 +607,15 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			
 			if(prevSelect != cbox.getSelectedIndex()) {
 				prevSelect = cbox.getSelectedIndex();
-				
-				//if(errorCounter!=0){
 				printOnPanel();
 				System.out.println(cbox.getSelectedItem());
-				//}
 			}
 		}
+		
+		else if("svrlOutputChoose".equals(e.getActionCommand())){
+			if( ((JCheckBox)e.getSource()).isSelected() ) { SaxonTransformer.setProduceSvrl(true); }
+			
+		}	
 	}
 	//@Override
 	public void hyperlinkUpdate(HyperlinkEvent arg0) {
@@ -621,7 +650,21 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		if( e.getType()==ApplicationEvent.PATHWAY_OPENED){
 			jta.setText("");
 			jcBox.setEnabled(false);jcb.setEnabled(false);
-			errorCounter=0;
+			errorCounter=0;eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
+			mimf=new MIMFormat();
+			
+			new Thread(){
+				public void run(){
+					try {
+						doExport=true;
+						mimf.doExport(currentPathwayFile, eng.getActivePathway());
+				
+					} catch (ConverterException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}.start();
+			
 			System.out.println("event pathway opened occured");
 		}
 		else if(e.getType()==SwingMouseEvent.MOUSE_CLICK){
