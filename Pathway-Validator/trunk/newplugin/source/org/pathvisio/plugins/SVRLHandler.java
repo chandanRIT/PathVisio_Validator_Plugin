@@ -175,6 +175,8 @@ public final class SVRLHandler extends DefaultHandler {
     if (rawName.equals(FAILED_ASSERT_ELT)) {
       svrlDiagRefCounter=0;
       this.roleAttribute=attributes.getValue("role");
+      //if the role atrribute is not set, then consider the default as error
+      if(this.roleAttribute==null) {this.roleAttribute="error";}
       this.message.append("[assert] " + attributes.getValue(LOCATION_ATT));
       this.lastElement = FAILED_ASSERT_ELT;
       underAssertorReport = true;

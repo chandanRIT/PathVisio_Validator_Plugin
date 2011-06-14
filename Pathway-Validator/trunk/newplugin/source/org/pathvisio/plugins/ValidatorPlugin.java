@@ -18,17 +18,21 @@ import java.util.concurrent.ExecutionException;
 //import java.io.IOException;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 //import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 //import javax.swing.JTextArea;
+import javax.swing.UIDefaults.ActiveValue;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileFilter;
@@ -40,6 +44,7 @@ import org.jdesktop.swingworker.SwingWorker;
 import org.pathvisio.ApplicationEvent;
 import org.pathvisio.Engine;
 import org.pathvisio.Engine.ApplicationEventListener;
+import org.pathvisio.gui.swing.CommonActions;
 import org.pathvisio.gui.swing.ProgressDialog;
 import org.pathvisio.gui.swing.PvDesktop;
 import org.pathvisio.model.ConverterException;
@@ -49,37 +54,68 @@ import org.pathvisio.plugin.Plugin;
 import org.pathvisio.preferences.Preference;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.util.ProgressKeeper;
+import org.pathvisio.view.VPathway;
 import org.pathvisio.view.VPathwayElement;
+import org.pathvisio.view.swing.SwingMouseEvent;
 //import org.pathvisio.desktop.PvDesktop;
 //import org.pathvisio.desktop.plugin.Plugin;
 //import org.pathvisio.gui.ProgressDialog;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
-
-/**
- * A tutorial implementation of a PathVisio plug-in
- */
 public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener, ApplicationEventListener
 {
 	private  PvDesktop desktop;
 	//private JButton valbutton;
-	private final  JEditorPane jta=new JEditorPane("text/html","");
-	private static File  schemaFile=null;
-	private static File currentPathwayFile=null;
+	private final static JEditorPane jta=new JEditorPane("text/html","");
+	private static File  schemaFile;
+	private static File currentPathwayFile;
 	//private JPanel mySideBarPanel ;
 	//private JScrollPane scrollPane;
 	private static VPathwayElement prevPwe;
 	private static Engine eng;
 	private static Pathway pth;
-	private final  Color col1=new Color(255,0,0),col2=new Color(0,0,255);
+	private static final  Color col1= new Color(255,0,0),col2=new Color(0,0,255);
 	//private final  SchematronTask st=new SchematronTask();
-	private final SaxonTransformer saxTfr = new SaxonTransformer();
-	private final  MIMFormat mimf=new MIMFormat();
-	private final  JFileChooser chooser=new JFileChooser();
-	private final JButton valbutton=new JButton("Validate");
-	private static int errorCounter=0,prevSelect=0;
-	private  JButton chooseSchema; 
+	private final static SaxonTransformer saxTfr = new SaxonTransformer();
+	private final static MIMFormat mimf=new MIMFormat();
+	private final static JFileChooser chooser=new JFileChooser();
+	private final static JButton valbutton=new JButton("Validate");
+	private static int errorCounter,prevSelect;
+	private final static JButton chooseSchema=new JButton("Choose Ruleset"); 
+	private final static JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
+	private final HelloAction helloAction= new HelloAction();
+	private static boolean prevHighlight=true;
+	private final String imageE_UrlSrcAttr = (getClass().getResource("/error.png")).toString();
+    private final String imageW_UrlSrcAttr = (getClass().getResource("/warning.gif")).toString();
+    //final String imageUrlE="<img width='12' height='12' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
+    private final String imageUrlE="<img width='11' height='11' src='"+imageE_UrlSrcAttr+"'></img> &nbsp;";
+    //final String imageUrlW="<img width='15' height='15' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
+    private final String imageUrlW="<img width='15' height='15' src='"+imageW_UrlSrcAttr+"'></img> &nbsp;";
+    private static JCheckBox jcb;
+    private JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER),
+    wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
+	
+	
+	public ValidatorPlugin(){
+		
+		 System.out.println("init callled");
+		 //errorCounter=0;prevSelect=0;
+		 //jta=new JEditorPane("text/html","");
+		 //schemaFile=null;
+		 //currentPathwayFile=null;
+		 //private JPanel mySideBarPanel ;
+		 //private JScrollPane scrollPane;
+		 //col1=new Color(255,0,0);col2=new Color(0,0,255);
+		 //private final  SchematronTask st=new SchematronTask();
+		 //saxTfr = new SaxonTransformer();
+		 //mimf=new MIMFormat();
+		 //chooser=new JFileChooser();
+		 //valbutton=new JButton("Validate");
+		 //chooseSchema=new JButton("Choose Ruleset"); 
+		 //helloAction = new HelloAction();
+		
+	}
 	
 	enum SchemaPreference implements Preference
     {
@@ -107,7 +143,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			try {
 				currentPathwayFile=File.createTempFile("pvv","val");currentPathwayFile.deleteOnExit();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				System.out.println("Exception in creating current pathway temp file "+e);
 				e.printStackTrace();
 				
@@ -117,8 +152,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		}
 			
 		//chandan : creating a button for choosing the schema file 
-		
-		chooseSchema=new JButton("Choose Ruleset");
+		//chooseSchema=new JButton("Choose Ruleset");
 		chooseSchema.setActionCommand("choose");
 		chooseSchema.addActionListener(this);
 		//chooseSchema.setHorizontalAlignment(JButton.RIGHT);
@@ -129,16 +163,17 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	    	jbcinit=true;
 	    }else jbcinit=false;
 		
-		final JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
+		//final JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
 		jcBox.setActionCommand("jcBox");
 		jcBox.addActionListener(this);
+		jcBox.setEnabled(false);
 		//jcBox.setSelectedIndex(1);
 		
-		final JCheckBox jcb= new JCheckBox("Enable real-time validation", jbcinit);
+		jcb= new JCheckBox("Highlight All", jbcinit);
 		jcb.setActionCommand("jcb");
 		jcb.addActionListener(this);
+		jcb.setEnabled(false);//set to false , to enable it only when validate is pressed
 		//valbutton.setEnabled(!jbcinit);
-		//chandan
 		
 		// save the desktop reference so we can use it later
 		this.desktop = desktop;
@@ -156,15 +191,27 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		jta.addHyperlinkListener(this);
 		jta.setEditable(false);
 		
+		//adding labels for warning and error counts
+		eLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
+		wLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
 		
 		final JScrollPane scrollPane = new JScrollPane(jta);
 		
         final GridBagConstraints c = new GridBagConstraints();
         
+        c.weighty = 0.0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = GridBagConstraints.RELATIVE;
+        mySideBarPanel.add(eLabel,c);
+        
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        mySideBarPanel.add(wLabel,c);
+        
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.weighty = 1.0;
+        
         mySideBarPanel.add(scrollPane,c);
         
         c.weighty = 0.0;
@@ -177,7 +224,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         
         //jta.setCaretPosition(jta.getDocument().getLength());
         // mySideBarPanel.setLayout (new FlowLayout(FlowLayout.CENTER));
-      /* for(int i=0;i<8;i++){
+        /* for(int i=0;i<8;i++){
         jta.append("error @ GraphId : e02bf - An interaction should not start and end with Line arrowheads."+"\n");
         }*/
  
@@ -209,24 +256,12 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         //sidebarTabbedPane.setLayout(DEFAULT);
     	//sidebarTabbedPane.add(new JButton("Button 1"));
         //sidebarTabbedPane.ad
-	
-        //code for the validate button's initialaiztion 
-       // mimf=new MIMFormat();
-		//st=new SchematronTask();
-       
-        /*st.setQueryLanguageBinding("xslt2");
-        st.setOutputDir(currentPathwayFile.getParent());
-        st.setFormat("svrl");
-        st.setFile(currentPathwayFile);
-        st.setSchema(schemaFile);*/
-        
+	     
         //saxTfr.setschemaFile(schemaFile);
         saxTfr.setInputFile(currentPathwayFile);
         
-        
 	}
 	public void done() {}
-	private final HelloAction helloAction = new HelloAction();
 	
 	/**
 	 * Display a welcome message when this action is triggered. 
@@ -260,8 +295,10 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 
 	//chandan validate method using SwingWorker<T,V> which uses a separate thread to do the task
 	public void processTask(ProgressKeeper pk, ProgressDialog d, SwingWorker<Object, Object> sw) {
+		
 		sw.execute();
 		d.setVisible(true);
+		
 		try {
 			 sw.get();
 		} catch (ExecutionException e)
@@ -297,7 +334,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 					System.out.println("after  st.execute");
 					
 					} catch (Exception e1) { //changed from ConverterException to catch all the errors
-					// TODO Auto-generated catch block
 					System.out.println("Exception in validatepathway method--"+e1.getMessage());
 					e1.printStackTrace();
 					return null;
@@ -315,35 +351,26 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	}
 
 	
-	void printOnPanel(){
+	private void printOnPanel(){
+		prevHighlight=true;
 		VPathwayElement vpe=null;
 		PathwayElement pe; 
 		StringBuffer sbf=new StringBuffer();
         String tempSt,tempsubSt;pth=eng.getActivePathway();
         Iterator<String> tempIterator = (saxTfr.diagnosticReference).iterator();
-        int i=0,j=0,k=0;
-        
-        //final String imageUrl2=".gif'></img> &nbsp;";
-        //String imageType="error";
-        final String imageE_UrlSrcAttr = (getClass().getResource("/error.jpg")).toString();
-        final String imageW_UrlSrcAttr = (getClass().getResource("/warning.gif")).toString();
-        //final String imageUrlE="<img width='12' height='12' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
-        final String imageUrlE="<img width='12' height='12' src='"+imageE_UrlSrcAttr;
-        
-        //final String imageUrlW="<img width='15' height='15' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
-        final String imageUrlW="<img width='15' height='15' src='"+imageW_UrlSrcAttr;
-        
-        final String imageUrlError=imageUrlE+"'></img> &nbsp;";//=imageUrl1+imageType+imageUrl2;
-        final String imageUrlWarn=imageUrlW+"'></img> &nbsp;";
-        String imageUrl;
+        int i=0,j=0,k=0,eCount=0,wCount=0;
+        String imageUrl=imageUrlE;
         
         sbf.append("<font size='4' face='verdana'>");
-        int higco=0;
+        int higco=0;//int highlightFlag=1;// 1 for highlight, 0 for unhighlight 
+        
+        eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
+        
         while (tempIterator.hasNext()) {
          	errorCounter+=1;
          	tempSt=tempIterator.next();
          	
-         	if(tempSt.startsWith("warning")){ imageUrl=imageUrlWarn; }else { imageUrl=imageUrlError; }
+         	if(tempSt.startsWith("warning")){ imageUrl=imageUrlW; wCount++;}else { imageUrl=imageUrlE; eCount++;}
          	
          	if(prevSelect==0){
          		sbf.append(imageUrl + ++i +".) "+tempSt+"<br><br>");
@@ -358,39 +385,59 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
          		sbf.append(imageUrl + ++k +".) "+tempSt+"<br><br>");	
          	}
          	else{
-         		System.out.println("not passed");
+         		System.out.println("not passed"); 
+         		//make tempSt null , so that only the corresponding nodes are highlighted, when selecting the drop down (E / W / E&W)
+         		tempSt=null;
+         		//highlightFlag=0;//for unhighlight method
          	}
-         	//jta.(tempSt+"\n");
          	
-         	tempsubSt=null;
+         	eLabel.setText("Errors:"+eCount); wLabel.setText("Warnings:"+wCount);
+         	
+         	if(tempSt!=null){
+         		tempsubSt=null;
          	//tempsubSt=tempSt.substring(18+9,18+9+5);
-         	tempsubSt=tempSt.substring(tempSt.indexOf(' ')+22,tempSt.indexOf('>')-1);
+         	
+         		tempsubSt=tempSt.substring(tempSt.indexOf(' ')+22,tempSt.indexOf('>')-1);
          	//System.out.println("the id--"+tempsubSt);
          	
-         	//if(tempsubSt!=null){
-         	pe=pth.getElementById(tempsubSt);
-         	System.out.println(++higco+" --> "+tempsubSt);
- 			if(pe!=null) {
-         	vpe=eng.getActiveVPathway().getPathwayElementView(pe);
- 		//	if(vpe!=null)
- 			vpe.highlight(col2);}
- 			else System.out.println("Exception due to no associated PathwayElement @ id "+tempsubSt);
-         	//}
-         	//else System.out.println("no id provided thus no highlight");
-         }
+         		pe=pth.getElementById(tempsubSt);
+         		System.out.println(++higco+" --> "+tempsubSt);
+ 			
+         		if(pe!=null) {
+         			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
+         			vpe.highlight(col2);
+         		}
+         		else System.out.println("id not parsed properly @ id "+tempsubSt);
+         	
+         	}
+         	prevPwe=vpe;
+        }
         
+        //refreshing the pathway , so that all the nodes highlighted appear highlighted
+        VPathway vpwTemp = eng.getActiveVPathway();
+		vpwTemp.setPctZoom(vpwTemp.getPctZoom());
+		
         sbf.append("</font>");
-        if(errorCounter!=0) 
-        {jta.setText(sbf.toString());}
-        else {jta.setText("NO errors/warnings in the pathway");}
+        
+        if( (prevSelect==0 && i!=0) || (prevSelect==1 && j!=0) || (prevSelect==2 && k!=0) ){ 
+        	jta.setText(sbf.toString());
+        }
+        else if(prevSelect==0){
+        	jta.setText("<b><font size='4' face='verdana'>No Errors and Warnings</font></b>");
+        }
+        else if(prevSelect==1){
+        	jta.setText("<b><font size='4' face='verdana'>No Errors</font></b>");	
+        }
+        else if(prevSelect==2){
+        	jta.setText("<b><font size='4' face='verdana'>No Warnings</font></b>");	
+        }
+        
         jta.setCaretPosition(0);
-         // jta.validate();
-         //jta.setCaretPosition(jta.getDocument().getLength());
         sbf.setLength(0); 
         
 	}
 	
-	String whichSchema(File sf){
+	private String whichSchema(File sf){
 		
 		boolean lineFound=false;int index=0;
 		String line,schemaType=null;
@@ -399,19 +446,19 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		BufferedReader reader = new BufferedReader(new FileReader(sf));
 		int lineNo=0;
 		
-		while ((line=reader.readLine())!=null) {
-			lineNo+=1;
-			if((index=line.indexOf("<iso:ns"))!=-1){
+			while ((line=reader.readLine())!=null) {
+				lineNo+=1;
+				if((index=line.indexOf("<iso:ns"))!=-1){
 				
 				System.out.println("1st <iso:ns> tag found at line--"+lineNo);
 				schemaType=line.substring(index+16, line.indexOf("uri")-2);
 				lineFound=true;
 				break;
-			}
-			else {
+				}
+				else {
 			//System.out.println("this line has no <iso:ns> tag");
+				}
 			}
-		}
 
 		}
 		catch(Exception ex) {
@@ -425,10 +472,9 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		else{
 			return "no iso:ns tag found";
 		}
+	
 	}
 		
-	//chandan
-	
 	//@Override
 	public void actionPerformed(ActionEvent e) {
 		
@@ -448,93 +494,58 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			
 			if(eng.hasVPathway()){
 				errorCounter=0;
+//set the below line, to make the drop down option to errors and warnings (default option), when validate is pressed
+				prevSelect=0;jcBox.setSelectedIndex(0);
 				validatePathway(saxTfr,mimf);
+				jcBox.setEnabled(true);jcb.setEnabled(true);
 				
 			}
 			else{
 				JOptionPane.showMessageDialog(
 						desktop.getFrame(), 
 						"There's no pathway open to validate");
-			return;
+				return;
 			}
 			
 			printOnPanel();
 			
-			/*SchematronTask st=new SchematronTask();
-            st.setSchema(schemaFile);
-            st.setQueryLanguageBinding("xslt2");
-            //st.setOutputEncoding(null);
-            st.setOutputDir(currentPathwayFile.getParent());
-            st.setFormat("svrl");
-            st.setFile(currentPathwayFile);
-            //st.setClasspath(Path.systemClasspath);
-            //st.setFileDirParameter(null);
-            //st.setArchiveNameParameter(null);
-            //st.setFileNameParameter(null);
-            //st.setarchiveDirParameter(null);
-            //st.setPhase(null);
-            st.execute();*/
-            //jta.setText(null);
-			
-        /*    StringBuffer sbf=new StringBuffer();
-            String tempSt,tempsubSt;pth=eng.getActivePathway();
-            int errorCounter=0;
-            while (st.failed_itr.hasNext()) {
-            	errorCounter+=1;
-            	tempSt=st.failed_itr.next();
-            	sbf.append(errorCounter+".) "+tempSt+"<br><br>");
-            	//jta.(tempSt+"\n");
-            	
-            	tempsubSt=null;
-            	//tempsubSt=tempSt.substring(18+9,18+9+5);
-            	tempsubSt=tempSt.substring(tempSt.indexOf(' ')+22,tempSt.indexOf('>')-1);
-            	//System.out.println("the id--"+tempsubSt);
-            	
-            	//if(tempsubSt!=null){
-            	pe=pth.getElementById(tempsubSt);
-    			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-    			if(vpe!=null)
-    				vpe.highlight(col2);
-    			else System.out.println("Exception @ id "+tempsubSt);
-            	//}
-            	//else System.out.println("no id provided thus no highlight");
-            }
-            jta.setText(sbf.toString());
-            jta.validate();
-            //jta.setCaretPosition(jta.getDocument().getLength());
-	        //System.out.println("Hello World!-"+Path.systemClasspath);	
-     */   
-			}
-			else if ("choose".equals(e.getActionCommand())) {
+		}
+		else if ("choose".equals(e.getActionCommand())) {
 			
 			System.out.println("choose schema button pressed");
 			//JFileChooser
 			//chooser = new JFileChooser();
 		    if(chooser.getDialogTitle()==null){
 		    
-		    System.out.println("called only  once");
-			chooser.setDialogTitle("Choose Ruleset");
-		    chooser.setApproveButtonText("Open");
-		    chooser.setAcceptAllFileFilterUsed(false);
-			chooser.setCurrentDirectory(PreferenceManager.getCurrent().getFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR));
+		    	System.out.println("called only  once");
+		    	chooser.setDialogTitle("Choose Ruleset");
+		    	chooser.setApproveButtonText("Open");
+		    	chooser.setAcceptAllFileFilterUsed(false);
+		    	chooser.setCurrentDirectory(PreferenceManager.getCurrent().getFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR));
 		    
-			chooser.addChoosableFileFilter(new FileFilter() {
-				public boolean accept(File f) {
-					if(f.isDirectory()) return true;
-					String ext = f.toString().substring(f.toString().length() - 3);
-					if(ext.equalsIgnoreCase("sch")) {
-						return true;
-					}
-					return false;
-				}
-				public String getDescription() {
-					return "Schematron files (*.sch)";
-				}
+		    	chooser.addChoosableFileFilter(new FileFilter() {
+				
+		    		public boolean accept(File f) {
+				
+		    			if(f.isDirectory()) return true;
+		    			
+		    			String ext = f.toString().substring(f.toString().length() - 3);
+					
+		    			if(ext.equalsIgnoreCase("sch")) {
+		    				return true;
+		    			}
+					
+		    			return false;
+		    		}
+				
+		    		public String getDescription() {
+		    			return "Schematron files (*.sch)";
+		    		}
 
-			});
+		    	});
 
-			
 		    }
+		    
 		    int returnVal = chooser.showOpenDialog(desktop.getFrame());
 		    
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
@@ -547,54 +558,74 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 					   
 		}
 		else if("jcb".equals(e.getActionCommand())){
-			if(((JCheckBox)e.getSource()).isSelected()){
-				System.out.println("jcb selected");
-				//valbutton.setEnabled(false);
-				PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
-			}else{
-				System.out.println("jcb deselected");
-				//valbutton.setEnabled(true);
-				PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,0);
-			}
+			//eng.getActiveVPathway().resetHighlight();
+				if(((JCheckBox)e.getSource()).isSelected()){
+					System.out.println("jcb selected");
+					//valbutton.setEnabled(false);
+					printOnPanel();//call only the highlighting part, (highlight all!)
+					PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
+				}else{
+					System.out.println("jcb deselected");
+					//valbutton.setEnabled(true);
+					PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,0);
+					eng.getActiveVPathway().resetHighlight();//unhighlight all
+				}
 			//System.out.println("some event fired from jcb--"+PreferenceManager.getCurrent().getInt(SchemaPreference.CHECK_BOX_STATUS));
 						
 		}
 		
 		else if("jcBox".equals(e.getActionCommand())){
+			
 			JComboBox cbox = (JComboBox)e.getSource();
+			
 			if(prevSelect != cbox.getSelectedIndex()) {
 				prevSelect = cbox.getSelectedIndex();
-				if(errorCounter!=0){
+				
+				//if(errorCounter!=0){
 				printOnPanel();
 				System.out.println(cbox.getSelectedItem());
-				}
+				//}
 			}
 		}
 	}
 	//@Override
 	public void hyperlinkUpdate(HyperlinkEvent arg0) {
-		// TODO Auto-generated method stub
+	
 		if (arg0.getEventType()== HyperlinkEvent.EventType.ACTIVATED) {
 			
-			if(prevPwe!=null){
-			prevPwe.highlight(col2);
-			}
+			if( ! prevPwe.isHighlighted() ){prevHighlight=false; }
+			
+				if(prevHighlight){
+				prevPwe.highlight(col2);
+				}//col2 is blue
+				else prevPwe.unhighlight();
+			
+			
 			System.out.println("hi there-"+arg0.getDescription());
 			
 			PathwayElement	pe=pth.getElementById(arg0.getDescription());
 			VPathwayElement	vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-			vpe.highlight(col1);
+			vpe.highlight(col1);//col1 is red
 			prevPwe=vpe;
-	    }
+			
+			//pathway diagram refresh code,setting zoom refreshes the diagram.
+			VPathway vpwTemp = eng.getActiveVPathway();
+			vpwTemp.setPctZoom(vpwTemp.getPctZoom());
+			
+	   }
 	}
 	//@Override
 	public void applicationEvent(ApplicationEvent e) {
-		// TODO Auto-generated method stub
+		
 		//System.out.println("event occured");
 		if( e.getType()==ApplicationEvent.PATHWAY_OPENED){
-			jta.setText(""); 
+			jta.setText("");
+			jcBox.setEnabled(false);jcb.setEnabled(false);
 			errorCounter=0;
 			System.out.println("event pathway opened occured");
+		}
+		else if(e.getType()==SwingMouseEvent.MOUSE_CLICK){
+			System.out.println("mouse clicked");
 		}
 		
 	}
