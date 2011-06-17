@@ -9,10 +9,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 //import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 //import java.io.IOException;
@@ -50,6 +53,7 @@ import org.pathvisio.gui.swing.CommonActions;
 import org.pathvisio.gui.swing.ProgressDialog;
 import org.pathvisio.gui.swing.PvDesktop;
 import org.pathvisio.model.ConverterException;
+import org.pathvisio.model.GpmlFormat;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.plugin.Plugin;
@@ -65,7 +69,7 @@ import org.pathvisio.view.swing.SwingMouseEvent;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
-public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener, ApplicationEventListener
+public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener, ApplicationEventListener, ItemListener
 {
 	private  PvDesktop desktop;
 	//private JButton valbutton;
@@ -80,12 +84,13 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	private static final  Color col1= new Color(255,0,0),col2=new Color(0,0,255);
 	//private final  SchematronTask st=new SchematronTask();
 	private  static SaxonTransformer saxTfr ;
-	private  static MIMFormat mimf;//=new MIMFormat();
+	private  static MIMFormat mimf=new MIMFormat();
 	private final static JFileChooser chooser=new JFileChooser();
 	private final static JButton valbutton=new JButton("Validate");
 	private static int errorCounter,prevSelect;
 	private final static JButton chooseSchema=new JButton("Choose Ruleset"); 
 	private final static JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
+	private final static JComboBox phaseBox = new JComboBox(new String[]{"Phase: All"});
 	private final HelloAction helloAction= new HelloAction();
 	private static boolean prevHighlight=true;
 	private final String imageE_UrlSrcAttr = (getClass().getResource("/error.png")).toString();
@@ -95,9 +100,12 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
     //final String imageUrlW="<img width='15' height='15' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
     private final String imageUrlW="<img width='15' height='15' src='"+imageW_UrlSrcAttr+"'></img> &nbsp;";
     private static JCheckBox jcb;
-    private JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.LEFT),
-    wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
-	private static boolean doExport;
+    private JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER),
+    wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER),
+    schemaTitleTag= new JLabel("  Schema Title: ");
+	private static boolean doExport=false;
+	private static String schemaFileType;
+	private static Thread threadForSax;
 	
 	public ValidatorPlugin(){
 		
@@ -150,7 +158,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	    	jbcinit=true;
 	    }else jbcinit=false;
 		
-		final JCheckBox svrlOutputChoose= new JCheckBox("Generate SVRL file",false);
+		final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
 		svrlOutputChoose.setActionCommand("svrlOutputChoose");
 		svrlOutputChoose.addActionListener(this);
 		//svrlOutputChoose.setEnabled(false);
@@ -162,7 +170,13 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		jcBox.setEnabled(false);
 		//jcBox.setSelectedIndex(1);
 		
-		jcb= new JCheckBox("Highlight All", jbcinit);
+		phaseBox.setActionCommand("phaseBox");
+		//phaseBox.addActionListener(this);
+		phaseBox.addItemListener(this);
+		phaseBox.setEnabled(false);
+		
+		
+		jcb= new JCheckBox(" Highlight All", jbcinit);
 		jcb.setActionCommand("jcb");
 		jcb.addActionListener(this);
 		jcb.setEnabled(false);//set to false , to enable it only when validate is pressed
@@ -192,15 +206,23 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		
         final GridBagConstraints c = new GridBagConstraints();
         
-        c.weighty = 0.0;
+        c.weighty = 0.0;c.weightx=0.5;
         c.fill = GridBagConstraints.HORIZONTAL;
         //c.gridwidth = GridBagConstraints.RELATIVE;
         mySideBarPanel.add(eLabel,c);
-        
         mySideBarPanel.add(wLabel,c);
         
+        c.fill=GridBagConstraints.NONE;
         c.gridwidth = GridBagConstraints.REMAINDER;
         mySideBarPanel.add(svrlOutputChoose,c);
+        
+        c.fill=GridBagConstraints.NONE;
+        c.gridwidth = GridBagConstraints.RELATIVE;
+        mySideBarPanel.add(schemaTitleTag,c);
+        
+        c.fill=GridBagConstraints.HORIZONTAL;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        mySideBarPanel.add(phaseBox,c);
         
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
@@ -217,6 +239,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         c.gridwidth = GridBagConstraints.REMAINDER;
         mySideBarPanel.add(jcBox,c);
         
+        //phaseBox.addItem("chandan");
+		
         //jta.setCaretPosition(jta.getDocument().getLength());
         // mySideBarPanel.setLayout (new FlowLayout(FlowLayout.CENTER));
         /* for(int i=0;i<8;i++){
@@ -336,12 +360,17 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 					try {
 					
 					System.out.println("b4 mimf export");
-					if(!doExport){
+					//if(!doExport){
+						if(schemaFileType.equalsIgnoreCase("gpml")){
+							GpmlFormat.writeToXml (eng.getActivePathway(), currentPathwayFile, true);
+							System.out.println("gpml export called");
+						}	
+						else {
 						mimf.doExport(currentPathwayFile, eng.getActivePathway());
-						System.out.println("doExport called");
-						
-					}
-					doExport=false;
+						System.out.println("mimVis export called");
+						}
+					//}
+					//doExport=false;
 					SaxonTransformer.setschemaFile(schemaFile);
 					System.out.println("after mimf export and b4 execute");
 					
@@ -370,7 +399,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		prevHighlight=true;
 		VPathwayElement vpe=null;
 		PathwayElement pe; 
-		StringBuffer sbf=new StringBuffer();
+		StringBuilder sbf=new StringBuilder();
         String tempSt,tempsubSt;pth=eng.getActivePathway();
         Iterator<String> tempIterator = (saxTfr.diagnosticReference).iterator();
         int i=0,j=0,k=0,eCount=0,wCount=0;
@@ -451,6 +480,63 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         sbf.setLength(0); 
         
 	}
+
+	private void ExtractPhaseValuesFromSchema(File sf){
+		
+		String line;
+		int phaseNumber=0;
+		ArrayList<String> PhaseValues= new ArrayList<String>();
+		boolean titleTagFound=false;
+		
+		try {
+		BufferedReader reader = new BufferedReader(new FileReader(sf));
+		int lineNo=0;
+		
+			while ((line=reader.readLine())!=null) {
+				lineNo+=1;
+				
+				if(!titleTagFound){
+					if((line.indexOf("<iso:title"))!=-1){
+						schemaTitleTag.setText("Schema Title: "+line.substring(line.indexOf('>')+1, line.indexOf("/")-1));
+						titleTagFound=true;
+					}
+				}
+				
+				if((line.indexOf("<iso:phase "))!=-1){
+					phaseNumber++;
+					System.out.println("1st <iso:phase> tag found at line--"+lineNo);
+					PhaseValues.add(line.substring(line.indexOf(" id=")+5, line.indexOf(">")-1));
+				
+				}
+				if(line.indexOf("<iso:pattern ")!=-1){
+					System.out.println("phase finding is over");
+					break;
+				}
+			}
+		}
+		catch(Exception ex) {
+			System.out.println("Exception in the whichSchema method");
+			ex.printStackTrace();
+		}	
+			
+			if(!phaseBox.isEnabled())
+				phaseBox.setEnabled(true);
+			
+			Iterator<String> tempIterator= PhaseValues.iterator();
+			
+			//System.out.println("the item count of phaseBox is "+phaseBox.getItemCount());
+			
+			//refreshing the drop down to include phases of the selected schema by clearing out the previous items and adding new ones
+			while(phaseBox.getItemCount()!=1){
+				phaseBox.removeItemAt(phaseBox.getItemCount()-1);
+			}
+			
+			while(tempIterator.hasNext()){
+				phaseBox.addItem("Phase: "+tempIterator.next());
+				//System.out.println(tempIterator.next());
+			}
+			//return PhaseValues;
+	}
 	
 	private String whichSchema(File sf){
 		
@@ -480,6 +566,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			System.out.println("Exception in the whichSchema method");
 			ex.printStackTrace();
 		}
+		
+		ExtractPhaseValuesFromSchema(sf);
 		
 		if(lineFound==true){
 			return schemaType;
@@ -511,6 +599,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				errorCounter=0;
 //set the below line, to make the drop down option to errors and warnings (default option), when validate is pressed
 				prevSelect=0;jcBox.setSelectedIndex(0);
+				
 				validatePathway(saxTfr,mimf);
 				jcBox.setEnabled(true);jcb.setEnabled(true);
 				
@@ -532,7 +621,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			//chooser = new JFileChooser();
 			if(chooser.getDialogTitle()==null){
 				   System.out.println("choose pressed for 1st time");
-			new Thread(){ 
+			threadForSax=new Thread(){ 
 			  public void run(){
 			   	
 				   try {
@@ -542,9 +631,9 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 					   e1.printStackTrace();
 				   }
 			   }
-		   }.start();
-				
-				
+		   };
+		   threadForSax.start();
+		   	
 		    	chooser.setDialogTitle("Choose Ruleset");
 		    	chooser.setApproveButtonText("Open");
 		    	chooser.setAcceptAllFileFilterUsed(false);
@@ -579,8 +668,16 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		       System.out.println("You chose to open this file: "+chooser.getSelectedFile().getName());
 		       //System.out.println(System.getProperty("user.home")+" -- "+System.getProperty("user.dir"));
 		       schemaFile=chooser.getSelectedFile();
-		       System.out.println("schema is of type: "+whichSchema(schemaFile));
+		       System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
 		       PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
+		       
+		     //wait for the transformer creation in the thread to complete 
+			try{
+				   threadForSax.join();
+			   } catch (InterruptedException e1) {
+				   // TODO Auto-generated catch block
+				   e1.printStackTrace();
+			   }
 		    }
 					   
 		}
@@ -613,7 +710,9 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		}
 		
 		else if("svrlOutputChoose".equals(e.getActionCommand())){
-			if( ((JCheckBox)e.getSource()).isSelected() ) { SaxonTransformer.setProduceSvrl(true); }
+			if( ((JCheckBox)e.getSource()).isSelected() ){
+				SaxonTransformer.setProduceSvrl(true); 
+			}else SaxonTransformer.setProduceSvrl(false);
 			
 		}	
 	}
@@ -651,9 +750,10 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			jta.setText("");
 			jcBox.setEnabled(false);jcb.setEnabled(false);
 			errorCounter=0;eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
-			mimf=new MIMFormat();
+			//mimf=new MIMFormat();
 			
-			new Thread(){
+			// thread code for export when a pathway is opened, for making the validation faster
+			/*new Thread(){
 				public void run(){
 					try {
 						doExport=true;
@@ -663,14 +763,35 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 						e1.printStackTrace();
 					}
 				}
-			}.start();
+			}.start();*/
 			
 			System.out.println("event pathway opened occured");
+		}
+		else if(e.getType()==ApplicationEvent.PATHWAY_NEW){
+			jta.setText("");
+			jcBox.setEnabled(false);jcb.setEnabled(false);
+			errorCounter=0;eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
+			System.out.println("event new  pathway occured");
 		}
 		else if(e.getType()==SwingMouseEvent.MOUSE_CLICK){
 			System.out.println("mouse clicked");
 		}
 		
 	}
+	public void itemStateChanged(ItemEvent arg0) {
+		// TODO Auto-generated method stub
+		if(arg0.getStateChange()==1){
+			//donot forget to change the index if the "Phase: " format is changed
+			String temp=( (String)arg0.getItem() ).substring(7);
+			if(temp.equals("All")){
+				SaxonTransformer.transformer1.clearParameters();
+			}
+			else{
+				SaxonTransformer.transformer1.setParameter("phase", temp );
+			}
+			System.out.println("item selected --"+temp );
+			
+		}
+	}
 	
-}
+}	
