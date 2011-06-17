@@ -30,7 +30,7 @@ public class SaxonTransformer {
 	  private static String svrl;
 	  private static File schemaFile,inputFile;
 	  private static final TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
-	  private static Transformer transformer1;
+	  static Transformer transformer1;
 	  private static boolean produceSvrl=false;
 	  
 	/**
@@ -141,7 +141,7 @@ public class SaxonTransformer {
         
         if(getProduceSvrl()){
         	transformer2.transform(inputSource,new StreamResult(svrlFile));
-        	produceSvrl=false;
+        	//produceSvrl=false;
         }
         	svrlFile.deleteOnExit();
         	
