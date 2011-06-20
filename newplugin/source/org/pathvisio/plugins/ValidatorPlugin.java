@@ -3,7 +3,6 @@ package org.pathvisio.plugins;
 
 import java.awt.Color;
 //import java.awt.Desktop;
-import java.awt.Event;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,9 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 //import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,6 +27,7 @@ import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 //import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,14 +35,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 //import javax.swing.JTextArea;
-import javax.swing.UIDefaults.ActiveValue;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.SAXTransformerFactory;
 //import javax.swing.filechooser.FileNameExtensionFilter;
 //import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
+
 
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -63,6 +64,8 @@ import org.pathvisio.util.ProgressKeeper;
 import org.pathvisio.view.VPathway;
 import org.pathvisio.view.VPathwayElement;
 import org.pathvisio.view.swing.SwingMouseEvent;
+import org.xml.sax.SAXException;
+
 //import org.pathvisio.desktop.PvDesktop;
 //import org.pathvisio.desktop.plugin.Plugin;
 //import org.pathvisio.gui.ProgressDialog;
@@ -100,10 +103,10 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
     //final String imageUrlW="<img width='15' height='15' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
     private final String imageUrlW="<img width='15' height='15' src='"+imageW_UrlSrcAttr+"'></img> &nbsp;";
     private static JCheckBox jcb;
-    private JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER),
-    wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER),
-    schemaTitleTag= new JLabel("  Schema Title: ");
-	private static boolean doExport=false;
+    private final JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER),
+    wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
+    private static final JTextField schemaTitleTag= new JTextField("  Schema Title: ");
+	//private static boolean doExport=false;
 	private static String schemaFileType;
 	private static Thread threadForSax;
 	
@@ -146,6 +149,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	
 	public void init(PvDesktop desktop) 
 	{   
+		schemaTitleTag.setEditable(false);
 		//chandan : creating a button for choosing the schema file 
 		//chooseSchema=new JButton("Choose Ruleset");
 		chooseSchema.setActionCommand("choose");
@@ -216,11 +220,11 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         c.gridwidth = GridBagConstraints.REMAINDER;
         mySideBarPanel.add(svrlOutputChoose,c);
         
-        c.fill=GridBagConstraints.NONE;
+        c.fill=GridBagConstraints.HORIZONTAL;
         c.gridwidth = GridBagConstraints.RELATIVE;
         mySideBarPanel.add(schemaTitleTag,c);
         
-        c.fill=GridBagConstraints.HORIZONTAL;
+        //c.fill=GridBagConstraints.HORIZONTAL;
         c.gridwidth = GridBagConstraints.REMAINDER;
         mySideBarPanel.add(phaseBox,c);
         
@@ -352,40 +356,46 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		final ProgressDialog d = new ProgressDialog(desktop.getFrame(),"", pk, false, true);
 		SwingWorker<Object, Object> sw = new SwingWorker<Object, Object>() {
 		
-			protected Object doInBackground() {
-				pk.setTaskName("Validating pathway");
+		protected Object doInBackground() {
+					
+					pk.setTaskName("Validating pathway");
 				
+					//if(schemaFile.)	
 					//MIMFormat mimf=new MIMFormat();
 					//SchematronTask st=new SchematronTask();
 					try {
-					
-					System.out.println("b4 mimf export");
-					//if(!doExport){
+						
+						System.out.println("b4 export called");
+						//if(!doExport){
 						if(schemaFileType.equalsIgnoreCase("gpml")){
 							GpmlFormat.writeToXml (eng.getActivePathway(), currentPathwayFile, true);
 							System.out.println("gpml export called");
-						}	
-						else {
-						mimf.doExport(currentPathwayFile, eng.getActivePathway());
-						System.out.println("mimVis export called");
 						}
+											
+						else {
+							mimf.doExport(currentPathwayFile, eng.getActivePathway());
+							System.out.println("mimVis export called");
+						}
+						
 					//}
 					//doExport=false;
-					SaxonTransformer.setschemaFile(schemaFile);
-					System.out.println("after mimf export and b4 execute");
+						SaxonTransformer.setschemaFile(schemaFile);
+						System.out.println("after mimf export and b4 execute");
 					
-					tempSaxTrnfr.produceSvrlAndThenParse();
-					System.out.println("after  st.execute");
+						tempSaxTrnfr.produceSvrlAndThenParse();
+						System.out.println("after  st.execute");
 					
-					} catch (Exception e1) { //changed from ConverterException to catch all the errors
-					System.out.println("Exception in validatepathway method--"+e1.getMessage());
-					e1.printStackTrace();
-					return null;
+					}
+					
+					catch (Exception e1) { //changed from ConverterException to catch all the errors
+						System.out.println("Exception in validatepathway method--"+e1.getMessage());
+						e1.printStackTrace();
+						return null;
 					}
 				
-				finally {
-					pk.finished();
-				}
+					finally {
+						pk.finished();
+					}
 
 				return null;
 			}
@@ -445,7 +455,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
          	//System.out.println("the id--"+tempsubSt);
          	
          		pe=pth.getElementById(tempsubSt);
-         		System.out.println(++higco+" --> "+tempsubSt);
+         		//System.out.println(++higco+" --> "+tempsubSt);
  			
          		if(pe!=null) {
          			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
@@ -481,7 +491,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         
 	}
 
-	private void ExtractPhaseValuesFromSchema(File sf){
+	/*private void ExtractPhaseValuesFromSchema(File sf){
 		
 		String line;
 		int phaseNumber=0;
@@ -576,6 +586,51 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			return "no iso:ns tag found";
 		}
 	
+	}*/
+	
+	private void parseSchemaAndSetValues(){
+		
+		SchemaHandler mySHandler=new SchemaHandler();
+		
+		try {
+			SAXParserFactory.newInstance().newSAXParser().parse(schemaFile, mySHandler);
+		
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		
+		schemaTitleTag.setText("Schema Title: "+mySHandler.getTheTitle());
+		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
+		
+		schemaFileType=mySHandler.getType();
+		//System.out.println("Schema Type = "+mySHandler.getType());
+		
+		/*Iterator<String> it=mySHandler.getPhases().iterator();
+		
+		while(it.hasNext()){
+		System.out.println("Schema phase - "+it.next());	
+		}*/
+		
+		if(!phaseBox.isEnabled())
+			phaseBox.setEnabled(true);
+		
+		Iterator<String> tempIterator= mySHandler.getPhases().iterator();
+		
+		//refreshing the drop down to include phases of the selected schema by clearing out the previous items and adding new ones
+		while(phaseBox.getItemCount()!=1){
+			phaseBox.removeItemAt(phaseBox.getItemCount()-1);
+		}
+		
+		while(tempIterator.hasNext()){
+			phaseBox.addItem("Phase: "+tempIterator.next());
+			//System.out.println(tempIterator.next());
+		}
+
+		
 	}
 		
 	//@Override
@@ -665,10 +720,14 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    int returnVal = chooser.showOpenDialog(desktop.getFrame());
 		    
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
-		       System.out.println("You chose to open this file: "+chooser.getSelectedFile().getName());
-		       //System.out.println(System.getProperty("user.home")+" -- "+System.getProperty("user.dir"));
-		       schemaFile=chooser.getSelectedFile();
-		       System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
+		       
+		        System.out.println("You chose to open this file: "+chooser.getSelectedFile().getName());
+		        schemaFile=chooser.getSelectedFile();
+		       //System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
+		       
+		       parseSchemaAndSetValues();
+		       
+		       
 		       PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 		       
 		     //wait for the transformer creation in the thread to complete 
@@ -779,7 +838,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		
 	}
 	public void itemStateChanged(ItemEvent arg0) {
-		// TODO Auto-generated method stub
 		if(arg0.getStateChange()==1){
 			//donot forget to change the index if the "Phase: " format is changed
 			String temp=( (String)arg0.getItem() ).substring(7);
@@ -789,6 +847,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			else{
 				SaxonTransformer.transformer1.setParameter("phase", temp );
 			}
+			if(eng.hasVPathway()) valbutton.doClick();
 			System.out.println("item selected --"+temp );
 			
 		}
