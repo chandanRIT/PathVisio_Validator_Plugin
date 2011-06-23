@@ -1,9 +1,6 @@
 package org.pathvisio.plugins;
 
-
 import java.awt.Color;
-//import java.awt.Desktop;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -11,14 +8,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-//import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
-//import java.io.IOException;
-
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -29,31 +22,22 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-//import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-//import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
-//import javax.swing.filechooser.FileNameExtensionFilter;
-//import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
-
-
 import org.jdesktop.swingworker.SwingWorker;
-
 import org.pathvisio.ApplicationEvent;
 import org.pathvisio.Engine;
 import org.pathvisio.Engine.ApplicationEventListener;
-import org.pathvisio.gui.swing.CommonActions;
 import org.pathvisio.gui.swing.ProgressDialog;
 import org.pathvisio.gui.swing.PvDesktop;
-import org.pathvisio.model.ConverterException;
 import org.pathvisio.model.GpmlFormat;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
@@ -63,14 +47,10 @@ import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.util.ProgressKeeper;
 import org.pathvisio.view.VPathway;
 import org.pathvisio.view.VPathwayElement;
-import org.pathvisio.view.swing.SwingMouseEvent;
 import org.xml.sax.SAXException;
-
-//import org.pathvisio.desktop.PvDesktop;
-//import org.pathvisio.desktop.plugin.Plugin;
-//import org.pathvisio.gui.ProgressDialog;
-
 import edu.stanford.ejalbert.BrowserLauncher;
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyObject;
 
 public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener, ApplicationEventListener, ItemListener
 {
@@ -109,6 +89,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	//private static boolean doExport=false;
 	private static String schemaFileType;
 	private static Thread threadForSax;
+	private static GroovyObject grvyObject;  
 	
 	public ValidatorPlugin(){
 		
@@ -245,12 +226,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         
         //phaseBox.addItem("chandan");
 		
-        //jta.setCaretPosition(jta.getDocument().getLength());
-        // mySideBarPanel.setLayout (new FlowLayout(FlowLayout.CENTER));
-        /* for(int i=0;i<8;i++){
-        jta.append("error @ GraphId : e02bf - An interaction should not start and end with Line arrowheads."+"\n");
-        }*/
- 
         //final JButton valbutton=new JButton("validate");
         valbutton.setActionCommand("validate");
         valbutton.addActionListener(this);
@@ -295,8 +270,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				e.printStackTrace();
 				
 			}
-			//col1=new Color(255,0,0);
-			//col2=new Color(0,0,255);
+			
 		}
         
 	}
@@ -449,10 +423,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
          	
          	if(tempSt!=null){
          		tempsubSt=null;
-         	//tempsubSt=tempSt.substring(18+9,18+9+5);
-         	
          		tempsubSt=tempSt.substring(tempSt.indexOf(' ')+22,tempSt.indexOf('>')-1);
-         	//System.out.println("the id--"+tempsubSt);
+         		//System.out.println("the id--"+tempsubSt);
          	
          		pe=pth.getElementById(tempsubSt);
          		//System.out.println(++higco+" --> "+tempsubSt);
@@ -462,8 +434,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
          			vpe.highlight(col2);
          		}
          		else System.out.println("id not parsed properly @ id "+tempsubSt);
-         	
          	}
+         	
          	prevPwe=vpe;
         }
         
@@ -491,103 +463,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         
 	}
 
-	/*private void ExtractPhaseValuesFromSchema(File sf){
 		
-		String line;
-		int phaseNumber=0;
-		ArrayList<String> PhaseValues= new ArrayList<String>();
-		boolean titleTagFound=false;
-		
-		try {
-		BufferedReader reader = new BufferedReader(new FileReader(sf));
-		int lineNo=0;
-		
-			while ((line=reader.readLine())!=null) {
-				lineNo+=1;
-				
-				if(!titleTagFound){
-					if((line.indexOf("<iso:title"))!=-1){
-						schemaTitleTag.setText("Schema Title: "+line.substring(line.indexOf('>')+1, line.indexOf("/")-1));
-						titleTagFound=true;
-					}
-				}
-				
-				if((line.indexOf("<iso:phase "))!=-1){
-					phaseNumber++;
-					System.out.println("1st <iso:phase> tag found at line--"+lineNo);
-					PhaseValues.add(line.substring(line.indexOf(" id=")+5, line.indexOf(">")-1));
-				
-				}
-				if(line.indexOf("<iso:pattern ")!=-1){
-					System.out.println("phase finding is over");
-					break;
-				}
-			}
-		}
-		catch(Exception ex) {
-			System.out.println("Exception in the whichSchema method");
-			ex.printStackTrace();
-		}	
-			
-			if(!phaseBox.isEnabled())
-				phaseBox.setEnabled(true);
-			
-			Iterator<String> tempIterator= PhaseValues.iterator();
-			
-			//System.out.println("the item count of phaseBox is "+phaseBox.getItemCount());
-			
-			//refreshing the drop down to include phases of the selected schema by clearing out the previous items and adding new ones
-			while(phaseBox.getItemCount()!=1){
-				phaseBox.removeItemAt(phaseBox.getItemCount()-1);
-			}
-			
-			while(tempIterator.hasNext()){
-				phaseBox.addItem("Phase: "+tempIterator.next());
-				//System.out.println(tempIterator.next());
-			}
-			//return PhaseValues;
-	}
-	
-	private String whichSchema(File sf){
-		
-		boolean lineFound=false;int index=0;
-		String line,schemaType=null;
-		
-		try {
-		BufferedReader reader = new BufferedReader(new FileReader(sf));
-		int lineNo=0;
-		
-			while ((line=reader.readLine())!=null) {
-				lineNo+=1;
-				if((index=line.indexOf("<iso:ns"))!=-1){
-				
-				System.out.println("1st <iso:ns> tag found at line--"+lineNo);
-				schemaType=line.substring(index+16, line.indexOf("uri")-2);
-				lineFound=true;
-				break;
-				}
-				else {
-			//System.out.println("this line has no <iso:ns> tag");
-				}
-			}
-
-		}
-		catch(Exception ex) {
-			System.out.println("Exception in the whichSchema method");
-			ex.printStackTrace();
-		}
-		
-		ExtractPhaseValuesFromSchema(sf);
-		
-		if(lineFound==true){
-			return schemaType;
-		}
-		else{
-			return "no iso:ns tag found";
-		}
-	
-	}*/
-	
 	private void parseSchemaAndSetValues(){
 		
 		SchemaHandler mySHandler=new SchemaHandler();
@@ -632,6 +508,179 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 
 		
 	}
+	
+	private void sortGroovyResultsAndPrint(ArrayList<Object> tempList){
+		
+		Iterator<Object> tempIterator = tempList.iterator();
+		int counter=0;
+		String tempSt,graphId;
+		String[] tempArray;
+		StringBuilder sbf=new StringBuilder();
+		int[] ijkew={0,0,0,0,0};//i=0,j=0,k=0,eCount=0,wCount=0;
+		
+		
+		//System.out.println("inside groovy prevSelect = "+prevSelect);
+		sbf.append("<font size='4' face='verdana'>");
+		eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
+	    
+		while (tempIterator.hasNext()) {
+	         	
+			 Object tempObject = tempIterator.next();
+	         counter++;
+	         
+	         if( tempObject instanceof ArrayList){
+	         		
+	         		System.out.println("Array list detected in the result");
+	         		
+	         		for(String[] sa: (ArrayList<String[]>)tempObject){
+	         		
+	         			System.out.println(sa[0]+" @ "+sa[2]+" -- "+sa[1]);
+	         			
+	         			if(sa[2]==null){
+		         			sa[2]=" - ";graphId=null;
+		         		}
+		         		else{
+		         			graphId=sa[2];
+		         			sa[2]=" @ GraphId : "+"<a href='"+sa[2]+"'>"+sa[2]+"</a>"+" - ";
+		         		}
+	         			
+	         			tempSt=sa[0]+sa[2]+sa[1];
+	         			//call with tempst as arg
+	         			printGroovy(tempSt,sbf,graphId,ijkew);
+	         		}
+	         		
+	         	}
+	         	
+	         else {
+	         		System.out.println("String Array detected"+counter);
+	         		tempArray= (String[])tempObject;
+	         		
+	         		if(tempArray[2]==null){
+	         			tempArray[2]=" - ";graphId=null;
+	         		}else{
+	         			graphId=tempArray[2];
+	         			tempArray[2]=" @ GraphId : "+"<a href='"+tempArray[2]+"'>"+tempArray[2]+"</a>"+" - ";
+	         		}
+	         		
+	         		tempSt=tempArray[0]+tempArray[2]+tempArray[1];
+	         		//call with tempst as arg
+	         		printGroovy(tempSt,sbf,graphId,ijkew);
+	         }
+	      
+		 }
+		
+		eLabel.setText("Errors:"+ijkew[3]); wLabel.setText("Warnings:"+ijkew[4]);
+		
+		sbf.append("</font>");
+        
+        if( (prevSelect==0 && ijkew[0]!=0) || (prevSelect==1 && ijkew[1]!=0) || (prevSelect==2 && ijkew[2]!=0) ){ 
+        	jta.setText(sbf.toString());
+        }
+        else if(prevSelect==0){
+        	jta.setText("<b><font size='4' face='verdana'>No Errors and Warnings</font></b>");
+        }
+        else if(prevSelect==1){
+        	jta.setText("<b><font size='4' face='verdana'>No Errors</font></b>");	
+        }
+        else if(prevSelect==2){
+        	jta.setText("<b><font size='4' face='verdana'>No Warnings</font></b>");	
+        }
+        
+        System.out.println("-----------groovy part end-------------- ");
+        
+        jta.setCaretPosition(0);
+        sbf.setLength(0); 
+		
+}
+	
+	private void printGroovy(String tempSt,StringBuilder sbf,String graphId,int[] ijkew){
+		
+		prevHighlight=true;
+		VPathwayElement vpe=null;
+		PathwayElement pe; 
+		String tempsubSt,imageUrl=imageUrlE;
+		pth=eng.getActivePathway();
+        //int higco=0; 
+        
+        if(tempSt.startsWith("warning")){ imageUrl=imageUrlW; ijkew[4]++;}else { imageUrl=imageUrlE; ijkew[3]++;}
+		
+		if(prevSelect==0){
+			sbf.append(imageUrl + ++ijkew[0] +".) "+tempSt+"<br><br>");
+			//System.out.println("prevsel 0");
+         }
+		else if(prevSelect==1 && tempSt.startsWith("error")){
+			//System.out.println("prevsel 1");
+			sbf.append(imageUrl + ++ijkew[1] +".) "+tempSt+"<br><br>");	
+         }
+		else if(prevSelect==2 && tempSt.startsWith("warning")){
+			//System.out.println("prevsel 2");
+			sbf.append(imageUrl + ++ijkew[2] +".) "+tempSt+"<br><br>");	
+         }
+		else{
+			System.out.println("not passed"); 
+			//make tempSt null , so that only the corresponding nodes are highlighted, when selecting the drop down (E / W / E&W)
+			graphId=null;
+			//highlightFlag=0;//for unhighlight method
+         }
+         	
+		if(graphId!=null){
+				
+         	pe=pth.getElementById(graphId);
+         	//System.out.println(++higco+" --> "+tempsubSt);
+ 			
+         	if(pe!=null) {
+         		vpe=eng.getActiveVPathway().getPathwayElementView(pe);
+         		vpe.highlight(col2);
+         	}
+         	else System.out.println("id not parsed properly @ id "+graphId);
+         }
+         	
+		prevPwe=vpe;
+        
+		//refreshing the pathway , so that all the nodes highlighted appear highlighted
+		VPathway vpwTemp = eng.getActiveVPathway();
+		vpwTemp.setPctZoom(vpwTemp.getPctZoom());
+		
+	}
+	
+	private GroovyObject loadGroovy(File schemaFile){
+		
+		System.out.println("reached inside loadGroovy method");
+	  	   
+  	   	GroovyClassLoader loader =  new GroovyClassLoader(getClass().getClassLoader());
+  	   	Class groovyClass=null;
+  	   	GroovyObject groovyObject=null;
+  	   
+  	   	try {
+  		   groovyClass = loader.parseClass(schemaFile);
+  		   schemaTitleTag.setText("Schema Title: "+groovyClass.getSimpleName());
+  		   //System.out.println("after 1st try and b4 second");
+  		   groovyObject = (GroovyObject) groovyClass.newInstance();
+  	   	}
+  	   	catch (Exception e1) {
+  		   System.out.println("Exception @ groovy = "+e1.getMessage());
+  		   e1.printStackTrace();
+  	   	}
+  	   	
+  	   	return groovyObject;
+		
+	}
+	
+	private void runGroovy(GroovyObject groovyObject){
+		
+		System.out.println("--------------groovy---------------");
+		ArrayList<Object> tempArray=null;
+  	     	   
+  	   	Pathway argPw= eng.getActivePathway();
+  	   	//if(argPw!=null){
+  		Object[] args = {argPw};
+  	   	tempArray=(ArrayList<Object>)(groovyObject.invokeMethod("main", args));
+  	   	sortGroovyResultsAndPrint(tempArray);
+  	   	//}
+  	   	//else System.out.println("no pathway is open to run groovy");
+  	   
+		
+	}
 		
 	//@Override
 	public void actionPerformed(ActionEvent e) {
@@ -655,18 +704,24 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 //set the below line, to make the drop down option to errors and warnings (default option), when validate is pressed
 				prevSelect=0;jcBox.setSelectedIndex(0);
 				
-				validatePathway(saxTfr,mimf);
+				if(phaseBox.isEnabled()){ //phasebox is enebled only when a non groovy file is selected
+					validatePathway(saxTfr,mimf);
+					printOnPanel();
+				}else {
+					runGroovy(grvyObject);
+				}
+				
 				jcBox.setEnabled(true);jcb.setEnabled(true);
 				
 			}
 			else{
 				JOptionPane.showMessageDialog(
 						desktop.getFrame(), 
-						"There's no pathway open to validate");
+						"Please open a Pathway to start validation");
 				return;
 			}
 			
-			printOnPanel();
+			
 			
 		}
 		else if ("choose".equals(e.getActionCommand())) {
@@ -688,6 +743,13 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			   }
 		   };
 		   threadForSax.start();
+		 //wait for the transformer creation in the thread to complete 
+	       try{
+			   threadForSax.join();
+		   } catch (InterruptedException e1) {
+			   // TODO Auto-generated catch block
+			   e1.printStackTrace();
+		   }
 		   	
 		    	chooser.setDialogTitle("Choose Ruleset");
 		    	chooser.setApproveButtonText("Open");
@@ -702,7 +764,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    			
 		    			String ext = f.toString().substring(f.toString().length() - 3);
 					
-		    			if(ext.equalsIgnoreCase("sch")) {
+		    			if(ext.equalsIgnoreCase("sch")|ext.equalsIgnoreCase("ovy")|ext.equalsIgnoreCase("ava")|ext.equalsIgnoreCase("xml")) {
 		    				return true;
 		    			}
 					
@@ -710,7 +772,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    		}
 				
 		    		public String getDescription() {
-		    			return "Schematron files (*.sch)";
+		    			return "Schematron (*.sch & *.xml) & Groovy (*.groovy & *.java) files";
 		    		}
 
 		    	});
@@ -725,18 +787,25 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		        schemaFile=chooser.getSelectedFile();
 		       //System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
 		       
-		       parseSchemaAndSetValues();
+		        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().length()-3));
+		        //if the file chosen is of type ".groovy", then do groovy specific logic
+		        if(schemaFileSubString.equals("ovy") | schemaFileSubString.equals("ava")){
+		        	phaseBox.setSelectedIndex(0);
+		        	phaseBox.setEnabled(false);
+		        	grvyObject=loadGroovy(schemaFile);
+		        	valbutton.doClick();
+		        }
 		       
+		       // if the chosen file is of type ".sch" (schema file)
+		        else {
+		        	phaseBox.setEnabled(true);
+		    	   parseSchemaAndSetValues();
+		    	   valbutton.doClick();
+		        }
 		       
 		       PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 		       
-		     //wait for the transformer creation in the thread to complete 
-			try{
-				   threadForSax.join();
-			   } catch (InterruptedException e1) {
-				   // TODO Auto-generated catch block
-				   e1.printStackTrace();
-			   }
+		     
 		    }
 					   
 		}
@@ -745,7 +814,11 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				if(((JCheckBox)e.getSource()).isSelected()){
 					System.out.println("jcb selected");
 					//valbutton.setEnabled(false);
-					printOnPanel();//call only the highlighting part, (highlight all!)
+					if(phaseBox.isEnabled())
+						printOnPanel();//call only the highlighting part, (highlight all!)
+					else 
+						runGroovy(grvyObject);
+					
 					PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
 				}else{
 					System.out.println("jcb deselected");
@@ -763,7 +836,12 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			
 			if(prevSelect != cbox.getSelectedIndex()) {
 				prevSelect = cbox.getSelectedIndex();
-				printOnPanel();
+				
+				if(phaseBox.isEnabled())
+					printOnPanel();
+				else
+					runGroovy(grvyObject);
+					
 				System.out.println(cbox.getSelectedItem());
 			}
 		}
@@ -832,9 +910,9 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			errorCounter=0;eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
 			System.out.println("event new  pathway occured");
 		}
-		else if(e.getType()==SwingMouseEvent.MOUSE_CLICK){
+		/*else if(e.getType()==SwingMouseEvent.MOUSE_CLICK){
 			System.out.println("mouse clicked");
-		}
+		}*/
 		
 	}
 	public void itemStateChanged(ItemEvent arg0) {
