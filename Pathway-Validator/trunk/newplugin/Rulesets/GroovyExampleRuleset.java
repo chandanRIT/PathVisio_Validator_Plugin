@@ -1,44 +1,27 @@
-package chandansa;
-import java.util.ArrayList;
+package chandan;
 
+import java.util.ArrayList;
 import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
-
 
 public class RuleSetExample2  {
 	
     public ArrayList<Object> main(Pathway e) { // This method must be present in a groovy file (containing other rules), which is to be used with the ValidatorPlugin 
         
-    	ArrayList<Object> results= new ArrayList<Object>(); //this holds the final results from all the rules (containing only the failed results)
+    	ArrayList<Object> results= new ArrayList<Object>(); //this holds the final results from all the rules
         
-    	String[] r1=ruleTitle(e);
-        String[] r2=ruleOrganism(e);
-        String[] r3=ruleAuthor(e);
-        String[] r4=ruleReferences(e);
-       
-        ArrayList<String[]> r5=ruleTextLabel(e);
-        ArrayList<String[]> r6=ruleUnattachedLines(e);
-        ArrayList<String[]> r7=ruleDataBaseAnnotation(e);
-        
-        //only the failed "result" from all the rules in the groovy file are added to the final "results" variable
-        if(r1!=null)
-        	results.add(r1);
-        if(r2!=null)
-        	results.add(r2);
-        if(r3!=null)
-        	results.add(r3);
-        if(r4!=null)
-        	results.add(r4);
-        if(r5!=null)
-        	results.add(r5);
-        if(r6!=null)
-        	results.add(r6);
-        if(r7!=null)
-        	results.add(r7);
+    		results.add(ruleTitle(e));
+        	results.add(ruleOrganism(e));
+        	results.add(ruleAuthor(e));
+        	results.add(ruleReferences(e));
+        	results.add(ruleTextLabel(e));
+        	results.add(ruleUnattachedLines(e));
+        	results.add(ruleDataBaseAnnotation(e));
         	
     	return results;
     }
+    
     public String[] ruleTitle(Pathway pw) { //checks for the "Title" attribute in the "Pathway" tag
     
     	String[] result=null;
@@ -125,8 +108,6 @@ public class RuleSetExample2  {
     
     	return totalResultForThisRule;
     }
-
-    
     
    public ArrayList<String[]> ruleTextLabel(Pathway pw) { //checks every "DataNode" tag for a "TextLabel" attribute  
         
@@ -185,6 +166,5 @@ public class RuleSetExample2  {
     
     	return totalResultForThisRule;
     }
-    
     
 }
