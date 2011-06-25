@@ -39,6 +39,7 @@ import org.pathvisio.Engine.ApplicationEventListener;
 import org.pathvisio.gui.swing.ProgressDialog;
 import org.pathvisio.gui.swing.PvDesktop;
 import org.pathvisio.model.GpmlFormat;
+import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.plugin.Plugin;
@@ -64,11 +65,11 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	private static VPathwayElement prevPwe;
 	private static Engine eng;
 	private static Pathway pth;
-	private static final  Color col1= new Color(255,0,0),col2=new Color(0,0,255);
+	private static Color col1,col2;//= new Color(255,0,0),col2=new Color(0,0,255);
 	//private final  SchematronTask st=new SchematronTask();
 	private  static SaxonTransformer saxTfr ;
-	private  static MIMFormat mimf=new MIMFormat();
-	private final static JFileChooser chooser=new JFileChooser();
+	private  static MIMFormat mimf;//=new MIMFormat();
+	private static JFileChooser chooser;
 	private final static JButton valbutton=new JButton("Validate");
 	private static int errorCounter,prevSelect;
 	private final static JButton chooseSchema=new JButton("Choose Ruleset"); 
@@ -89,12 +90,12 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	//private static boolean doExport=false;
 	private static String schemaFileType;
 	private static Thread threadForSax;
-	private static GroovyObject grvyObject;  
+	private static GroovyObject grvyObject;
+	private static ArrayList<Object> globGroovyResult;
 	
 	public ValidatorPlugin(){
 		
 		 System.out.println("init callled");
-		
 		 //errorCounter=0;prevSelect=0;
 		 //jta=new JEditorPane("text/html","");
 		 //schemaFile=null;
@@ -109,7 +110,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		 //valbutton=new JButton("Validate");
 		 //chooseSchema=new JButton("Choose Ruleset"); 
 		 //helloAction = new HelloAction();
-		
 	}
 	
 	enum SchemaPreference implements Preference
@@ -135,8 +135,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		//chooseSchema=new JButton("Choose Ruleset");
 		chooseSchema.setActionCommand("choose");
 		chooseSchema.addActionListener(this);
-		//chooseSchema.setHorizontalAlignment(JButton.RIGHT);
-	    
+		
 		//creating a jcheckbox and set its status from the .pathvisio pref file
 	    boolean jbcinit;
 		if(PreferenceManager.getCurrent().getInt(SchemaPreference.CHECK_BOX_STATUS)==1){
@@ -264,7 +263,9 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			//commented below to remove  hardcode
 			//currentPathwayFile=new File("C:\\Users\\kayne\\Desktop\\currentPathwaytmp.mimml");
 			try {
-				currentPathwayFile=File.createTempFile("pvv","val");currentPathwayFile.deleteOnExit();
+				//currentPathwayFile=File.createTempFile("pvv","val");
+				currentPathwayFile=new File(System.getProperty("java.io.tmpdir"), "ValidatorPluginExportedPathway.xml");
+				currentPathwayFile.deleteOnExit();
 			} catch (Exception e) {
 				System.out.println("Exception in creating current pathway temp file "+e);
 				e.printStackTrace();
@@ -537,14 +538,17 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	         			System.out.println(sa[0]+" @ "+sa[2]+" -- "+sa[1]);
 	         			
 	         			if(sa[2]==null){
-		         			sa[2]=" - ";graphId=null;
+		         			//sa[2]=" - ";
+	         				graphId=null;
+	         				tempSt=sa[0]+"-"+sa[1];
 		         		}
 		         		else{
 		         			graphId=sa[2];
-		         			sa[2]=" @ GraphId : "+"<a href='"+sa[2]+"'>"+sa[2]+"</a>"+" - ";
+		         			//sa[2]=" @ GraphId : "+"<a href='"+sa[2]+"'>"+sa[2]+"</a>"+" - ";
+		         			tempSt=sa[0]+" @ GraphId : "+"<a href='"+sa[2]+"'>"+sa[2]+"</a>"+" - "+sa[1];
 		         		}
 	         			
-	         			tempSt=sa[0]+sa[2]+sa[1];
+	         			//tempSt=sa[0]+sa[2]+sa[1];
 	         			//call with tempst as arg
 	         			printGroovy(tempSt,sbf,graphId,ijkew);
 	         		}
@@ -556,13 +560,16 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	         		tempArray= (String[])tempObject;
 	         		
 	         		if(tempArray[2]==null){
-	         			tempArray[2]=" - ";graphId=null;
+	         			//tempArray[2]=" - ";
+	         			graphId=null;
+	         			tempSt=tempArray[0]+" - "+tempArray[1];
 	         		}else{
 	         			graphId=tempArray[2];
-	         			tempArray[2]=" @ GraphId : "+"<a href='"+tempArray[2]+"'>"+tempArray[2]+"</a>"+" - ";
+	         			//tempArray[2]=" @ GraphId : "+"<a href='"+tempArray[2]+"'>"+tempArray[2]+"</a>"+" - ";
+	         			tempSt=tempArray[0]+" @ GraphId : "+"<a href='"+tempArray[2]+"'>"+tempArray[2]+"</a>"+" - "+tempArray[1];
 	         		}
 	         		
-	         		tempSt=tempArray[0]+tempArray[2]+tempArray[1];
+	         		//tempSt=tempArray[0]+tempArray[2]+tempArray[1];
 	         		//call with tempst as arg
 	         		printGroovy(tempSt,sbf,graphId,ijkew);
 	         }
@@ -672,10 +679,26 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		ArrayList<Object> tempArray=null;
   	     	   
   	   	Pathway argPw= eng.getActivePathway();
+  	   	
+  	   	//checking every line element for graphId, generate graphId if graphId is not found
+  	   	for(PathwayElement pwe: argPw.getDataObjects()){
+  		
+  	   		if( pwe.getObjectType()==ObjectType.LINE && ( pwe.getGraphId()=="" | pwe.getGraphId()==null) ){
+  	   			pwe.setGeneratedGraphId();
+  	   		}
+  		}
+  	   	
   	   	//if(argPw!=null){
   		Object[] args = {argPw};
   	   	tempArray=(ArrayList<Object>)(groovyObject.invokeMethod("main", args));
-  	   	sortGroovyResultsAndPrint(tempArray);
+  	   	
+  	   	//remove null results from the overall result from the ruleset
+  	   	while(tempArray.contains(null)){
+  	   		tempArray.remove(null);
+  	   	}
+  	   	
+  	   	globGroovyResult=tempArray; 	   	
+  	   	sortGroovyResultsAndPrint(globGroovyResult);
   	   	//}
   	   	//else System.out.println("no pathway is open to run groovy");
   	   
@@ -685,14 +708,19 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	//@Override
 	public void actionPerformed(ActionEvent e) {
 		
-		if ("validate".equals(e.getActionCommand())) {
+		if ("validate".equals(e.getActionCommand())) { // "Validate" button preseed
 			System.out.println("validate button pressed ");
+			
+			if(col1==null){
+				col1= new Color(255,0,0);
+				col2=new Color(0,0,255);
+			}
 			
 			if(schemaFile==null){
 				JOptionPane.showMessageDialog(
 						desktop.getFrame(), 
 						"Please choose a Ruleset and then press validate");
-				System.out.println("after ok");
+				//System.out.println("after ok");
 				
 				chooseSchema.doClick();
 				
@@ -705,6 +733,10 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				prevSelect=0;jcBox.setSelectedIndex(0);
 				
 				if(phaseBox.isEnabled()){ //phasebox is enebled only when a non groovy file is selected
+					if(mimf==null){
+						mimf=new MIMFormat();
+						
+					}
 					validatePathway(saxTfr,mimf);
 					printOnPanel();
 				}else {
@@ -724,11 +756,15 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			
 			
 		}
-		else if ("choose".equals(e.getActionCommand())) {
+		else if ("choose".equals(e.getActionCommand())) { // "Choose Ruleset" button pressed 
 			
 			System.out.println("choose schema button pressed");
 			//JFileChooser
 			//chooser = new JFileChooser();
+			if(chooser==null){
+				chooser=new JFileChooser();
+			}
+			
 			if(chooser.getDialogTitle()==null){
 				   System.out.println("choose pressed for 1st time");
 			threadForSax=new Thread(){ 
@@ -772,7 +808,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    		}
 				
 		    		public String getDescription() {
-		    			return "Schematron (*.sch & *.xml) & Groovy (*.groovy & *.java) files";
+		    			return "Schematron (.sch & .xml) & Groovy (.groovy & .java)";
 		    		}
 
 		    	});
@@ -809,7 +845,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    }
 					   
 		}
-		else if("jcb".equals(e.getActionCommand())){
+		else if("jcb".equals(e.getActionCommand())){ // "Hightlight All" checkbox
 			//eng.getActiveVPathway().resetHighlight();
 				if(((JCheckBox)e.getSource()).isSelected()){
 					System.out.println("jcb selected");
@@ -817,7 +853,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 					if(phaseBox.isEnabled())
 						printOnPanel();//call only the highlighting part, (highlight all!)
 					else 
-						runGroovy(grvyObject);
+						sortGroovyResultsAndPrint(globGroovyResult);
 					
 					PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
 				}else{
@@ -830,7 +866,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 						
 		}
 		
-		else if("jcBox".equals(e.getActionCommand())){
+		else if("jcBox".equals(e.getActionCommand())){ // "errors/warnings drop down box"
 			
 			JComboBox cbox = (JComboBox)e.getSource();
 			
@@ -840,7 +876,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				if(phaseBox.isEnabled())
 					printOnPanel();
 				else
-					runGroovy(grvyObject);
+					sortGroovyResultsAndPrint(globGroovyResult);
 					
 				System.out.println(cbox.getSelectedItem());
 			}
@@ -915,7 +951,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		}*/
 		
 	}
-	public void itemStateChanged(ItemEvent arg0) {
+	public void itemStateChanged(ItemEvent arg0) { // invoked for change in phasebox selection 
 		if(arg0.getStateChange()==1){
 			//donot forget to change the index if the "Phase: " format is changed
 			String temp=( (String)arg0.getItem() ).substring(7);
