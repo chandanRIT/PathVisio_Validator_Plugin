@@ -22,13 +22,8 @@
     <path id="validator.path">
        <path refid="project.class.path"/>
        <fileset dir="${validator.lib}">
-         <include name="commons-collections-3.2.1.jar"/>
-         <include name="mimVis.jar" />
-         <include name="xbean.jar"/>
-		 <include name="saxon9.jar"/>
-       	 <include name="saxon9-dom.jar"/>
-       	 <include name="jsr173_1.0_api.jar"/>
-        </fileset>
+       		<include name="**/*.jar" />  
+       </fileset>
      </path>
 	
 	<target name="prepare">
