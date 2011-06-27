@@ -1,0 +1,1 @@
+boolean startCallingMethods=false ; for(String mymeth : groovyObject.metaClass.methods*.name.unique()) {if(startCallingMethods) tempArray.add(groovyObject."$mymeth"(argPw));  if(mymeth.equals('main'))startCallingMethods=true;}

@@ -32,6 +32,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
+
+import org.codehaus.groovy.control.CompilationFailedException;
 import org.jdesktop.swingworker.SwingWorker;
 import org.pathvisio.ApplicationEvent;
 import org.pathvisio.Engine;
@@ -50,8 +52,10 @@ import org.pathvisio.view.VPathway;
 import org.pathvisio.view.VPathwayElement;
 import org.xml.sax.SAXException;
 import edu.stanford.ejalbert.BrowserLauncher;
+import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
+import groovy.lang.GroovyShell;
 
 public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener, ApplicationEventListener, ItemListener
 {
@@ -114,8 +118,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	
 	enum SchemaPreference implements Preference
     {
-            LAST_OPENED_SCHEMA_DIR (System.getProperty("user.home")),
-            CHECK_BOX_STATUS ("0");
+            LAST_OPENED_SCHEMA_DIR (System.getProperty("user.home")),CHECK_BOX_STATUS ("0");
             
             private String defaultValue;
             SchemaPreference (String defaultValue) 
@@ -537,6 +540,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	         		
 	         			System.out.println(sa[0]+" @ "+sa[2]+" -- "+sa[1]);
 	         			
+	         			if(sa[0]==null) sa[0]="error"; // default role is null, if role is not set
+	         			
 	         			if(sa[2]==null){
 		         			//sa[2]=" - ";
 	         				graphId=null;
@@ -556,8 +561,10 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	         	}
 	         	
 	         else {
-	         		System.out.println("String Array detected"+counter);
+	         		System.out.println("String Array detected "+counter);
 	         		tempArray= (String[])tempObject;
+	         		
+	         		if(tempArray[0]==null) tempArray[0]="error";
 	         		
 	         		if(tempArray[2]==null){
 	         			//tempArray[2]=" - ";
@@ -605,7 +612,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		prevHighlight=true;
 		VPathwayElement vpe=null;
 		PathwayElement pe; 
-		String tempsubSt,imageUrl=imageUrlE;
+		String imageUrl=imageUrlE;
 		pth=eng.getActivePathway();
         //int higco=0; 
         
@@ -633,8 +640,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		if(graphId!=null){
 				
          	pe=pth.getElementById(graphId);
-         	//System.out.println(++higco+" --> "+tempsubSt);
- 			
+         	
          	if(pe!=null) {
          		vpe=eng.getActiveVPathway().getPathwayElementView(pe);
          		vpe.highlight(col2);
@@ -676,11 +682,11 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	private void runGroovy(GroovyObject groovyObject){
 		
 		System.out.println("--------------groovy---------------");
-		ArrayList<Object> tempArray=null;
+		ArrayList<Object> tempArray=new ArrayList<Object>();
   	     	   
   	   	Pathway argPw= eng.getActivePathway();
   	   	
-  	   	//checking every line element for graphId, generate graphId if graphId is not found
+  	   	//checking every line element for graphId before sending the pathway for validation, generate graphId if graphId is not found
   	   	for(PathwayElement pwe: argPw.getDataObjects()){
   		
   	   		if( pwe.getObjectType()==ObjectType.LINE && ( pwe.getGraphId()=="" | pwe.getGraphId()==null) ){
@@ -689,9 +695,26 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
   		}
   	   	
   	   	//if(argPw!=null){
-  		Object[] args = {argPw};
-  	   	tempArray=(ArrayList<Object>)(groovyObject.invokeMethod("main", args));
+  		/*Object[] args = {argPw};
+  	   	tempArray=(ArrayList<Object>)(groovyObject.invokeMethod("main", args));*/
   	   	
+  	//code for running groovy script from java   
+  	//boolean startCallingMethods=false;   
+  	Binding binding = new Binding();
+  	binding.setVariable("groovyObject", groovyObject);
+  	binding.setVariable("tempArray", tempArray);
+  	//binding.setVariable("startCallingMethods", startCallingMethods);
+  	binding.setVariable("argPw",argPw );
+  	
+  	GroovyShell shell = new GroovyShell(binding);
+  
+  	try {
+		shell.evaluate(getClass().getResourceAsStream("/GroovyScriptKC.kc"));//running groovy script from a file named GroovyScriptKC.kc
+	} catch (CompilationFailedException e) {
+		System.out.println("CompilationFailedException in the groovyshell code");
+		e.printStackTrace();
+	} 
+  	
   	   	//remove null results from the overall result from the ruleset
   	   	while(tempArray.contains(null)){
   	   		tempArray.remove(null);
@@ -701,8 +724,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
   	   	sortGroovyResultsAndPrint(globGroovyResult);
   	   	//}
   	   	//else System.out.println("no pathway is open to run groovy");
-  	   
-		
+  	   	
 	}
 		
 	//@Override
@@ -719,7 +741,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			if(schemaFile==null){
 				JOptionPane.showMessageDialog(
 						desktop.getFrame(), 
-						"Please choose a Ruleset and then press validate");
+						"Please choose a Ruleset and then press Validate");
 				//System.out.println("after ok");
 				
 				chooseSchema.doClick();
@@ -729,17 +751,21 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			
 			if(eng.hasVPathway()){
 				errorCounter=0;
-//set the below line, to make the drop down option to errors and warnings (default option), when validate is pressed
+				
+				//set the below line, to make the drop down option to errors and warnings (default option), when validate is pressed
 				prevSelect=0;jcBox.setSelectedIndex(0);
 				
 				if(phaseBox.isEnabled()){ //phasebox is enebled only when a non groovy file is selected
+				
 					if(mimf==null){
 						mimf=new MIMFormat();
-						
 					}
+					
 					validatePathway(saxTfr,mimf);
 					printOnPanel();
-				}else {
+					
+				}
+				else {
 					runGroovy(grvyObject);
 				}
 				
@@ -752,42 +778,35 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 						"Please open a Pathway to start validation");
 				return;
 			}
-			
-			
-			
+						
 		}
+		
 		else if ("choose".equals(e.getActionCommand())) { // "Choose Ruleset" button pressed 
 			
 			System.out.println("choose schema button pressed");
-			//JFileChooser
-			//chooser = new JFileChooser();
+			
 			if(chooser==null){
 				chooser=new JFileChooser();
 			}
 			
 			if(chooser.getDialogTitle()==null){
-				   System.out.println("choose pressed for 1st time");
-			threadForSax=new Thread(){ 
-			  public void run(){
-			   	
-				   try {
-					   System.out.println("This thread for saxtranform runs");
-					   saxTfr= new SaxonTransformer();SaxonTransformer.setInputFile(currentPathwayFile);
-				   } catch (TransformerConfigurationException e1) {
-					   e1.printStackTrace();
-				   }
-			   }
-		   };
-		   threadForSax.start();
-		 //wait for the transformer creation in the thread to complete 
-	       try{
-			   threadForSax.join();
-		   } catch (InterruptedException e1) {
-			   // TODO Auto-generated catch block
-			   e1.printStackTrace();
-		   }
-		   	
-		    	chooser.setDialogTitle("Choose Ruleset");
+				   
+				System.out.println("choose pressed for 1st time");
+				threadForSax=new Thread(){ 
+					public void run(){
+						
+						try {
+							System.out.println("This thread for saxtranform runs");
+							saxTfr= new SaxonTransformer();SaxonTransformer.setInputFile(currentPathwayFile);
+							System.out.println("This thread for saxtranform completes its run");
+						} catch (TransformerConfigurationException e1) {
+								e1.printStackTrace();
+						}
+					}
+				};
+				threadForSax.start();
+				
+				chooser.setDialogTitle("Choose Ruleset");
 		    	chooser.setApproveButtonText("Open");
 		    	chooser.setAcceptAllFileFilterUsed(false);
 		    	chooser.setCurrentDirectory(PreferenceManager.getCurrent().getFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR));
@@ -800,7 +819,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    			
 		    			String ext = f.toString().substring(f.toString().length() - 3);
 					
-		    			if(ext.equalsIgnoreCase("sch")|ext.equalsIgnoreCase("ovy")|ext.equalsIgnoreCase("ava")|ext.equalsIgnoreCase("xml")) {
+		    			if(ext.equalsIgnoreCase("sch")||ext.equalsIgnoreCase("ovy")||ext.equalsIgnoreCase("ava")||ext.equalsIgnoreCase("xml")) {
 		    				return true;
 		    			}
 					
@@ -812,58 +831,70 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    		}
 
 		    	});
-
+		    	
 		    }
 		    
 		    int returnVal = chooser.showOpenDialog(desktop.getFrame());
+
+		    //wait for the transformer creation in the thread to complete 
+			try{
+				threadForSax.join();
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	    	
 		    
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
 		       
-		        System.out.println("You chose to open this file: "+chooser.getSelectedFile().getName());
+		        System.out.println("You chose this schematron file: "+chooser.getSelectedFile().getName());
 		        schemaFile=chooser.getSelectedFile();
 		       //System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
 		       
 		        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().length()-3));
 		        //if the file chosen is of type ".groovy", then do groovy specific logic
-		        if(schemaFileSubString.equals("ovy") | schemaFileSubString.equals("ava")){
+		        if(schemaFileSubString.equals("ovy") || schemaFileSubString.equals("ava")){
 		        	phaseBox.setSelectedIndex(0);
 		        	phaseBox.setEnabled(false);
 		        	grvyObject=loadGroovy(schemaFile);
-		        	valbutton.doClick();
+		        	//valbutton.doClick();
 		        }
 		       
 		       // if the chosen file is of type ".sch" (schema file)
 		        else {
 		        	phaseBox.setEnabled(true);
 		    	   parseSchemaAndSetValues();
-		    	   valbutton.doClick();
+		    	   //valbutton.doClick();
 		        }
-		       
-		       PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
+		        valbutton.doClick();
+		        PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 		       
 		     
 		    }
 					   
 		}
+		
 		else if("jcb".equals(e.getActionCommand())){ // "Hightlight All" checkbox
 			//eng.getActiveVPathway().resetHighlight();
-				if(((JCheckBox)e.getSource()).isSelected()){
-					System.out.println("jcb selected");
-					//valbutton.setEnabled(false);
-					if(phaseBox.isEnabled())
-						printOnPanel();//call only the highlighting part, (highlight all!)
-					else 
-						sortGroovyResultsAndPrint(globGroovyResult);
+				
+			if(((JCheckBox)e.getSource()).isSelected()){
+				System.out.println("jcb selected");
+				//valbutton.setEnabled(false);
+				
+				if(phaseBox.isEnabled())
+					printOnPanel();//call only the highlighting part, (highlight all!)
+				else 
+					sortGroovyResultsAndPrint(globGroovyResult);
 					
 					PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
-				}else{
-					System.out.println("jcb deselected");
-					//valbutton.setEnabled(true);
-					PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,0);
-					eng.getActiveVPathway().resetHighlight();//unhighlight all
-				}
+			}
+			else {
+				System.out.println("jcb deselected");
+				//valbutton.setEnabled(true);
+				PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,0);
+				eng.getActiveVPathway().resetHighlight();//unhighlight all
+			}
 			//System.out.println("some event fired from jcb--"+PreferenceManager.getCurrent().getInt(SchemaPreference.CHECK_BOX_STATUS));
-						
 		}
 		
 		else if("jcBox".equals(e.getActionCommand())){ // "errors/warnings drop down box"
@@ -883,23 +914,29 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		}
 		
 		else if("svrlOutputChoose".equals(e.getActionCommand())){
+			
 			if( ((JCheckBox)e.getSource()).isSelected() ){
 				SaxonTransformer.setProduceSvrl(true); 
-			}else SaxonTransformer.setProduceSvrl(false);
-			
-		}	
+			}else 
+				SaxonTransformer.setProduceSvrl(false);
+		}
+		
 	}
+	
 	//@Override
 	public void hyperlinkUpdate(HyperlinkEvent arg0) {
 	
 		if (arg0.getEventType()== HyperlinkEvent.EventType.ACTIVATED) {
 			
-			if( ! prevPwe.isHighlighted() ){prevHighlight=false; }
+			if( ! prevPwe.isHighlighted() ){
+				prevHighlight=false; 
+			}
 			
 				if(prevHighlight){
-				prevPwe.highlight(col2);
-				}//col2 is blue
-				else prevPwe.unhighlight();
+				prevPwe.highlight(col2);//col2 is blue
+				}
+				else 
+					prevPwe.unhighlight();
 			
 			
 			System.out.println("hi there-"+arg0.getDescription());
@@ -914,17 +951,21 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			vpwTemp.setPctZoom(vpwTemp.getPctZoom());
 			
 	   }
+	
 	}
+	
 	//@Override
 	public void applicationEvent(ApplicationEvent e) {
 		
 		//System.out.println("event occured");
-		if( e.getType()==ApplicationEvent.PATHWAY_OPENED){
+		if( e.getType()==ApplicationEvent.PATHWAY_OPENED || e.getType()==ApplicationEvent.PATHWAY_NEW){
+			
 			jta.setText("");
 			jcBox.setEnabled(false);jcb.setEnabled(false);
-			errorCounter=0;eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
-			//mimf=new MIMFormat();
+			errorCounter=0;
+			eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
 			
+			//mimf=new MIMFormat();
 			// thread code for export when a pathway is opened, for making the validation faster
 			/*new Thread(){
 				public void run(){
@@ -938,33 +979,45 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				}
 			}.start();*/
 			
-			System.out.println("event pathway opened occured");
+			System.out.println("event pathway opened occured or event new  pathway occured");
+		
 		}
-		else if(e.getType()==ApplicationEvent.PATHWAY_NEW){
+		
+		/*else if(e.getType()==ApplicationEvent.PATHWAY_NEW){
+			
 			jta.setText("");
 			jcBox.setEnabled(false);jcb.setEnabled(false);
-			errorCounter=0;eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
+			errorCounter=0;
+			eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
 			System.out.println("event new  pathway occured");
-		}
+		
+		}*/
+		
 		/*else if(e.getType()==SwingMouseEvent.MOUSE_CLICK){
 			System.out.println("mouse clicked");
 		}*/
 		
 	}
+	
 	public void itemStateChanged(ItemEvent arg0) { // invoked for change in phasebox selection 
+		
 		if(arg0.getStateChange()==1){
+			
 			//donot forget to change the index if the "Phase: " format is changed
 			String temp=( (String)arg0.getItem() ).substring(7);
+			
 			if(temp.equals("All")){
 				SaxonTransformer.transformer1.clearParameters();
 			}
 			else{
 				SaxonTransformer.transformer1.setParameter("phase", temp );
 			}
+			
 			if(eng.hasVPathway()) valbutton.doClick();
 			System.out.println("item selected --"+temp );
 			
 		}
+	
 	}
 	
 }	

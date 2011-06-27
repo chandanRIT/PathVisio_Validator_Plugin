@@ -1,28 +1,9 @@
-package chandan;
-
 import java.util.ArrayList;
 import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 
-public class RuleSetExample2  {
-	
-    public ArrayList<Object> main(Pathway e) { // This method must be present in a groovy file (containing other rules), which is to be used with the ValidatorPlugin 
-        
-    	ArrayList<Object> results= new ArrayList<Object>(); //this holds the final results from all the rules
-        
-    		results.add(ruleTitle(e));
-        	results.add(ruleOrganism(e));
-        	results.add(ruleAuthor(e));
-        	results.add(ruleReferences(e));
-        	results.add(ruleTextLabel(e));
-        	results.add(ruleUnattachedLines(e));
-        	results.add(ruleDataBaseAnnotation(e));
-        	
-    	return results;
-    }
-    
-    public String[] ruleTitle(Pathway pw) { //checks for the "Title" attribute in the "Pathway" tag
+String[] ruleTitle(Pathway pw) { //checks for the "Title" attribute in the "Pathway" tag
     
     	String[] result=null;
     	
@@ -37,13 +18,13 @@ public class RuleSetExample2  {
 		return result; //return the result as null if it passes the rule (i.e nor error/warning)
     }
     
-    public String[] ruleOrganism(Pathway pw) { // checks for the "Organism" attribute in the "Pathway" tag
+String[] ruleOrganism(Pathway pw) { // checks for the "Organism" attribute in the "Pathway" tag
         
     	String[] result=null;
 	
     	if(pw.getMappInfo().getOrganism()==null){
     		result= new String[3];
-    		result[0]="error";
+    		//result[0]="error"; // if the result[0] is not set (left as null), then the default value for role is taken as an "error"
     		result[1]="Diagrams should have an organism.";
 		}
     	else System.out.println("organism found = "+pw.getMappInfo().getOrganism());
@@ -51,7 +32,7 @@ public class RuleSetExample2  {
 		return result;
     }
     
-    public String[] ruleAuthor(Pathway pw) { //checks for the "Author" attribute in the "Pathway" tag
+String[] ruleAuthor(Pathway pw) { //checks for the "Author" attribute in the "Pathway" tag
         
     	String[] result=null;
 	
@@ -65,7 +46,7 @@ public class RuleSetExample2  {
 		return result;
     }
     
-    public String[] ruleReferences(Pathway pw) { // this rule checks if a "biopax" tag is present under the "Pathway" tag 
+String[] ruleReferences(Pathway pw) { // this rule checks if a "biopax" tag is present under the "Pathway" tag 
         
     	String[] result=null;
 	
@@ -80,7 +61,7 @@ public class RuleSetExample2  {
     }
     
     
-    public ArrayList<String[]> ruleDataBaseAnnotation(Pathway pw) { //checks every "Xref" tag (under the "DataNode" tag) for non-empty "Database" and "Id" attributes 
+ArrayList<String[]> ruleDataBaseAnnotation(Pathway pw) { //checks every "Xref" tag (under the "DataNode" tag) for non-empty "Database" and "Id" attributes 
         
     	ArrayList<String[]> totalResultForThisRule=null;
     	
@@ -109,7 +90,7 @@ public class RuleSetExample2  {
     	return totalResultForThisRule;
     }
     
-   public ArrayList<String[]> ruleTextLabel(Pathway pw) { //checks every "DataNode" tag for a "TextLabel" attribute  
+ArrayList<String[]> ruleTextLabel(Pathway pw) { //checks every "DataNode" tag for a "TextLabel" attribute  
         
     	ArrayList<String[]> totalResultForThisRule=null;
     	
@@ -138,7 +119,7 @@ public class RuleSetExample2  {
     }
 
     
-    public ArrayList<String[]> ruleUnattachedLines(Pathway pw) { //checks every "Line" tag for its first and last "GraphRef" attributes under the "Point" tag (which is under "Graphics" tag)  
+ArrayList<String[]> ruleUnattachedLines(Pathway pw) { //checks every "Line" tag for its first and last "GraphRef" attributes under the "Point" tag (which is under "Graphics" tag)  
         
     	ArrayList<String[]> totalResultForThisRule=null;
     	
@@ -165,6 +146,4 @@ public class RuleSetExample2  {
     	if(totalResultForThisRule==null) System.out.println("All the lines are attached");
     
     	return totalResultForThisRule;
-    }
-    
-}
+    }    
