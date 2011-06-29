@@ -29,6 +29,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.StyledEditorKit.ItalicAction;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
@@ -96,6 +97,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	private static Thread threadForSax;
 	private static GroovyObject grvyObject;
 	private static ArrayList<Object> globGroovyResult;
+	//private static int phaseBoxSelection=0;
+	private static boolean changeOfSchema=false;
 	
 	public ValidatorPlugin(){
 		
@@ -241,6 +244,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         //JTabbedPane bottomTabbedPane= new JTabbedPane();
         //bottomTabbedPane.add("validation",mySideBarPanel);
         sidebarTabbedPane.add("Validator", mySideBarPanel);
+        desktop.getSideBarTabbedPane().setSelectedComponent(mySideBarPanel);
         //setting the winx, winy values 
         
         //code for setting the winx and winy of main window of pathvisio in preference file
@@ -659,7 +663,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	private GroovyObject loadGroovy(File schemaFile){
 		
 		System.out.println("reached inside loadGroovy method");
-	  	   
+		ArrayList<String[]> tempArray=new ArrayList<String[]>();
+		
   	   	GroovyClassLoader loader =  new GroovyClassLoader(getClass().getClassLoader());
   	   	Class groovyClass=null;
   	   	GroovyObject groovyObject=null;
@@ -667,7 +672,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
   	   	try {
   		   groovyClass = loader.parseClass(schemaFile);
   		   schemaTitleTag.setText("Schema Title: "+groovyClass.getSimpleName());
-  		   //System.out.println("after 1st try and b4 second");
   		   groovyObject = (GroovyObject) groovyClass.newInstance();
   	   	}
   	   	catch (Exception e1) {
@@ -675,7 +679,28 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
   		   e1.printStackTrace();
   	   	}
   	   	
-  	   	return groovyObject;
+  	   	if(!phaseBox.isEnabled())
+   			phaseBox.setEnabled(true);
+  	   	
+  	    //refreshing the drop down to include phases of the selected schema by clearing out the previous items and adding new ones
+	   	while(phaseBox.getItemCount()!=1){
+	   		phaseBox.removeItemAt(phaseBox.getItemCount()-1);
+	   	}
+	   
+	   	try{
+	   		tempArray=(ArrayList<String[]>)(groovyObject.invokeMethod("phaseSupport", null));
+	   	}
+	   	catch(Exception e){System.out.println("phaseSupport method not present"); return groovyObject;}
+	   	
+	   	Iterator<String[]> tempIterator= tempArray.iterator();
+
+	   	while(tempIterator.hasNext()){
+	   		phaseBox.addItem("Phase: "+(tempIterator.next())[0]);
+	   		//System.out.println(tempIterator.next());
+	   	}
+
+
+	   	return groovyObject;
 		
 	}
 	
@@ -683,6 +708,8 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		
 		System.out.println("--------------groovy---------------");
 		ArrayList<Object> tempArray=new ArrayList<Object>();
+		
+		//phaseBoxSelection=2;
   	     	   
   	   	Pathway argPw= eng.getActivePathway();
   	   	
@@ -694,27 +721,39 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
   	   		}
   		}
   	   	
-  	   	//if(argPw!=null){
-  		/*Object[] args = {argPw};
-  	   	tempArray=(ArrayList<Object>)(groovyObject.invokeMethod("main", args));*/
+  	   	if(phaseBox.getSelectedIndex()==0){
   	   	
-  	//code for running groovy script from java   
-  	//boolean startCallingMethods=false;   
-  	Binding binding = new Binding();
-  	binding.setVariable("groovyObject", groovyObject);
-  	binding.setVariable("tempArray", tempArray);
-  	//binding.setVariable("startCallingMethods", startCallingMethods);
-  	binding.setVariable("argPw",argPw );
+  	   		//if(argPw!=null){
+  	   		/*Object[] args = {argPw};
+  	   		tempArray=(ArrayList<Object>)(groovyObject.invokeMethod("main", args));*/
+  	   	
+  	   		//code for running groovy script from java   
+  	   		Binding binding = new Binding();
+  	   		binding.setVariable("groovyObject", groovyObject);
+  	   		binding.setVariable("tempArray", tempArray);
+  	   		binding.setVariable("argPw",argPw );
   	
-  	GroovyShell shell = new GroovyShell(binding);
+  	   		GroovyShell shell = new GroovyShell(binding);
   
-  	try {
-		shell.evaluate(getClass().getResourceAsStream("/GroovyScriptKC.kc"));//running groovy script from a file named GroovyScriptKC.kc
-	} catch (CompilationFailedException e) {
-		System.out.println("CompilationFailedException in the groovyshell code");
-		e.printStackTrace();
-	} 
-  	
+  	   		try {
+  	   			shell.evaluate(getClass().getResourceAsStream("/GroovyScriptKC.kc"));//running groovy script from a file named GroovyScriptKC.kc
+  	   		} catch (CompilationFailedException e) {
+  	   			System.out.println("CompilationFailedException in the groovyshell code");
+  	   			e.printStackTrace();
+  	   		} 
+  	   	}
+  	   	
+  	   	else { // this code runs only when there are phases present in the groovy rule 
+  	   		
+  	   		ArrayList<String[]> phaseTotal;//=new ArrayList<Object>();
+  	   		phaseTotal=(ArrayList<String[]>)(groovyObject.invokeMethod("phaseSupport", null));
+  	   		String methodNamesWithCommas=  ((String[])phaseTotal.get(phaseBox.getSelectedIndex()-1))[1];
+  	   		String[] methodNamesArray= methodNamesWithCommas.split( ",\\s*" );
+  	   		
+  	   		for(String methodName :methodNamesArray)
+  	   			tempArray.add(groovyObject.invokeMethod(methodName.trim(), argPw));
+    	}
+  	   	
   	   	//remove null results from the overall result from the ruleset
   	   	while(tempArray.contains(null)){
   	   		tempArray.remove(null);
@@ -755,7 +794,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				//set the below line, to make the drop down option to errors and warnings (default option), when validate is pressed
 				prevSelect=0;jcBox.setSelectedIndex(0);
 				
-				if(phaseBox.isEnabled()){ //phasebox is enebled only when a non groovy file is selected
+				if(!schemaFileType.equalsIgnoreCase("groovy")){ 
 				
 					if(mimf==null){
 						mimf=new MIMFormat();
@@ -846,26 +885,32 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	    	
 		    
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
+		    	
+		    	//stopping the changes made by change the state of phasebox to 0
+		    	changeOfSchema=true;
+		    	phaseBox.setSelectedIndex(0);
+		    	changeOfSchema=false;
 		       
-		        System.out.println("You chose this schematron file: "+chooser.getSelectedFile().getName());
+		    	System.out.println("You chose this schematron file: "+chooser.getSelectedFile().getName());
 		        schemaFile=chooser.getSelectedFile();
 		       //System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
 		       
 		        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().length()-3));
+		        
 		        //if the file chosen is of type ".groovy", then do groovy specific logic
-		        if(schemaFileSubString.equals("ovy") || schemaFileSubString.equals("ava")){
-		        	phaseBox.setSelectedIndex(0);
-		        	phaseBox.setEnabled(false);
+		        if(schemaFileSubString.equalsIgnoreCase("ovy") || schemaFileSubString.equalsIgnoreCase("ava")){
+		        	jcBox.setSelectedIndex(0);
+		        	schemaFileType="groovy";
+		        	//phaseBox.setEnabled(false);
 		        	grvyObject=loadGroovy(schemaFile);
-		        	//valbutton.doClick();
 		        }
 		       
-		       // if the chosen file is of type ".sch" (schema file)
+		        // if the chosen file is of type ".sch" (schema file)
 		        else {
-		        	phaseBox.setEnabled(true);
-		    	   parseSchemaAndSetValues();
-		    	   //valbutton.doClick();
-		        }
+		        	//phaseBox.setSelectedIndex(0);
+		        	SaxonTransformer.transformer1.clearParameters();
+		        	parseSchemaAndSetValues();
+		    	}
 		        valbutton.doClick();
 		        PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 		       
@@ -881,7 +926,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				System.out.println("jcb selected");
 				//valbutton.setEnabled(false);
 				
-				if(phaseBox.isEnabled())
+				if(!schemaFileType.equalsIgnoreCase("groovy"))
 					printOnPanel();//call only the highlighting part, (highlight all!)
 				else 
 					sortGroovyResultsAndPrint(globGroovyResult);
@@ -904,7 +949,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			if(prevSelect != cbox.getSelectedIndex()) {
 				prevSelect = cbox.getSelectedIndex();
 				
-				if(phaseBox.isEnabled())
+				if(!schemaFileType.equalsIgnoreCase("groovy"))
 					printOnPanel();
 				else
 					sortGroovyResultsAndPrint(globGroovyResult);
@@ -1001,21 +1046,25 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	
 	public void itemStateChanged(ItemEvent arg0) { // invoked for change in phasebox selection 
 		
-		if(arg0.getStateChange()==1){
+		if(!changeOfSchema && arg0.getStateChange()==1){
+			//phaseBoxSelection=((JComboBox)arg0.getSource()).getSelectedIndex();
 			
-			//donot forget to change the index if the "Phase: " format is changed
-			String temp=( (String)arg0.getItem() ).substring(7);
 			
-			if(temp.equals("All")){
-				SaxonTransformer.transformer1.clearParameters();
-			}
-			else{
-				SaxonTransformer.transformer1.setParameter("phase", temp );
-			}
+			if(!schemaFileType.equalsIgnoreCase("groovy")){
+				//donot forget to change the index if the "Phase: " format is changed
+				String temp=( (String)arg0.getItem() ).substring(7);
 			
-			if(eng.hasVPathway()) valbutton.doClick();
+				if(temp.equals("All")){
+					SaxonTransformer.transformer1.clearParameters();
+				}
+				else{
+					SaxonTransformer.transformer1.setParameter("phase", temp );
+				}
+			
+				
 			System.out.println("item selected --"+temp );
-			
+			}
+			if(eng.hasVPathway()) valbutton.doClick();
 		}
 	
 	}

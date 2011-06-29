@@ -3,6 +3,15 @@ import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 
+ArrayList<String[]> phaseSupport(){
+    	String[] phase1=["demoPhase1","ruleTitle , ruleOrganism, ruleAuthor"];
+    	String[] phase2=["demoPhase2","ruleDataBaseAnnotation , ruleReferences,ruleTextLabel ,ruleUnattachedLines"];
+    	ArrayList<Object> result=new ArrayList<Object>();
+    	result.add(phase1);
+    	result.add(phase2);
+    	return result;
+    }
+
 String[] ruleTitle(Pathway pw) { //checks for the "Title" attribute in the "Pathway" tag
     
     	String[] result=null;
@@ -37,9 +46,10 @@ String[] ruleAuthor(Pathway pw) { //checks for the "Author" attribute in the "Pa
     	String[] result=null;
 	
     	if(pw.getMappInfo().getAuthor()==null){
-    		result= new String[3];
-    		result[0]="warning";
-    		result[1]="Diagrams should have an author.";
+    		result= ["warning","Diagrams should have an author.",null];// the groovy way
+    		//result=new String[3];
+			//result[0]="warning";
+    		//result[1]="Diagrams should have an author.";
 		}
     	else System.out.println("author found = "+pw.getMappInfo().getAuthor());
     		
@@ -75,11 +85,12 @@ ArrayList<String[]> ruleDataBaseAnnotation(Pathway pw) { //checks every "Xref" t
     				totalResultForThisRule=new ArrayList<String[]>();
     			}
     			
-    			String[] result= new String[3];
-				result[0]= "error";
-				result[1]= "Datanodes should include database annotations.";
-				result[2]= pwe.getGraphId();
-				
+    			//String[] result= new String[3];
+				//result[0]= "error";
+				//result[1]= "Datanodes should include database annotations.";
+				//result[2]= pwe.getGraphId();
+				String[] result = ["warning","Datanodes should include database annotations",pwe.getGraphId()];//the groovy way
+
 				totalResultForThisRule.add(result);
     		}
     		
