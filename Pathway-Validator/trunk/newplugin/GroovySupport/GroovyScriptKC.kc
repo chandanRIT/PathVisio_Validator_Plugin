@@ -1,5 +1,7 @@
 boolean startCallingMethods=false ;
- for(String mymeth : groovyObject.metaClass.methods*.name.unique()) {
- 	if(startCallingMethods && !mymeth.equals("phaseSupport")) tempArray.add(groovyObject."$mymeth"(argPw));
- 	  if(mymeth.equals('main'))startCallingMethods=true;
+dontRunMethods=["phaseSupport","main"];
+ for(String mymeth : groovyObject.metaClass.methods*.name.unique()- dontRunMethods ) {
+ 	if(startCallingMethods) tempArray.add(groovyObject."$mymeth"(argPw));
+ 	  if(mymeth.equals('setBinding'))startCallingMethods=true;
+ 		println mymeth;
  }
