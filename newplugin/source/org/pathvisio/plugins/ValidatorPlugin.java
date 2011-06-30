@@ -137,12 +137,13 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	public void init(PvDesktop desktop) 
 	{   
 		schemaTitleTag.setEditable(false);
+		
 		//chandan : creating a button for choosing the schema file 
 		//chooseSchema=new JButton("Choose Ruleset");
 		chooseSchema.setActionCommand("choose");
 		chooseSchema.addActionListener(this);
 		
-		//creating a jcheckbox and set its status from the .pathvisio pref file
+		//creating a jcheckbox ("Highlight All") and set its status from the .pathvisio pref file
 	    boolean jbcinit;
 		if(PreferenceManager.getCurrent().getInt(SchemaPreference.CHECK_BOX_STATUS)==1){
 	    	jbcinit=true;
@@ -151,8 +152,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
 		svrlOutputChoose.setActionCommand("svrlOutputChoose");
 		svrlOutputChoose.addActionListener(this);
-		//svrlOutputChoose.setEnabled(false);
-		
 		
 		//final JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
 		jcBox.setActionCommand("jcBox");
@@ -165,7 +164,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		phaseBox.addItemListener(this);
 		phaseBox.setEnabled(false);
 		
-		
 		jcb= new JCheckBox(" Highlight All", jbcinit);
 		jcb.setActionCommand("jcb");
 		jcb.addActionListener(this);
@@ -175,7 +173,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		// save the desktop reference so we can use it later
 		this.desktop = desktop;
 		eng=desktop.getSwingEngine().getEngine();
-		eng.addApplicationEventListener(this); //done to listen to the event from the engine (pthaway-opened event) 
+		eng.addApplicationEventListener(this); // To listen to the events from the engine (eg. Pathaway-opened event) 
 		
 		// register our action in the "Help" menu.
 		desktop.registerMenuAction ("Help", helloAction);
@@ -185,6 +183,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		//System.out.println("the font used"+f);
 		//jta.setFont(f);
 		//jta=new JEditorPane("text/html","");
+		
 		jta.addHyperlinkListener(this);
 		jta.setEditable(false);
 		
@@ -194,6 +193,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		
 		final JScrollPane scrollPane = new JScrollPane(jta);
 		
+		//code for layout of the components goes here
         final GridBagConstraints c = new GridBagConstraints();
         
         c.weighty = 0.0;c.weightx=0.5;
@@ -214,11 +214,10 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         c.gridwidth = GridBagConstraints.REMAINDER;
         mySideBarPanel.add(phaseBox,c);
         
-        c.gridwidth = GridBagConstraints.REMAINDER;
+        //c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.weighty = 1.0;
-        
         mySideBarPanel.add(scrollPane,c);
         
         c.weighty = 0.0;
@@ -228,9 +227,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         
         c.gridwidth = GridBagConstraints.REMAINDER;
         mySideBarPanel.add(jcBox,c);
-        
-        //phaseBox.addItem("chandan");
-		
+       
         //final JButton valbutton=new JButton("validate");
         valbutton.setActionCommand("validate");
         valbutton.addActionListener(this);
@@ -255,7 +252,6 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
         //mypanel.add(bottomTabbedPane);
         //desktop.getFrame().add(mypanel);
        // desktop.getFrame().validate();
-        // add or panel with a given Title
         
         //sidebarTabbedPane.setLayout(DEFAULT);
     	//sidebarTabbedPane.add(new JButton("Button 1"));
@@ -285,7 +281,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	public void done() {}
 	
 	/**
-	 * Display a welcome message when this action is triggered. 
+	 * Open a Browser link to the plugin's help page when this action is triggered. 
 	 */
 	private class HelloAction extends AbstractAction
 	{
@@ -335,7 +331,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	public void validatePathway(final SaxonTransformer tempSaxTrnfr,final MIMFormat mimf)
 	{
 		final ProgressKeeper pk = new ProgressKeeper();
-		final ProgressDialog d = new ProgressDialog(desktop.getFrame(),"", pk, false, true);
+		final ProgressDialog d = new ProgressDialog(desktop.getFrame(),"Validator plugin", pk, false, true);
 		SwingWorker<Object, Object> sw = new SwingWorker<Object, Object>() {
 		
 		protected Object doInBackground() {
@@ -858,9 +854,9 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 				
 		    			if(f.isDirectory()) return true;
 		    			
-		    			String ext = f.toString().substring(f.toString().length() - 3);
+		    			String ext = f.toString().substring(f.toString().indexOf('.')+1);
 					
-		    			if(ext.equalsIgnoreCase("sch")||ext.equalsIgnoreCase("ovy")||ext.equalsIgnoreCase("ava")||ext.equalsIgnoreCase("xml")) {
+		    			if(ext.equalsIgnoreCase("sch")||ext.equalsIgnoreCase("groovy")||ext.equalsIgnoreCase("xml")) {
 		    				return true;
 		    			}
 					
@@ -868,7 +864,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		    		}
 				
 		    		public String getDescription() {
-		    			return "Schematron (.sch & .xml) & Groovy (.groovy & .java)";
+		    			return "Schematron (.sch & .xml) & Groovy (.groovy)";
 		    		}
 
 		    	});
@@ -897,10 +893,10 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		        schemaFile=chooser.getSelectedFile();
 		       //System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
 		       
-		        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().length()-3));
+		        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().indexOf('.')+1));
 		        
 		        //if the file chosen is of type ".groovy", then do groovy specific logic
-		        if(schemaFileSubString.equalsIgnoreCase("ovy") || schemaFileSubString.equalsIgnoreCase("ava")){
+		        if(schemaFileSubString.equalsIgnoreCase("groovy") ){
 		        	jcBox.setSelectedIndex(0);
 		        	schemaFileType="groovy";
 		        	//phaseBox.setEnabled(false);
