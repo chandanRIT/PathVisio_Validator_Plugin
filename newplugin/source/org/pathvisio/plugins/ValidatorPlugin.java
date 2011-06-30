@@ -440,17 +440,19 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
          		if(pe!=null) {
          			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
          			vpe.highlight(col2);
+         			prevPwe=vpe;
          		}
          		else System.out.println("id not parsed properly @ id "+tempsubSt);
          	}
          	
-         	prevPwe=vpe;
+         	
         }
         
         //refreshing the pathway , so that all the nodes highlighted appear highlighted
-        VPathway vpwTemp = eng.getActiveVPathway();
-		vpwTemp.setPctZoom(vpwTemp.getPctZoom());
-		
+        //VPathway vpwTemp = eng.getActiveVPathway();
+		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
+        eng.getActiveVPathway().redraw();
+        
         sbf.append("</font>");
         
         if( (prevSelect==0 && i!=0) || (prevSelect==1 && j!=0) || (prevSelect==2 && k!=0) ){ 
@@ -590,6 +592,11 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 		eLabel.setText("Errors:"+ijkew[3]); wLabel.setText("Warnings:"+ijkew[4]);
 		
 		sbf.append("</font>");
+		
+   		//refreshing the pathway , so that all the nodes highlighted appear highlighted
+		//VPathway vpwTemp = eng.getActiveVPathway();
+		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
+		eng.getActiveVPathway().redraw();
         
         if( (prevSelect==0 && ijkew[0]!=0) || (prevSelect==1 && ijkew[1]!=0) || (prevSelect==2 && ijkew[2]!=0) ){ 
         	jta.setText(sbf.toString());
@@ -648,16 +655,11 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
          	if(pe!=null) {
          		vpe=eng.getActiveVPathway().getPathwayElementView(pe);
          		vpe.highlight(col2);
+         		prevPwe=vpe;
          	}
          	else System.out.println("id not parsed properly @ id "+graphId);
          }
-         	
-		prevPwe=vpe;
-        
-		//refreshing the pathway , so that all the nodes highlighted appear highlighted
-		VPathway vpwTemp = eng.getActiveVPathway();
-		vpwTemp.setPctZoom(vpwTemp.getPctZoom());
-		
+      
 	}
 	
 	private GroovyObject loadGroovy(File schemaFile){
@@ -972,7 +974,7 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 	public void hyperlinkUpdate(HyperlinkEvent arg0) {
 	
 		if (arg0.getEventType()== HyperlinkEvent.EventType.ACTIVATED) {
-			
+			System.out.println("prevpwe "+prevPwe );
 			if( ! prevPwe.isHighlighted() ){
 				prevHighlight=false; 
 			}
@@ -992,9 +994,9 @@ public class ValidatorPlugin implements Plugin,ActionListener,HyperlinkListener,
 			prevPwe=vpe;
 			
 			//pathway diagram refresh code,setting zoom refreshes the diagram.
-			VPathway vpwTemp = eng.getActiveVPathway();
-			vpwTemp.setPctZoom(vpwTemp.getPctZoom());
-			
+			//VPathway vpwTemp = eng.getActiveVPathway();
+			//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
+			eng.getActiveVPathway().redraw();
 	   }
 	
 	}

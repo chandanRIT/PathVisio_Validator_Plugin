@@ -3,11 +3,11 @@ import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 
-ArrayList<String[]> phaseSupport(){
-    	String[] phase1=["demoPhase1","ruleTitle , ruleOrganism, ruleAuthor"];
+ArrayList<String[]> phaseSupport(){  // this method must be present with the same signature to allow for phase-specific validation
+    	String[] phase1=["demoPhase1","ruleTitle , ruleOrganism, ruleAuthor"]; // Each individual phase is defined as a String Array, where the first  String element is the Phase's name , second is the comma (,) separated list of rules under this Phase
     	String[] phase2=["demoPhase2","ruleDataBaseAnnotation , ruleReferences,ruleTextLabel ,ruleUnattachedLines"];
-    	ArrayList<Object> result=new ArrayList<Object>();
-    	result.add(phase1);
+    	ArrayList<String[]> result=new ArrayList<String[]>();
+    	result.add(phase1); // If a phase is to be used by the Validator , then it has to be added in the "result" ArrayList
     	result.add(phase2);
     	return result;
     }
