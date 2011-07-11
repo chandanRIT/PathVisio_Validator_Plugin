@@ -92,7 +92,7 @@ import org.pathvisio.preferences.PreferenceManager;
  * Methods for the export of MIMML.
  * 
  * @author Augustin Luna <augustin@mail.nih.gov>
- * @author Margot Sunshine 
+ * @author Margot Sunshine
  * 
  * @version 1.0
  * @since 1.0
@@ -159,21 +159,21 @@ public class ExporterHelper extends CommonHelper {
 		// Map XRef references to mimBioRefs
 		String mimBioRelXRefId = mapRelationshipXRef(info);
 		if (isNotBlank(mimBioRelXRefId)) {
-			System.out.println("Pathway: " + mimBioRelXRefId);
+			// System.out.println("Pathway: " + mimBioRelXRefId);
 			dia.addMimBioRef(mimBioRelXRefId);
 		}
-		
+
 		for (PathwayElement pwElem : pw.getDataObjects()) {
 
-//			double[] tmp = pw.getMBoardSize();
-//
-//			dia.setWidth(tmp[0]);
-//			dia.setHeight(tmp[1]);
-//			
-//			System.out.println("BoardSize[0]: " + tmp[0]);
-//			System.out.println("BoardSize[1]: " + tmp[1]);
-//			System.out.println("BoardWidth: " + pwElem.getMBoardWidth());
-//			System.out.println("BoardHeight: " + pwElem.getMBoardHeight());
+			// double[] tmp = pw.getMBoardSize();
+			//
+			// dia.setWidth(tmp[0]);
+			// dia.setHeight(tmp[1]);
+			//
+			// System.out.println("BoardSize[0]: " + tmp[0]);
+			// System.out.println("BoardSize[1]: " + tmp[1]);
+			// System.out.println("BoardWidth: " + pwElem.getMBoardWidth());
+			// System.out.println("BoardHeight: " + pwElem.getMBoardHeight());
 
 			dia.setWidth(pwElem.getMBoardWidth());
 			dia.setHeight(pwElem.getMBoardHeight());
@@ -210,7 +210,8 @@ public class ExporterHelper extends CommonHelper {
 
 				if (isNotBlank(info.getLastModified())) {
 					try {
-						Calendar calDate = new XmlCalendar(info.getLastModified());
+						Calendar calDate = new XmlCalendar(
+								info.getLastModified());
 
 						dia.getMimBio().setModified(calDate);
 					} catch (IllegalArgumentException e) {
@@ -250,9 +251,10 @@ public class ExporterHelper extends CommonHelper {
 		// SchemaType mimEntitySchemaType = convertDataNode(pwElem
 		// .getDataNodeType());
 
-		System.out.println("Current GPML Datanode:"
-				+ pwElem.getDataNodeType().toString());
-
+		/*
+		 * System.out.println("Current GPML Datanode:" +
+		 * pwElem.getDataNodeType().toString());
+		 */
 		EntityGlyphType entGlyph = EntityGlyphType.Factory.newInstance();
 
 		// Properties common to all entities
@@ -263,13 +265,14 @@ public class ExporterHelper extends CommonHelper {
 		entGlyph.setHeight(pwElem.getMHeight());
 		entGlyph.setColor(convertColorToHex(pwElem.getColor()));
 
-		// The GraphId of a group is used instead of the GroupId so that 
-		// each element only has a single ID. 
-		if (isNotBlank(pwElem.getGroupRef())) {			
+		// The GraphId of a group is used instead of the GroupId so that
+		// each element only has a single ID.
+		if (isNotBlank(pwElem.getGroupRef())) {
 			// Get the GraphId based on the known GroupId
-			entGlyph.setGroupRef(pw.getGroupById(pwElem.getGroupRef()).getGroupId());
+			entGlyph.setGroupRef(pw.getGroupById(pwElem.getGroupRef())
+					.getGroupId());
 		}
-		
+
 		entGlyph.setType(EntityGlyphType.Type.Enum.forString(pwElem
 				.getDataNodeType()));
 
@@ -278,7 +281,7 @@ public class ExporterHelper extends CommonHelper {
 			if (!key.equals("DatabaseRelationship")
 					&& !key.equals("EntityControlledVocabulary")) {
 				EntityGlyphType.GenericProperty genProp = entGlyph
-				.addNewGenericProperty();
+						.addNewGenericProperty();
 
 				genProp.setKey(key);
 				genProp.setValue(pwElem.getDynamicProperty(key));
@@ -286,44 +289,45 @@ public class ExporterHelper extends CommonHelper {
 		}
 
 		// Set DataNode.Graphics@ShapeType to GenericProperty
-		if(pwElem.getShapeType() != null) {
+		if (pwElem.getShapeType() != null) {
 			EntityGlyphType.GenericProperty genProp = entGlyph
-				.addNewGenericProperty();
+					.addNewGenericProperty();
 			genProp.setKey("ShapeType");
 			genProp.setValue(pwElem.getShapeType().toString());
-		}else System.out.println("pwe is null");
-		
+		} else
+			System.out.println("pwe is null");
+
 		// Map comments
 		for (Comment com : pwElem.getComments()) {
 			entGlyph.addComment(com.toString());
 		}
 
 		// Map EntityControlledVocabulary and create new mimBioRefs
-		String mimECVId = mapEntityControlledVocabulary(pwElem); 
-		if(isNotBlank(mimECVId)) {
+		String mimECVId = mapEntityControlledVocabulary(pwElem);
+		if (isNotBlank(mimECVId)) {
 			entGlyph.addMimBioRef(mimECVId);
 		}
-		
+
 		// Map RelationshipXref and create new mimBioRefs
 		String mimBioRelXRefId = mapRelationshipXRef(pwElem);
 		if (isNotBlank(mimBioRelXRefId)) {
-			System.out.println("Ent: " + mimBioRelXRefId);
+			// System.out.println("Ent: " + mimBioRelXRefId);
 			entGlyph.addMimBioRef(mimBioRelXRefId);
 		}
 
 		// Convert PathwayElement to a MIM glyph type
 		if (pwElem.getDataNodeType().equals("SimplePhysicalEntity")) {
-			System.out.println("Add SPE");
+			// System.out.println("Add SPE");
 			mapSimplePhysicalEntity(pwElem, entGlyph);
 		}
 
 		if (pwElem.getDataNodeType().equals("EntityFeature")) {
-			System.out.println("Add EF");
+			// System.out.println("Add EF");
 			mapEntityFeature(pwElem, entGlyph);
 		}
 
 		if (pwElem.getDataNodeType().equals("Modifier")) {
-			System.out.println("Add MOD");
+			// System.out.println("Add MOD");
 			mapModifier(pwElem, entGlyph);
 		}
 
@@ -358,7 +362,8 @@ public class ExporterHelper extends CommonHelper {
 	private void mapSimplePhysicalEntity(PathwayElement pwElem,
 			EntityGlyphType entGlyph) {
 
-		System.out.println("SPE size before: " + dia.sizeOfEntityGlyphArray());
+		// System.out.println("SPE size before: " +
+		// dia.sizeOfEntityGlyphArray());
 
 		/*
 		 * Add a new temporary element, which will be replaced with the correct
@@ -372,7 +377,8 @@ public class ExporterHelper extends CommonHelper {
 
 		dia.setEntityGlyphArray(nextIdx, entGlyph);
 
-		System.out.println("SPE size after: " + dia.sizeOfEntityGlyphArray());
+		// System.out.println("SPE size after: " +
+		// dia.sizeOfEntityGlyphArray());
 
 		// DEBUG
 		// System.out.println("Size of " +
@@ -394,11 +400,12 @@ public class ExporterHelper extends CommonHelper {
 			EntityGlyphType entGlyph) {
 
 		// TODO: Fix these lines if still needed for debugging or remove.
-		System.out.println("EF size before: " + dia.sizeOfEntityGlyphArray());
+		// System.out.println("EF size before: " +
+		// dia.sizeOfEntityGlyphArray());
 
 		dia.addNewEntityGlyph();
 
-		System.out.println("EF size after: " + dia.sizeOfEntityGlyphArray());
+		// System.out.println("EF size after: " + dia.sizeOfEntityGlyphArray());
 
 		entGlyph.setDisplayName(pwElem.getTextLabel());
 
@@ -529,12 +536,13 @@ public class ExporterHelper extends CommonHelper {
 		}
 
 		interGlyph.setColor(convertColorToHex(pwElem.getColor()));
-		
-		// The GraphId of a group is used instead of the GroupId so that 
-		// each element only has a single ID. 
-		if (isNotBlank(pwElem.getGroupRef())) {			
+
+		// The GraphId of a group is used instead of the GroupId so that
+		// each element only has a single ID.
+		if (isNotBlank(pwElem.getGroupRef())) {
 			// Get the GraphId based on the known GroupId
-			interGlyph.setGroupRef(pw.getGroupById(pwElem.getGroupRef()).getGroupId());
+			interGlyph.setGroupRef(pw.getGroupById(pwElem.getGroupRef())
+					.getGroupId());
 		}
 
 		// Map comments
@@ -547,16 +555,16 @@ public class ExporterHelper extends CommonHelper {
 
 		for (String id : mimBioRefIds) {
 			if (isNotBlank(id)) {
-				System.out.println("mimBioRef: " + id);
+				// System.out.println("mimBioRef: " + id);
 				interGlyph.addMimBioRef(id);
 			}
 		}
 
 		// Attempt to determine coordinates of interaction labels for references
-//		int xRefSize = mimBioRefIds.size();
-//		int xRefLength = 0;
-//
-//		xRefLength = 9 * xRefSize;
+		// int xRefSize = mimBioRefIds.size();
+		// int xRefLength = 0;
+		//
+		// xRefLength = 9 * xRefSize;
 
 		// if (xRefSize < 10) {
 		// xRefLength = 3 * xRefSize;
@@ -578,20 +586,20 @@ public class ExporterHelper extends CommonHelper {
 		// annoWidth.setKey("annotationWidth");
 		// annoHeight.setKey("annotationHeight");
 
-		// Location where an interaction label for references is placed 
-//		Point2D p = ((MLine) pwElem).getConnectorShape()
-//				.fromLineCoordinate(0.7);
-		
+		// Location where an interaction label for references is placed
+		// Point2D p = ((MLine) pwElem).getConnectorShape()
+		// .fromLineCoordinate(0.7);
+
 		// Attempt to determine coordinates of interaction labels for references
-//		System.out.println("ID: " + pwElem.getGraphId() + " XRefLength: "
-//				+ xRefLength + " X: " + p.getX() + " Y: " + p.getY());
-//	
-//		int padding = 3;
-//
-//		double xVal = p.getX() - xRefLength / 2 - padding;
-//		double yVal = p.getY() - padding;
-//		double widthVal = xRefLength + 2 * padding;
-//		double heightVal = 15 + 2 * padding;
+		// System.out.println("ID: " + pwElem.getGraphId() + " XRefLength: "
+		// + xRefLength + " X: " + p.getX() + " Y: " + p.getY());
+		//
+		// int padding = 3;
+		//
+		// double xVal = p.getX() - xRefLength / 2 - padding;
+		// double yVal = p.getY() - padding;
+		// double widthVal = xRefLength + 2 * padding;
+		// double heightVal = 15 + 2 * padding;
 
 		// annoX.setValue(Double.toString(xVal));
 		// annoY.setValue(Double.toString(yVal));
@@ -612,37 +620,39 @@ public class ExporterHelper extends CommonHelper {
 
 			pt.setX(mPoint.getX());
 			pt.setY(mPoint.getY());
-			
+
 			ArrowHeadEnumType.Enum mimArrowHead = null;
 
 			// ArrowHeads can only exist on the start and end Points
 			if (i == 0) {
-			
+
 				String gpmlStartArrowHead = pwElem.getStartLineType().getName();
 				// System.out.println("Start: " + gpmlStartArrowHead);
 
 				mimArrowHead = convertArrowHead(gpmlStartArrowHead);
 				pt.setArrowHead(mimArrowHead);
 			} else if (i == (mPoints.size() - 1)) {
-				
+
 				String gpmlEndArrowHead = pwElem.getEndLineType().getName();
 				// System.out.println("End: " + gpmlEndArrowHead);
 
 				mimArrowHead = convertArrowHead(gpmlEndArrowHead);
 				pt.setArrowHead(mimArrowHead);
-			} 
-			
+			}
+
 			// Don't add graphRefs from groups use the GroupId.
-			// This is done to avoid using two IDs for groups. 
-			if(isNotBlank(mPoint.getGraphRef())) {
+			// This is done to avoid using two IDs for groups.
+			if (isNotBlank(mPoint.getGraphRef())) {
 
-				// If the line is connected to a group, use its groupId 
-				PathwayElement tmp = pw.getElementById(mPoint.getGraphRef()); 
+				// If the line is connected to a group, use its groupId
+				PathwayElement tmp = pw.getElementById(mPoint.getGraphRef());
 
-				System.out.println("MPoint GraphRef: " + mPoint.getGraphRef());
-				
-				if(tmp != null && tmp.getObjectType().equals(ObjectType.GROUP)) {
-					System.out.println("ObjectType: " + tmp.getObjectType().toString());
+				// System.out.println("MPoint GraphRef: " +
+				// mPoint.getGraphRef());
+
+				if (tmp != null && tmp.getObjectType().equals(ObjectType.GROUP)) {
+					// System.out.println("ObjectType: " +
+					// tmp.getObjectType().toString());
 					pt.setVisRef(tmp.getGroupId());
 				} else {
 					pt.setVisRef(mPoint.getGraphRef());
@@ -651,9 +661,9 @@ public class ExporterHelper extends CommonHelper {
 
 			// Only set RelX and RelY for the first and last points
 			if (i == 0 || i == (mPoints.size() - 1)) {
-				System.out.println("Line ID: " + pwElem.getGraphId());
-				System.out.println("RelX: " + mPoint.getRelX());
-				System.out.println("RelY: " + mPoint.getRelY());
+				// System.out.println("Line ID: " + pwElem.getGraphId());
+				// System.out.println("RelX: " + mPoint.getRelX());
+				// System.out.println("RelY: " + mPoint.getRelY());
 
 				if (isNotBlank(Double.toString(mPoint.getRelX()))) {
 					pt.setRelX(mPoint.getRelX());
@@ -684,8 +694,8 @@ public class ExporterHelper extends CommonHelper {
 
 			String gpmlAnchor = mAnchor.getShape().getName();
 
-			System.out.println("gpmlAnchorShape: " + mAnchor.getGraphId());
-			System.out.println("gpmlAnchorShape: " + gpmlAnchor);
+			// System.out.println("gpmlAnchorShape: " + mAnchor.getGraphId());
+			// System.out.println("gpmlAnchorShape: " + gpmlAnchor);
 
 			// This is considered an explicit complex in MIM
 			if (gpmlAnchor.equals("Circle")) {
@@ -702,7 +712,7 @@ public class ExporterHelper extends CommonHelper {
 				// Properties common to all entities
 				entGlyph.setPosition(mAnchor.getPosition());
 				entGlyph.setColor(convertColorToHex(pwElem.getColor()));
-				if(isNotBlank(pwElem.getGroupRef())) {
+				if (isNotBlank(pwElem.getGroupRef())) {
 					entGlyph.setGroupRef(pwElem.getGroupRef());
 				}
 				entGlyph.setType(EntityGlyphType.Type.EXPLICIT_COMPLEX);
@@ -749,8 +759,10 @@ public class ExporterHelper extends CommonHelper {
 		connectorType.setKey("ConnectorType");
 		connectorType.setValue(pwElem.getConnectorType().getName());
 
-		System.out.println(Integer.toString(pwElem.getDynamicPropertyKeys()
-				.size()));
+		/*
+		 * System.out.println(Integer.toString(pwElem.getDynamicPropertyKeys()
+		 * .size()));
+		 */
 
 		// Map GenericProperties
 		for (String key : pwElem.getDynamicPropertyKeys()) {
@@ -761,7 +773,7 @@ public class ExporterHelper extends CommonHelper {
 			genProp.setValue(pwElem.getDynamicProperty(key));
 		}
 
-		System.out.println("Inter creation: " + interGlyph.xmlText());
+		// System.out.println("Inter creation: " + interGlyph.xmlText());
 	}
 
 	/**
@@ -782,7 +794,7 @@ public class ExporterHelper extends CommonHelper {
 
 			EntityGlyphType ic = dia.addNewEntityGlyph();
 			ic.setVisId(pwElem.getGroupId());
-			
+
 			ic.setType(EntityGlyphType.Type.IMPLICIT_COMPLEX);
 
 			// TODO: Add a display name to the implicit complex. This is
@@ -792,7 +804,7 @@ public class ExporterHelper extends CommonHelper {
 
 			// Add RelationshipXref to this element
 			if (isNotBlank(mimBioRelXRefId)) {
-				System.out.println("IC: " + mimBioRelXRefId);
+				// System.out.println("IC: " + mimBioRelXRefId);
 				ic.addMimBioRef(mimBioRelXRefId);
 			}
 		} else {
@@ -809,7 +821,7 @@ public class ExporterHelper extends CommonHelper {
 
 			// Add RelationshipXref to this element
 			if (isNotBlank(mimBioRelXRefId)) {
-				System.out.println("Grp: " + mimBioRelXRefId);
+				// System.out.println("Grp: " + mimBioRelXRefId);
 				grp.addMimBioRef(mimBioRelXRefId);
 			}
 		}
@@ -830,19 +842,21 @@ public class ExporterHelper extends CommonHelper {
 			RelationshipXRefType relXRef = mb.addNewRelationshipXRef();
 			relXRef.setVisId(visId);
 
-			if(isNotBlank(pwElem.getDynamicProperty("DatabaseRelationship"))) {
+			if (isNotBlank(pwElem.getDynamicProperty("DatabaseRelationship"))) {
 
-				RelationshipXRefType.Type.Enum relXRefType = RelationshipXRefType.Type.Enum.forString(pwElem.getDynamicProperty("DatabaseRelationship"));
-				
-				if(!relXRefType.equals(null)) {
+				RelationshipXRefType.Type.Enum relXRefType = RelationshipXRefType.Type.Enum
+						.forString(pwElem
+								.getDynamicProperty("DatabaseRelationship"));
+
+				if (!relXRefType.equals(null)) {
 					relXRef.setType(relXRefType);
 				} else {
 					System.out.println("Unknown database relationship type.");
 				}
 			} else {
-				relXRef.setType(RelationshipXRefType.Type.IS);				
+				relXRef.setType(RelationshipXRefType.Type.IS);
 			}
-			
+
 			relXRef.setDb(pwElem.getDataSource().getFullName());
 			relXRef.setId(pwElem.getGeneID());
 
@@ -869,23 +883,23 @@ public class ExporterHelper extends CommonHelper {
 			ecv.setVisId(visId);
 
 			EntityControlledVocabularyType.Type.Enum ecvType = EntityControlledVocabularyType.Type.Enum
-			.forString(pwElem
-					.getDynamicProperty("EntityControlledVocabulary"));
-			
-			if(!ecvType.equals(null)) {
+					.forString(pwElem
+							.getDynamicProperty("EntityControlledVocabulary"));
+
+			if (!ecvType.equals(null)) {
 				ecv.setType(ecvType);
-				
-				return visId; 
+
+				return visId;
 			} else {
 				System.out.println("Unknown entity controlled vocabulary.");
-				
+
 				return null;
 			}
 		} else {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Map Biopax elements.
 	 * 
@@ -894,12 +908,12 @@ public class ExporterHelper extends CommonHelper {
 	 */
 	private void mapBiopax(PathwayElement pwElem) {
 		BiopaxElementManager refMgr = pw.getBiopaxElementManager();
-		
+
 		Collection<BiopaxElement> bpElemColl = refMgr.getElements();
 
 		for (org.pathvisio.biopax.reflect.BiopaxElement bpElem : bpElemColl) {
-			org.pathvisio.biopax.reflect.PublicationXref gpmlPubXRef = (org.pathvisio.biopax.reflect.PublicationXref) bpElem; 
-			
+			org.pathvisio.biopax.reflect.PublicationXref gpmlPubXRef = (org.pathvisio.biopax.reflect.PublicationXref) bpElem;
+
 			PublicationXRefType mimPubXRef = mb.addNewPublicationXRef();
 
 			mimPubXRef.setVisId(gpmlPubXRef.getId());
@@ -930,7 +944,7 @@ public class ExporterHelper extends CommonHelper {
 	 */
 	private ArrayList<String> mapBiopaxRefs(PathwayElement pwElem) {
 		ArrayList<String> mimBioRefIds = new ArrayList<String>();
-		
+
 		for (org.pathvisio.biopax.reflect.PublicationXref gpmlPubXRef : pwElem
 				.getBiopaxReferenceManager().getPublicationXRefs()) {
 
@@ -960,8 +974,9 @@ public class ExporterHelper extends CommonHelper {
 					.get(gpmlArrowHead);
 		} else {
 			mimArrowHead = ArrowHeadEnumType.LINE;
-			System.out.println("Pathway contains an arrow not supported in MIM: "
-					+ gpmlArrowHead);
+			System.out
+					.println("Pathway contains an arrow not supported in MIM: "
+							+ gpmlArrowHead);
 		}
 
 		return mimArrowHead;
@@ -993,8 +1008,9 @@ public class ExporterHelper extends CommonHelper {
 			mimAnchor = anchorHash.get(gpmlAnchor);
 		} else {
 			mimAnchor = AnchorGlyphType.Type.INVISIBLE;
-			System.out.println("Pathway contains an anchor not supported in MIM: "
-					+ gpmlAnchor);
+			System.out
+					.println("Pathway contains an anchor not supported in MIM: "
+							+ gpmlAnchor);
 		}
 
 		return mimAnchor;
@@ -1020,7 +1036,8 @@ public class ExporterHelper extends CommonHelper {
 			mimGroupType = groupHash.get(gpmlGroupType);
 		} else {
 			mimGroupType = GroupEnumType.GENERIC;
-			System.out.println("Pathway contains an group type not supported in MIM: "
+			System.out
+					.println("Pathway contains an group type not supported in MIM: "
 							+ gpmlGroupType);
 		}
 
@@ -1046,7 +1063,7 @@ public class ExporterHelper extends CommonHelper {
 
 		// Print the errors if the XML is invalid.
 		if (isVisValid) {
-			System.out.println("Valid. The document follows:");
+			// System.out.println("Valid. The document follows:");
 			try {
 				visDoc.save(output, getXmlOptions());
 				// visDoc.save(bufferedWriter, this.getXmlOptions());

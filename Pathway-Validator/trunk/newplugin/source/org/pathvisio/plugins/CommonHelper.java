@@ -38,7 +38,6 @@
  *
  */
 package org.pathvisio.plugins;
-//package gov.nih.nci.lmp.mimGpml;
 
 import gov.nih.nci.lmp.mim.mimVisLevel1.*;
 
@@ -62,10 +61,11 @@ import org.apache.xmlbeans.*;
 import org.pathvisio.debug.Logger;
 
 /**
- * A utility class of helper methods and variables used in both import and export.
+ * A utility class of helper methods and variables used in both import and
+ * export.
  * 
  * @author Augustin Luna <augustin@mail.nih.gov>
- * @author Margot Sunshine 
+ * @author Margot Sunshine
  * 
  * @version 1.0
  * @since 1.0
@@ -88,7 +88,8 @@ public abstract class CommonHelper {
 				ArrowHeadEnumType.NECESSARY_STIMULATION);
 		arrowHash.put("mim-stimulation", ArrowHeadEnumType.STIMULATION);
 		arrowHash.put("mim-inhibition", ArrowHeadEnumType.INHIBITION);
-		arrowHash.put("mim-absolute-inhibition", ArrowHeadEnumType.ABSOLUTE_INHIBITION);		
+		arrowHash.put("mim-absolute-inhibition",
+				ArrowHeadEnumType.ABSOLUTE_INHIBITION);
 		arrowHash.put("mim-catalysis", ArrowHeadEnumType.CATALYSIS);
 		arrowHash.put("mim-cleavage", ArrowHeadEnumType.COVALENT_BOND_CLEAVAGE);
 		arrowHash.put("mim-binding",
@@ -110,9 +111,9 @@ public abstract class CommonHelper {
 		arrowHash.put("mim-branching-left", ArrowHeadEnumType.BRANCHING_LEFT);
 		arrowHash.put("mim-state-combination",
 				ArrowHeadEnumType.STATE_COMBINATION);
-		
-		//TODO: To be added in a future MIM specification
-		//arrowHash.put("mim-gap", ArrowHeadEnumType.GAP);
+
+		// TODO: To be added in a future MIM specification
+		// arrowHash.put("mim-gap", ArrowHeadEnumType.GAP);
 		return arrowHash;
 	}
 
@@ -252,7 +253,7 @@ public abstract class CommonHelper {
 
 				return xmlObj;
 			} else {
-				//Logger.log.info("ERROR: Most likely a duplicate ID.");
+				// Logger.log.info("ERROR: Most likely a duplicate ID.");
 				System.out.println("ERROR: Most likely a duplicate ID.");
 			}
 		} catch (XmlException e) {
@@ -311,7 +312,7 @@ public abstract class CommonHelper {
 		}
 		return isXmlValid;
 	}
-	
+
 	/**
 	 * Receives the collection containing errors found during validation and
 	 * print the errors to the console.
@@ -322,7 +323,7 @@ public abstract class CommonHelper {
 	public static void printErrors(ArrayList<XmlError> validationErrors) {
 		Iterator<XmlError> iter = validationErrors.iterator();
 		while (iter.hasNext()) {
-			//Logger.log.error(">> " + iter.next().toString() + "\n");
+			// Logger.log.error(">> " + iter.next().toString() + "\n");
 			System.out.println(">> " + iter.next().toString());
 		}
 	}
@@ -344,7 +345,7 @@ public abstract class CommonHelper {
 
 		return hexColorStr.toUpperCase();
 	}
-	
+
 	/**
 	 * Convert hex string to color.
 	 * 
@@ -353,11 +354,11 @@ public abstract class CommonHelper {
 	 * @return the color object
 	 */
 	public static Color convertHexToColor(String hexStr) {
-		
-		Color color = null; 
-		
+
+		Color color = null;
+
 		// Color.decode() only works if there is a '#' at the start
-		if(hexStr.charAt(0) == '#') {
+		if (hexStr.charAt(0) == '#') {
 			Logger.log.debug("Not appending '#'");
 			color = Color.decode(hexStr);
 		} else {
@@ -367,7 +368,6 @@ public abstract class CommonHelper {
 
 		return color;
 	}
-	
 
 	// TODO: Get by Id, Get GenericProperty by Key
 }
