@@ -227,10 +227,10 @@ public final class SVRLHandler extends DefaultHandler {
     	if(svrlDiagRefCounter==1){
     	//the output containing the graphid and the diagonostic message 
     		 temp = getCharacters();
-    	this.diagnosticReference.add(this.roleAttribute+" @ GraphId : "+"<a href='"+temp+"'>"+temp+"</a>"+" - "+diag_attr);
+    	this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
     	}else if(svrlDiagRefCounter==2 && removePrev){
     		temp = getCharacters();
-    		this.diagnosticReference.add(this.roleAttribute+" @ GraphId : "+"<a href='"+temp+"'>"+temp+"</a>"+" - "+diag_attr);
+    		this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
     		removePrev=false;
     	}
     	//this.diagnosticReference.add(getCharacters());

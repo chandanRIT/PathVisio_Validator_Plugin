@@ -38,7 +38,6 @@
  *
  */
 package org.pathvisio.plugins;
-//package gov.nih.nci.lmp.mimGpml;
 
 import java.io.File;
 import java.io.IOException;
@@ -132,7 +131,7 @@ public class ImporterHelper extends CommonHelper {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	/**
@@ -148,16 +147,19 @@ public class ImporterHelper extends CommonHelper {
 	}
 
 	/**
-	 * Recalculate lines. Helps to adjust anchors on lines by clearing out cache.
-	 *
-	 * @param pathway the pathway
-	 * @throws ConverterException the converter exception
+	 * Recalculate lines. Helps to adjust anchors on lines by clearing out
+	 * cache.
+	 * 
+	 * @param pathway
+	 *            the pathway
+	 * @throws ConverterException
+	 *             the converter exception
 	 */
 	private static void recalculateLines(Pathway pathway)
 			throws ConverterException {
-		
+
 		for (PathwayElement pe : pathway.getDataObjects()) {
-			if (pe.getObjectType() == ObjectType.LINE) {			
+			if (pe.getObjectType() == ObjectType.LINE) {
 				((MLine) pe).getConnectorShape().recalculateShape(((MLine) pe));
 			}
 		}
@@ -172,9 +174,9 @@ public class ImporterHelper extends CommonHelper {
 		recalculateLines(pw);
 
 		// Taken from Pathway.readFromXml()
-		//pw.setSourceFile(file);
+		// pw.setSourceFile(file);
 		pw.clearChangedFlag();
-		
+
 		return pw;
 	}
 
@@ -216,9 +218,9 @@ public class ImporterHelper extends CommonHelper {
 
 		try {
 			parseDiagramXml(this.file);
-			
-			//TODO: Add Junit test for invalid MIMML files
-			if(!validateXml(visDoc)) {
+
+			// TODO: Add Junit test for invalid MIMML files
+			if (!validateXml(visDoc)) {
 				throw new ConverterException("Invalid MIMML file.");
 			}
 		} catch (XmlException e) {
@@ -339,8 +341,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(), genProp
-								.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(),
+								genProp.getValue());
 					}
 				}
 
@@ -389,8 +391,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(), genProp
-								.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(),
+								genProp.getValue());
 					}
 				}
 
@@ -439,8 +441,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(), genProp
-								.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(),
+								genProp.getValue());
 					}
 				}
 
@@ -489,8 +491,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(), genProp
-								.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(),
+								genProp.getValue());
 					}
 				}
 
@@ -537,8 +539,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(), genProp
-								.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(),
+								genProp.getValue());
 					}
 				}
 
@@ -597,8 +599,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(), genProp
-								.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(),
+								genProp.getValue());
 					}
 				}
 
@@ -659,8 +661,8 @@ public class ImporterHelper extends CommonHelper {
 					pwElem.setConnectorType(ConnectorType.fromName(genProp
 							.getValue()));
 				} else {
-					pwElem.setDynamicProperty(genProp.getKey(), genProp
-							.getValue());
+					pwElem.setDynamicProperty(genProp.getKey(),
+							genProp.getValue());
 				}
 			}
 
@@ -781,7 +783,7 @@ public class ImporterHelper extends CommonHelper {
 			// Map PublicationXRefs
 			List<String> mimBioRefs = mapPublicationXRefs(glyph, pwElem);
 			pwElem.setBiopaxRefs(mimBioRefs);
-			
+
 			pw.add(pwElem);
 		}
 	}
@@ -922,7 +924,7 @@ public class ImporterHelper extends CommonHelper {
 						.getDb()));
 				pwElem.setGeneID(mimRelXRef.getId());
 
-				//DEBUG
+				// DEBUG
 				// Logger.log.debug("RelXRef ID: " + mimRelXRef.getId());
 				// Logger.log.debug("RelXRef DB: " + mimRelXRef.getDb());
 
@@ -937,7 +939,8 @@ public class ImporterHelper extends CommonHelper {
 
 		List<String> mimBioRefs = new ArrayList<String>();
 
-		Logger.log.debug("mimBioRefs mapPubXRefs: " + glyph.sizeOfMimBioRefArray());
+		Logger.log.debug("mimBioRefs mapPubXRefs: "
+				+ glyph.sizeOfMimBioRefArray());
 
 		for (String mimBioRef : glyph.getMimBioRefList()) {
 
@@ -945,11 +948,12 @@ public class ImporterHelper extends CommonHelper {
 
 			Logger.log.debug("o1.class1 mapPubXRefs: " + o1.getClass());
 			Logger.log.debug("o1.text mapPubXRefs: " + o1.xmlText());
-			
-			PublicationXRefType o2 = (PublicationXRefType) o1.changeType(gov.nih.nci.lmp.mim.mimVisLevel1.PublicationXRefType.type);
+
+			PublicationXRefType o2 = (PublicationXRefType) o1
+					.changeType(gov.nih.nci.lmp.mim.mimVisLevel1.PublicationXRefType.type);
 
 			Logger.log.debug("o2.class mapPubXRefs: " + o2.getClass());
-				
+
 			if (o2 instanceof PublicationXRefType) {
 
 				PublicationXRefType mimPubXRef = (PublicationXRefType) o2;
