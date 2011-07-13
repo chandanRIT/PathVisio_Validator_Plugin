@@ -1,8 +1,6 @@
 package org.pathvisio.plugins;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,13 +9,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -25,27 +20,21 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.text.StyledEditorKit.ItalicAction;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
@@ -65,7 +54,6 @@ import org.pathvisio.plugin.Plugin;
 import org.pathvisio.preferences.Preference;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.util.ProgressKeeper;
-import org.pathvisio.view.VPathway;
 import org.pathvisio.view.VPathwayElement;
 import org.xml.sax.SAXException;
 import edu.stanford.ejalbert.BrowserLauncher;
@@ -98,16 +86,10 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	private final static JComboBox phaseBox = new JComboBox(new String[]{"Phase: All"});
 	private final HelloAction helloAction= new HelloAction();
 	private static boolean prevHighlight=true;
-	//private final String imageE_UrlSrcAttr = (getClass().getResource("/error.png")).toString();
-    //private final String imageW_UrlSrcAttr = (getClass().getResource("/warning.gif")).toString();
-    //final String imageUrlE="<img width='12' height='12' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
-    //private final String imageUrlE="<img width='11' height='11' src='"+imageE_UrlSrcAttr+"'></img> &nbsp;";
-    //final String imageUrlW="<img width='15' height='15' src='file:"+System.getProperty("user.dir")+java.io.File.separatorChar+"images"+java.io.File.separatorChar;
-    //private final String imageUrlW="<img width='15' height='15' src='"+imageW_UrlSrcAttr+"'></img> &nbsp;";
-    private static JCheckBox jcb;
+	private static JCheckBox jcb;
     private final JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER),
     wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
-    private static final JTextField schemaTitleTag= new JTextField("  Schema Title: ");
+    private static final JTextField schemaTitleTag= new JTextField("Schema Title: ");
 	//private static boolean doExport=false;
 	private static String schemaFileType;
 	private static Thread threadForSax;
@@ -127,12 +109,12 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
     private ImageIcon EIcon;
 	private ImageIcon WIcon;
 	private final ArrayList<String> graphIdsList = new ArrayList<String>();
-	private ArrayList<String> ignoredErrorTypesList;
+	private ArrayList<String> ignoredErrorTypesList,ignoredElements,ignoredSingleError;
 	private JPopupMenu popup;
-	//private JMenuItem menuItem123;//,menuItem2,menuItem3;
-	private JMenu subMenu4;
+	private JMenu subMenu4,subMenu5,subMenu6;
 	private boolean allIgnored;
-    
+    private int[] checkedUnchecked;
+	
 	public ValidatorPlugin(){
 		
 		 System.out.println("init callled");
@@ -247,21 +229,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    	public void mouseClicked(java.awt.event.MouseEvent e){
 	    		int row=jtb.rowAtPoint(e.getPoint());
 	    		
-	    		/*if (//!(row >= 0 && row < jtb.getRowCount()) || 
-	    			e.getButton()== MouseEvent.BUTTON3) {
-	    			jtb.clearSelection();
-	    			System.out.println("ryt click "+row);
-	    			
-	    			JPopupMenu popup = new JPopupMenu("chan");
-	    			JMenuItem menuItem1= new JMenuItem("Ignore Element"),
-	    			menuItem2 = new JMenuItem("Ignore this Error"),
-	    			menuItem3 = new JMenuItem("Ignore this Error Type");
-	    			popup.add(menuItem1);popup.add(menuItem2);popup.add(menuItem3);
-	    			
-	    			jtb.getSelectionModel().setSelectionInterval(row, row);//to select the row with right click
-	    			popup.show(e.getComponent(), e.getX(), e.getY());
-	    		}*/ 
-	    		
 	    		if(prevPwe!=null && graphIdsList.size()!=0 ){ 
 	    			//int row=jtb.rowAtPoint(e.getPoint());
 	    			//int col= jtb.columnAtPoint(e.getPoint());
@@ -296,13 +263,26 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    		
 	    		if (e.getButton()== MouseEvent.BUTTON3) {
 	    			jtb.clearSelection();
-	    			//System.out.println("ryt click "+row);
 	    			
-	    			if(allIgnored ){
+	    			String eachCellTip = jtb.getToolTipText(e);
+	    			boolean discardFirst2Menus=false;
+	    			if(eachCellTip!=null) discardFirst2Menus=eachCellTip.equals("----");    			
+	    			
+	    			//System.out.println("tootl tip "+jtb.getToolTipText(e));
+	    			
+	    			if(discardFirst2Menus || allIgnored){
+	    				
+	    				if(discardFirst2Menus) 
+	    					jtb.getSelectionModel().setSelectionInterval(row, row);
+	    				
 	    				if(popup.getComponent(0).isEnabled())
-	    					for(int MI=0; MI<3 ; MI++)
-	    						popup.getComponent(MI).setEnabled(false); 
-	    			}
+	    					for(int MI=0; MI<3 ; MI++){
+	    						if(MI==2 && discardFirst2Menus){}
+	    						else
+	    							popup.getComponent(MI).setEnabled(false); 
+	    						
+	    					}
+	    			}	
 	    			else {
 	    				jtb.getSelectionModel().setSelectionInterval(row, row);//to select the row with right click
 	    				if(!popup.getComponent(0).isEnabled())
@@ -310,8 +290,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    						popup.getComponent(MI).setEnabled(true); 
 
 	    			}
-
-		    		popup.show(e.getComponent(), e.getX(), e.getY());
+	    			popup.show(e.getComponent(), e.getX(), e.getY());
 		    	}
 	    	
 	    	}
@@ -526,8 +505,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		prevHighlight=true;
 		VPathwayElement vpe=null;
 		PathwayElement pe; 
-		//StringBuilder sbf=new StringBuilder();
-        String tempSt,tempsubSt;pth=eng.getActivePathway();
+		String tempSt,combined,tempsubSt;pth=eng.getActivePathway();
         Iterator<String> tempIterator = (saxTfr.diagnosticReference).iterator();
         int i=0,j=0,k=0,eCount=0,wCount=0;
         //String imageUrl=imageUrlE;
@@ -535,7 +513,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         graphIdsList.clear();
         
         clearTableRows();
-        //sbf.append("<font size='4' face='verdana'>");
         int higco=0; 
         
         eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
@@ -543,28 +520,28 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         while (tempIterator.hasNext()) {
          	errorCounter+=1;
          	tempSt=tempIterator.next();
+         	combined=tempSt;
          	String[] splitString=tempSt.split("@@");
          	tempSt=splitString[1];
          	tempsubSt=splitString[0];
          	
          	//if(tempSt.compareTo("error - An interaction should not start and end with Line arrowheads.")==0) continue;
-         	if(ignoredErrorTypesList.contains(tempSt)) continue;
+         	if(ignoredErrorTypesList.contains(tempSt)||
+         			ignoredElements.contains(tempsubSt)|| ignoredSingleError.contains(combined)) 
+         		continue;
          	
          	if(tempSt.startsWith("warning")){ EWIcon=WIcon; wCount++;}else { EWIcon=EIcon;eCount++;}
          	
          	if(prevSelect==0){
-         		//sbf.append(imageUrl + ++i +".) "+tempSt+"<br><br>");
          		mytbm.addRow(new Object[]{EWIcon,++i +".) "+tempSt});
          		//System.out.println("prevsel 0");
          	}
          	else if(prevSelect==1 && tempSt.startsWith("error")){
          		//System.out.println("prevsel 1");
-         		//sbf.append(imageUrl + ++j +".) "+tempSt+"<br><br>");	
          		mytbm.addRow(new Object[]{EWIcon,++j +".) "+tempSt});
          	}
          	else if(prevSelect==2 && tempSt.startsWith("warning")){
          		//System.out.println("prevsel 2");
-         		//sbf.append(imageUrl + ++k +".) "+tempSt+"<br><br>");	
          		mytbm.addRow(new Object[]{EWIcon,++k +".) "+tempSt});
          	}
          	else{
@@ -574,11 +551,9 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
          		//highlightFlag=0;//for unhighlight method
          	}
          	
-         	eLabel.setText("Errors:"+eCount); wLabel.setText("Warnings:"+wCount);
          	
          	if(tempSt!=null){
          		//tempsubSt=null;
-         		//tempsubSt=tempSt.substring(tempSt.indexOf(' ')+22,tempSt.indexOf('>')-1);
          		//System.out.println("the id--"+tempsubSt);
          		//if(!tempsubSt.equals("null"))
          		graphIdsList.add(tempsubSt);
@@ -596,48 +571,68 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
          	
         }
         
+        eLabel.setText("Errors:"+eCount); wLabel.setText("Warnings:"+wCount);
+     	
         //refreshing the pathway , so that all the nodes highlighted appear highlighted
         //VPathway vpwTemp = eng.getActiveVPathway();
 		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
         eng.getActiveVPathway().redraw();
         
-        //sbf.append("</font>");
-        
         if( (prevSelect==0 && i!=0) || (prevSelect==1 && j!=0) || (prevSelect==2 && k!=0) ){ 
-        	//jta.setText(sbf.toString());
         	allIgnored=false;// this boolean required for disabling/enabling the right mouse click menuitems
         }
         else if(prevSelect==0){
-        	//jta.setText("<b><font size='4' face='verdana'>No Errors and Warnings</font></b>");
         	mytbm.addRow(new Object[]{"","No Errors and Warnings"});
         	allIgnored=true;
         	jtb.setEnabled(false);
         }
         else if(prevSelect==1){
-        	//jta.setText("<b><font size='4' face='verdana'>No Errors</font></b>");	
         	mytbm.addRow(new Object[]{EIcon,"No Errors"});
         	allIgnored=true;
         	jtb.setEnabled(false);
         }
         else if(prevSelect==2){
-        	//jta.setText("<b><font size='4' face='verdana'>No Warnings</font></b>");	
         	mytbm.addRow(new Object[]{WIcon,"No Warnings"});
         	allIgnored=true;
         	jtb.setEnabled(false);
      		
         }
         
-        //jta.setCaretPosition(0);
-        //sbf.setLength(0); 
-        
 	}
 
 	private String cutTitleString(String ss)
 	{	
 		schemaTitleTag.setToolTipText(ss);
-		if(ss.length()>16) return (ss.substring(0,16)+"..").toUpperCase();
+		//if(ss.length()>16) return (ss.substring(0,16)+"..").toUpperCase();
+		schemaTitleTag.setCaretPosition(0);
+		/*if(schemaTitleTag.getFontMetrics(schemaTitleTag.getFont()).stringWidth(ss)+10>schemaTitleTag.getWidth())
+			System.out.println("more na");//ss=ss.substring(0,schemaTitleTag.getWidth()-3)+"..";
+		*/
+		
 		return ss;
-	}	
+	}
+	
+	private void clearRightClickStuff(){
+		
+			ignoredErrorTypesList.clear();
+			ignoredElements.clear();
+			ignoredSingleError.clear();
+		
+			subMenu4.setEnabled(false);
+			while(subMenu4.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
+				subMenu4.remove(2);
+			}
+			
+			subMenu5.setEnabled(false);
+			while(subMenu5.getMenuComponentCount()>2){// clearing the subMenu5's checkboxes
+				subMenu5.remove(2);
+			}
+			
+			subMenu6.setEnabled(false);
+			while(subMenu6.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
+				subMenu6.remove(2);
+			}
+	}
 	
 	private void printItOnTable(){
 		if(!schemaFileType.equalsIgnoreCase("groovy"))
@@ -671,35 +666,84 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		
 	}
 	
-	private void reConsiderTheIgnored(){
-		int lengthOfIgnored=subMenu4.getMenuComponentCount();
+	private void okButtonED(JCheckBoxMenuItem jcbmi){ //ED: Enable / Disable  
+		
+		JMenu subMenu=(JMenu)((JPopupMenu)jcbmi.getParent()).getInvoker();//since can not acces the parent directly here
+		int lengthOfIgnored=subMenu.getMenuComponentCount();
 		int index=lengthOfIgnored-1;
 		int NOFchecked=0;
 		//System.out.println("total in submenu4 "+subMenu4.getMenuComponentCount());
 		while(index>1){
-			if( ( (JCheckBoxMenuItem)subMenu4.getMenuComponent(index) ).getState() ){
-				ignoredErrorTypesList.remove(index-2);
-				subMenu4.remove(index);
+			if( ( (JCheckBoxMenuItem)subMenu.getMenuComponent(index) ).getState() ){
+				NOFchecked++;
+				break;
+			}
+			index--;
+		}
+		if(NOFchecked!=0) 
+			subMenu.getMenuComponent(0).setEnabled(true);
+		else subMenu.getMenuComponent(0).setEnabled(false);
+	}
+	
+	private void checkUncheck(JCheckBoxMenuItem jcbmi){
+		
+		JMenu subMenu=(JMenu)((JPopupMenu)jcbmi.getParent()).getInvoker();//since can not acces the parent directly here
+		
+		int indx = subMenu==subMenu4 ? 0 : ((subMenu==subMenu5) ? 2 : 4);
+		
+		if (jcbmi.getState())  checkedUnchecked[indx]++;
+		else checkedUnchecked[indx+1]++;
+		
+		if(checkedUnchecked[indx]==checkedUnchecked[indx+1]) {
+			checkedUnchecked[indx]=0;checkedUnchecked[indx+1]=0;
+			subMenu.getMenuComponent(0).setEnabled(false);
+			
+		}else subMenu.getMenuComponent(0).setEnabled(true);
+
+	}
+	
+	private void reConsiderTheIgnored(JMenu subMenu,ArrayList<String> ignoredList){
+		int lengthOfIgnored=subMenu.getMenuComponentCount();
+		int index=lengthOfIgnored-1;
+		int NOFchecked=0;
+		//System.out.println("total in submenu4 "+subMenu4.getMenuComponentCount());
+		while(index>1){
+			if( ( (JCheckBoxMenuItem)subMenu.getMenuComponent(index) ).getState() ){
+				ignoredList.remove(index-2);
+				subMenu.remove(index);
 				NOFchecked++;
 			}
 			index--;
 		}
-		if(ignoredErrorTypesList.size()==0) subMenu4.setEnabled(false); 
+		if(ignoredList.isEmpty()) subMenu.setEnabled(false); 
+		
+		subMenu.getMenuComponent(0).setEnabled(false);
+		
 		if(NOFchecked>0) printItOnTable();
 	}
 	
-	private void addToSubMenu(String EWMtext){ // Error/Warning message Text : EWMText
-		ImageIcon EWIcon=null;
+	private void addToSubMenu(JMenu subMenu,String EWMtext, ArrayList<String> ignList){ // Error/Warning message Text : EWMText
+		//ImageIcon EWIcon=null;
+		
+		ignList.add(EWMtext);
 		
 		if(EWMtext.length()>80) EWMtext = EWMtext.substring(0,78)+"...";
 		
 		//if(EWMtext.startsWith("error")) EWIcon=EIcon; else EWIcon=WIcon;
-		
+		if(ignList==ignoredSingleError)
+			EWMtext=EWMtext.replace("@@", " : ");
+		else if (ignList==ignoredElements) {
+			PathwayElement pe=pth.getElementById(EWMtext);
+			EWMtext=EWMtext+" : "+pe.getObjectType();
+		}
 		JCheckBoxMenuItem subMenuItemCBMI= new JCheckBoxMenuItem(EWMtext);
 		subMenuItemCBMI.setUI(new StayOpenCheckBoxMenuItemUI());
-		//subMenuItemCBMI.setActionCommand("subMenuItemCBMI");
-		//subMenuItemCBMI.addActionListener(this);
-		subMenu4.add(subMenuItemCBMI);
+		subMenuItemCBMI.setActionCommand("subMenuItemCBMI");
+		subMenuItemCBMI.addActionListener(this);
+		subMenu.add(subMenuItemCBMI);
+		
+		if(ignList.size()==1) subMenu.setEnabled(true);  
+		printItOnTable();
 		
 	}
 	
@@ -719,13 +763,13 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		}
 		
 		schemaTitleTag.setText("Schema Title: "+cutTitleString(mySHandler.getTheTitle()));
+		schemaTitleTag.setCaretPosition(0);
 		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
 		
 		schemaFileType=mySHandler.getType();
 		//System.out.println("Schema Type = "+mySHandler.getType());
 		
 		/*Iterator<String> it=mySHandler.getPhases().iterator();
-		
 		while(it.hasNext()){
 		System.out.println("Schema phase - "+it.next());	
 		}*/
@@ -752,15 +796,12 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		
 		Iterator<Object> tempIterator = tempList.iterator();
 		int counter=0;
-		String tempSt,graphId;
+		String tempSt,graphId,combinedStrings;
 		String[] tempArray;
-		//StringBuilder sbf=new StringBuilder();
-		int[] ijkew={0,0,0,0,0};//i=0,j=0,k=0,eCount=0,wCount=0;
+		int[] ijkew={0,0,0,0,0};
 		clearTableRows();
 		graphIdsList.clear();
 		
-		//System.out.println("inside groovy prevSelect = "+prevSelect);
-		//sbf.append("<font size='4' face='verdana'>");
 		eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
 	    
 		while (tempIterator.hasNext()) {
@@ -774,25 +815,14 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	         		
 	         		for(String[] sa: (ArrayList<String[]>)tempObject){
 	         		
-	         			//System.out.println(sa[0]+" @ "+sa[2]+" -- "+sa[1]);
-	         			
 	         			if(sa[0]==null) sa[0]="error"; // default role is null, if role is not set
-	         			
-	         			/*if(sa[2]==null){
-		         			//sa[2]=" - ";
-	         				graphId=null;
-	         				//tempSt=sa[0]+"-"+sa[1];
-		         		}
-		         		else{
-		         			graphId=sa[2];
-		         			//sa[2]=" @ GraphId : "+"<a href='"+sa[2]+"'>"+sa[2]+"</a>"+" - ";
-		         			//tempSt=sa[0]+" @ GraphId : "+"<a href='"+sa[2]+"'>"+sa[2]+"</a>"+" - "+sa[1];
-		         		}*/
 	         			graphId=sa[2];
-	         			tempSt=sa[0]+"-"+sa[1];
-	         			//tempSt=sa[0]+sa[2]+sa[1];
-	         			//call with tempst as arg
-	         			if(ignoredErrorTypesList.contains(tempSt)) continue;
+	         			tempSt=sa[0]+" - "+sa[1];
+	         			combinedStrings=graphId+"@@"+tempSt;
+	         			if(ignoredErrorTypesList.contains(tempSt)||
+	         					ignoredElements.contains(graphId)|| ignoredSingleError.contains(combinedStrings)) 
+	         				continue;
+	         		
 	         			printGroovy(tempSt,graphId,ijkew);
 	         		}
 	         		
@@ -804,20 +834,13 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	         		
 	         		if(tempArray[0]==null) tempArray[0]="error";
 	         		
-	         		/*if(tempArray[2]==null){
-	         			//tempArray[2]=" - ";
-	         			graphId=null;
-	         			//tempSt=tempArray[0]+" - "+tempArray[1];
-	         		}else{
-	         			graphId=tempArray[2];
-	         			//tempArray[2]=" @ GraphId : "+"<a href='"+tempArray[2]+"'>"+tempArray[2]+"</a>"+" - ";
-	         			//tempSt=tempArray[0]+" - "+tempArray[1];
-	         		}*/
 	         		graphId=tempArray[2];
 	         		tempSt=tempArray[0]+" - "+tempArray[1];
-	         		if(ignoredErrorTypesList.contains(tempSt)) continue;
-	         		//tempSt=tempArray[0]+tempArray[2]+tempArray[1];
-	         		//call with tempst as arg
+	         		combinedStrings=graphId+"@@"+tempSt;
+	         		if(ignoredErrorTypesList.contains(tempSt)|| 
+	         				ignoredElements.contains(graphId)|| ignoredSingleError.contains(combinedStrings) ) 
+	         			continue;
+	         		
 	         		printGroovy(tempSt,graphId,ijkew);
 	         }
 	      
@@ -825,9 +848,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		
 		eLabel.setText("Errors:"+ijkew[3]); wLabel.setText("Warnings:"+ijkew[4]);
 		
-		//sbf.append("</font>");
-		
-   		//refreshing the pathway , so that all the nodes highlighted appear highlighted
+		//refreshing the pathway , so that all the nodes highlighted appear highlighted
 		//VPathway vpwTemp = eng.getActiveVPathway();
 		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
 		eng.getActiveVPathway().redraw();
@@ -857,9 +878,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         
         System.out.println("-----------groovy part end-------------- ");
         
-        //jta.setCaretPosition(0);
-        //sbf.setLength(0); 
-		
 }
 	
 	private void printGroovy(String tempSt,String graphId,int[] ijkew){
@@ -875,25 +893,22 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         if(tempSt.startsWith("warning")){ EWIcon=WIcon; ijkew[4]++;}else { EWIcon=EIcon; ijkew[3]++;}
 		
 		if(prevSelect==0){
-			//sbf.append(imageUrl + ++ijkew[0] +".) "+tempSt+"<br><br>");
 			//System.out.println("prevsel 0");
 			mytbm.addRow(new Object[]{EWIcon,++ijkew[0] +".) "+tempSt});
         }
 		else if(prevSelect==1 && tempSt.startsWith("error")){
 			//System.out.println("prevsel 1");
-			//sbf.append(imageUrl + ++ijkew[1] +".) "+tempSt+"<br><br>");	
 			mytbm.addRow(new Object[]{EWIcon,++ijkew[1] +".) "+tempSt});
 		}
 		else if(prevSelect==2 && tempSt.startsWith("warning")){
 			//System.out.println("prevsel 2");
-			//sbf.append(imageUrl + ++ijkew[2] +".) "+tempSt+"<br><br>");	
 			mytbm.addRow(new Object[]{EWIcon,++ijkew[2] +".) "+tempSt}); 
 		}
 		else{
 			System.out.println("not passed"); 
 			//make tempSt null , so that only the corresponding nodes are highlighted, when selecting the drop down (E / W / E&W)
 			graphId=null;tempSt=null;
-			//highlightFlag=0;//for unhighlight method
+			
          }
         if(tempSt!=null){
         	graphIdsList.add(graphId+"");	
@@ -925,7 +940,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
   	   	try {
   		   groovyClass = loader.parseClass(schemaFile);
   		   schemaTitleTag.setText("Schema Title: "+cutTitleString(groovyClass.getSimpleName()));
-  		   groovyObject = (GroovyObject) groovyClass.newInstance();
+  		   schemaTitleTag.setCaretPosition(0);
+ 		   groovyObject = (GroovyObject) groovyClass.newInstance();
   	   	}
   	   	catch (Exception e1) {
   		   System.out.println("Exception @ groovy = "+e1.getMessage());
@@ -1014,8 +1030,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
   	   	
   	   	globGroovyResult=tempArray; 	   	
   	   	sortGroovyResultsAndPrint(globGroovyResult);
-  	   	//}
-  	   	//else System.out.println("no pathway is open to run groovy");
   	   	
 	}
 		
@@ -1073,31 +1087,55 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 						
 		}
 		
-		else if ("menuItem1".equals(e.getActionCommand())) {//Ignore Element
-			if(((JMenuItem)e.getSource()).getText().contains("Reconsider")){
-				//System.out.println("pressed consider submenu");
-				reConsiderTheIgnored();
-			} 
-			else System.out.println("presses menu1");
+		else if ("subMenu5ReConsider".equals(e.getActionCommand())) {
+			reConsiderTheIgnored(subMenu5,ignoredElements);
+		}
+		
+		else if ("subMenu4ReConsider".equals(e.getActionCommand())) {
+			reConsiderTheIgnored(subMenu4,ignoredErrorTypesList);
+		}
+		
+		else if ("subMenu6ReConsider".equals(e.getActionCommand())) {
+			reConsiderTheIgnored(subMenu6,ignoredSingleError);
+		}
+		
+		else if ("menuItem1".equals(e.getActionCommand())) { //Ignore this Element
+						
+				//System.out.println("pressed Igonore Element");
+				
+				int rowNumberClicked = jtb.getSelectedRow() ;
+				String graphIdToAdd = graphIdsList.get(rowNumberClicked);
+				addToSubMenu(subMenu5,graphIdToAdd,ignoredElements);
+				
+				/*for(String s : ignoredElements){
+				System.out.println(s);
+				}*/
+			
 		}
 		
 		else if ("menuItem2".equals(e.getActionCommand())) {//Ignore this Error
-			System.out.println("presses menu2");
+			//System.out.println("pressed Ignore this Error/Warning");
+			
+			int rowNumberClicked = jtb.getSelectedRow() ;
+			String graphIdToAdd = graphIdsList.get(rowNumberClicked);
+			
+			String valueAtTheRow=(String)jtb.getValueAt(jtb.getSelectedRow(), 1);
+			valueAtTheRow=valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3);
+			
+			String combined= graphIdToAdd+"@@"+valueAtTheRow;
+			addToSubMenu(subMenu6,combined,ignoredSingleError);
+			
 		}
 		
 		else if ("menuItem3".equals(e.getActionCommand())) {//Ignore this Error Type
 			//System.out.println("Ignore this Error Type pressed");
 			//if(ignoredErrorTypesList==null) ignoredErrorTypesList=new ArrayList<String>();
+			
 			String valueAtTheRow=(String)jtb.getValueAt(jtb.getSelectedRow(), 1);
-			ignoredErrorTypesList.add(valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3));
-			addToSubMenu(valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3));
-			if(ignoredErrorTypesList.size()==1) subMenu4.setEnabled(true);  
-			printItOnTable();
+			valueAtTheRow=valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3);
 			
-			/*for(String s : ignoredErrorTypesList){
-				System.out.println(s);
-			}*/
-			
+			addToSubMenu(subMenu4,valueAtTheRow,ignoredErrorTypesList);
+						
 		}
 		
 		else if ("choose".equals(e.getActionCommand())) { // "Choose Ruleset" button pressed 
@@ -1108,42 +1146,70 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				chooser=new JFileChooser();
 				
 				ignoredErrorTypesList=new ArrayList<String>();
+				ignoredElements=new ArrayList<String>();
+				ignoredSingleError=new ArrayList<String>();
+				checkedUnchecked = new int[6];
 				
 				EIcon = new ImageIcon(getClass().getResource("/error.png"));
 				WIcon = new ImageIcon(getClass().getResource("/warning.png"));
 				
-				//graphIdsList=new ArrayList<String>();
-				
 				popup = new JPopupMenu("filter");// popup named "filter"
 				
-				
-				JMenuItem menuItem123= new JMenuItem("Ignore Element");
+				JMenuItem menuItem123= new CustomMenuItem("Ignore Element");
 				menuItem123.addActionListener(this);
 				menuItem123.setActionCommand("menuItem1");
 				popup.add(menuItem123);
 				
-				menuItem123 = new JMenuItem("Ignore this Error/Warning");
+				menuItem123 = new CustomMenuItem("Ignore this Error/Warning");
 				menuItem123.setActionCommand("menuItem2");
 				menuItem123.addActionListener(this);
 				popup.add(menuItem123);
 				
-				menuItem123 = new JMenuItem("Ignore this Error/Warning Type");
+				menuItem123 = new CustomMenuItem("Ignore this Error/Warning Type");
 				menuItem123.setActionCommand("menuItem3");
 				menuItem123.addActionListener(this);
 				popup.add(menuItem123);
 				popup.addSeparator();
 				
+				ImageIcon img=new ImageIcon(getClass().getResource("/ignore.png"));
 				subMenu4= new JMenu("Ignored Error/Warning Types");
-				subMenu4.setIcon(new ImageIcon(getClass().getResource("/ignore.png")));
+				subMenu4.setIcon(img);
 				
-				JMenuItem subMenuItemOkButton=new JMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
-				subMenuItemOkButton.setActionCommand("menuItem1");
+				subMenu5= new JMenu("Ignored Elements");
+				subMenu5.setIcon(img);
+				
+				subMenu6= new JMenu("Ignored Errors/Warnings");
+				subMenu6.setIcon(img);
+				
+				JMenuItem subMenuItemOkButton=new CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
+				subMenuItemOkButton.setActionCommand("subMenu4ReConsider");
 				subMenuItemOkButton.addActionListener(this);
+				subMenuItemOkButton.setEnabled(false);
 				subMenu4.add(subMenuItemOkButton);
+				
+				subMenuItemOkButton=new CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
+				subMenuItemOkButton.setActionCommand("subMenu5ReConsider");
+				subMenuItemOkButton.addActionListener(this);
+				subMenuItemOkButton.setEnabled(false);
+				subMenu5.add(subMenuItemOkButton);
+				
+				subMenuItemOkButton=new CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
+				subMenuItemOkButton.setActionCommand("subMenu6ReConsider");
+				subMenuItemOkButton.addActionListener(this);
+				subMenuItemOkButton.setEnabled(false);
+				subMenu6.add(subMenuItemOkButton);
 				
 				subMenu4.addSeparator();
 				subMenu4.setEnabled(false);
 				
+				subMenu5.addSeparator();
+				subMenu5.setEnabled(false);
+				
+				subMenu6.addSeparator();
+				subMenu6.setEnabled(false);
+				
+				popup.add(subMenu5);
+				popup.add(subMenu6);
 				popup.add(subMenu4);
 			}
 			
@@ -1234,11 +1300,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		        }
 		     
 		        // setting/clearing the rightclick related stuff
-				ignoredErrorTypesList.clear();
-				subMenu4.setEnabled(false);
-				while(subMenu4.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
-					subMenu4.remove(2);
-				}
+				clearRightClickStuff();
 				
 		        valbutton.doClick();
 		        PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
@@ -1248,23 +1310,20 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 					   
 		}
 		
-		/*else if("subMenuItemCBMI".equals(e.getActionCommand())){
-			System.out.println("check na");
+		else if("subMenuItemCBMI".equals(e.getActionCommand())){
+			//System.out.println("check na");
+			JCheckBoxMenuItem jcbmi=(JCheckBoxMenuItem)e.getSource();
 			
-		}*/
+			//okButtonED(jcbmi);
+			checkUncheck(jcbmi);
+			
+		}
 		
 		else if("jcb".equals(e.getActionCommand())){ // "Hightlight All" checkbox
 			//eng.getActiveVPathway().resetHighlight();
 
 			if(((JCheckBox)e.getSource()).isSelected()){
 				System.out.println("jcb selected");
-				//valbutton.setEnabled(false);
-
-				/*if(!schemaFileType.equalsIgnoreCase("groovy"))
-					printOnPanel();//call only the highlighting part, (highlight all!)
-				else 
-					sortGroovyResultsAndPrint(globGroovyResult);
-				 */
 				vhighlightAll();
 
 				PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
@@ -1285,11 +1344,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			if(prevSelect != cbox.getSelectedIndex()) {
 				prevSelect = cbox.getSelectedIndex();
 				
-				/*if(!schemaFileType.equalsIgnoreCase("groovy"))
-					printOnPanel();
-				else
-					sortGroovyResultsAndPrint(globGroovyResult);
-				*/
 				printItOnTable();
 				
 				System.out.println(cbox.getSelectedItem());
@@ -1308,25 +1362,20 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	
 	//@Override
 	public void applicationEvent(ApplicationEvent e) {
-		
-		//System.out.println("event occured");
+
 		if( e.getType()==ApplicationEvent.PATHWAY_OPENED || e.getType()==ApplicationEvent.PATHWAY_NEW){
-			
-			//jta.setText("");
+
 			clearTableRows();
 			
 			// setting/clearing the rightclick related stuff
-			ignoredErrorTypesList.clear();
-			subMenu4.setEnabled(false);
-			while(subMenu4.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
-				subMenu4.remove(2);
+			if(ignoredErrorTypesList!=null){
+				clearRightClickStuff();
 			}
-			
 			
 			jcBox.setEnabled(false);jcb.setEnabled(false);
 			errorCounter=0;
 			eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
-			
+
 			//mimf=new MIMFormat();
 			// thread code for export when a pathway is opened, for making the validation faster
 			/*new Thread(){
@@ -1334,56 +1383,42 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 					try {
 						doExport=true;
 						mimf.doExport(currentPathwayFile, eng.getActivePathway());
-				
+
 					} catch (ConverterException e1) {
 						e1.printStackTrace();
 					}
 				}
 			}.start();*/
-			
-			System.out.println("event pathway opened occured or event new  pathway occured");
-		
+
+			//System.out.println("event pathway opened occured or event new  pathway occured");
+
 		}
-		
-		/*else if(e.getType()==ApplicationEvent.PATHWAY_NEW){
-			
-			jta.setText("");
-			jcBox.setEnabled(false);jcb.setEnabled(false);
-			errorCounter=0;
-			eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
-			System.out.println("event new  pathway occured");
-		
-		}*/
-		
-		/*else if(e.getType()==SwingMouseEvent.MOUSE_CLICK){
-			System.out.println("mouse clicked");
-		}*/
-		
+
 	}
-	
+
 	public void itemStateChanged(ItemEvent arg0) { // invoked for change in phasebox selection 
-		
+
 		if(!changeOfSchema && arg0.getStateChange()==1){
 			//phaseBoxSelection=((JComboBox)arg0.getSource()).getSelectedIndex();
-			
-			
+
+
 			if(!schemaFileType.equalsIgnoreCase("groovy")){
 				//donot forget to change the index if the "Phase: " format is changed
 				String temp=( (String)arg0.getItem() ).substring(7);
-			
+
 				if(temp.equals("All")){
 					SaxonTransformer.transformer1.clearParameters();
 				}
 				else{
 					SaxonTransformer.transformer1.setParameter("phase", temp );
 				}
-			
-				
-			System.out.println("item selected --"+temp );
+
+
+				System.out.println("item selected --"+temp );
 			}
 			if(eng.hasVPathway()) valbutton.doClick();
 		}
-	
+
 	}
-	
+
 }	
