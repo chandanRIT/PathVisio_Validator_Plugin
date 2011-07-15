@@ -2,10 +2,13 @@ package org.pathvisio.plugins;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -62,7 +65,8 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
 import groovy.lang.GroovyShell;
 
-public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventListener, ItemListener
+public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventListener,
+										ItemListener, ComponentListener
 {
 	private  PvDesktop desktop;
 	//private JButton valbutton;
@@ -92,7 +96,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
     private static final JTextField schemaTitleTag= new JTextField("Schema Title: ");
 	//private static boolean doExport=false;
 	private static String schemaFileType;
-	private static Thread threadForSax;
+	//private static Thread threadForSax;
 	private static GroovyObject grvyObject;
 	private static ArrayList<Object> globGroovyResult;
 	//private static int phaseBoxSelection=0;
@@ -114,6 +118,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	private JMenu subMenu4,subMenu5,subMenu6;
 	private boolean allIgnored;
     private int[] checkedUnchecked;
+    private String schemaString;
 	
 	public ValidatorPlugin(){
 		
@@ -152,6 +157,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	public void init(PvDesktop desktop) 
 	{   
 		schemaTitleTag.setEditable(false);
+		schemaTitleTag.addComponentListener(this);
 		
 		//chandan : creating a button for choosing the schema file 
 		//chooseSchema=new JButton("Choose Ruleset");
@@ -208,6 +214,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		
 		jtb.setTableHeader(null);
 	    jtb.setFont(new Font("Verdana", Font.PLAIN, 15));
+	    //jtb.setGridColor(Color.WHITE);
 	    
 	    mytbm.addColumn("image"); 
 	    mytbm.addColumn("errors and warnings");
@@ -271,21 +278,22 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    			//System.out.println("tootl tip "+jtb.getToolTipText(e));
 	    			
 	    			if(discardFirst2Menus || allIgnored){
-	    				
+	    				System.out.println("inside if d a "+discardFirst2Menus+" "+allIgnored);
 	    				if(discardFirst2Menus) 
 	    					jtb.getSelectionModel().setSelectionInterval(row, row);
 	    				
-	    				if(popup.getComponent(0).isEnabled())
+	    				//if(popup.getComponent(2).isEnabled())
 	    					for(int MI=0; MI<3 ; MI++){
-	    						if(MI==2 && discardFirst2Menus){}
+	    						if(MI==2 && discardFirst2Menus){popup.getComponent(MI).setEnabled(true); }
 	    						else
 	    							popup.getComponent(MI).setEnabled(false); 
 	    						
 	    					}
 	    			}	
 	    			else {
+	    				System.out.println("inside else d a "+discardFirst2Menus+" "+allIgnored);
 	    				jtb.getSelectionModel().setSelectionInterval(row, row);//to select the row with right click
-	    				if(!popup.getComponent(0).isEnabled())
+	    				//if(!popup.getComponent(2).isEnabled())
 	    					for(int MI=0; MI<3 ; MI++)
 	    						popup.getComponent(MI).setEnabled(true); 
 
@@ -300,7 +308,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    //ImageIcon aboutIcon = new ImageIcon(getClass().getResource("/warning.png"));
 	    
 		final JScrollPane scrollPane = new JScrollPane(jtb);
-		//scrollPane.setBackground(Color.WHITE);
+		scrollPane.getViewport().setBackground(Color.WHITE);
+		//scrollPane.setOpaque(true);
 		//scrollPane.setForeground(Color.white);
 		//scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		//scrollPane.setColumnHeader(null);
@@ -461,29 +470,32 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 					//MIMFormat mimf=new MIMFormat();
 					//SchematronTask st=new SchematronTask();
 					try {
-						
-						System.out.println("b4 export called"+schemaFileType);
-						//if(!doExport){
-						if(schemaFileType.equalsIgnoreCase("gpml")){
-							GpmlFormat.writeToXml (eng.getActivePathway(), currentPathwayFile, true);
-							System.out.println("gpml export called");
-						}
-											
-						else {
-							mimf.doExport(currentPathwayFile, eng.getActivePathway());
-							System.out.println("mimVis export called");
-						}
-						
-					//}
-					//doExport=false;
-						SaxonTransformer.setschemaFile(schemaFile);
-						System.out.println("after mimf export and b4 execute");
-					
-						tempSaxTrnfr.produceSvrlAndThenParse();
-						System.out.println("after  st.execute");
-					
+						//if(!schemaFileType.equalsIgnoreCase("groovy")){
+							System.out.println("b4 export called"+schemaFileType);
+							//if(!doExport){
+							if(schemaFileType.equalsIgnoreCase("gpml")){
+								GpmlFormat.writeToXml (eng.getActivePathway(), currentPathwayFile, true);
+								System.out.println("gpml export called");
+							}
+
+							else {
+								mimf.doExport(currentPathwayFile, eng.getActivePathway());
+								System.out.println("mimVis export called");
+							}
+
+							//}
+							//doExport=false;
+							SaxonTransformer.setschemaFile(schemaFile);
+							System.out.println("after mimf export and b4 execute");
+
+							tempSaxTrnfr.produceSvrlAndThenParse();
+							System.out.println("after  st.execute");
+
+							printOnPanel();
+
+						//}
+						//else runGroovy(grvyObject);
 					}
-					
 					catch (Exception e1) { //changed from ConverterException to catch all the errors
 						System.out.println("Exception in validatepathway method--"+e1.getMessage());
 						e1.printStackTrace();
@@ -602,13 +614,23 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 
 	private String cutTitleString(String ss)
 	{	
-		schemaTitleTag.setToolTipText(ss);
-		//if(ss.length()>16) return (ss.substring(0,16)+"..").toUpperCase();
-		schemaTitleTag.setCaretPosition(0);
-		/*if(schemaTitleTag.getFontMetrics(schemaTitleTag.getFont()).stringWidth(ss)+10>schemaTitleTag.getWidth())
-			System.out.println("more na");//ss=ss.substring(0,schemaTitleTag.getWidth()-3)+"..";
-		*/
 		
+		FontMetrics fm= schemaTitleTag.getFontMetrics(schemaTitleTag.getFont());
+		int fontWidth=fm.stringWidth(ss);
+		int TFwidfth= schemaTitleTag.getWidth()-77;
+		if(fontWidth>=TFwidfth)
+		{	schemaTitleTag.setToolTipText(ss);
+			for(int index=ss.length()-1; index>0 ; index=index-2)// for faster looping
+			{	
+				fontWidth=fm.stringWidth(ss.substring(0,index));
+				if (fontWidth<TFwidfth){ 
+					ss=ss.substring(0,index-1)+"..";
+					//System.out.println(index);
+					return ss;
+				}
+		
+			}
+		} else schemaTitleTag.setToolTipText(null);
 		return ss;
 	}
 	
@@ -715,6 +737,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			}
 			index--;
 		}
+		
 		if(ignoredList.isEmpty()) subMenu.setEnabled(false); 
 		
 		subMenu.getMenuComponent(0).setEnabled(false);
@@ -736,6 +759,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			PathwayElement pe=pth.getElementById(EWMtext);
 			EWMtext=EWMtext+" : "+pe.getObjectType();
 		}
+		
 		JCheckBoxMenuItem subMenuItemCBMI= new JCheckBoxMenuItem(EWMtext);
 		subMenuItemCBMI.setUI(new StayOpenCheckBoxMenuItemUI());
 		subMenuItemCBMI.setActionCommand("subMenuItemCBMI");
@@ -761,8 +785,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-		
-		schemaTitleTag.setText("Schema Title: "+cutTitleString(mySHandler.getTheTitle()));
+		schemaString=mySHandler.getTheTitle();
+		schemaTitleTag.setText("Schema Title: "+cutTitleString(schemaString));
 		schemaTitleTag.setCaretPosition(0);
 		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
 		
@@ -939,7 +963,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
   	   
   	   	try {
   		   groovyClass = loader.parseClass(schemaFile);
-  		   schemaTitleTag.setText("Schema Title: "+cutTitleString(groovyClass.getSimpleName()));
+  		   schemaString=groovyClass.getSimpleName();
+  		   schemaTitleTag.setText("Schema Title: "+cutTitleString(schemaString));
   		   schemaTitleTag.setCaretPosition(0);
  		   groovyObject = (GroovyObject) groovyClass.newInstance();
   	   	}
@@ -1068,7 +1093,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 					}
 					
 					validatePathway(saxTfr,mimf);
-					printOnPanel();
+					//printOnPanel();
 					
 				}
 				else {
@@ -1141,6 +1166,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		else if ("choose".equals(e.getActionCommand())) { // "Choose Ruleset" button pressed 
 			
 			System.out.println("choose schema button pressed");
+			Thread threadForSax=null;
 			
 			if(chooser==null){
 				chooser=new JFileChooser();
@@ -1241,9 +1267,9 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				
 		    			if(f.isDirectory()) return true;
 		    			
-		    			String ext = f.toString().substring(f.toString().indexOf('.')+1);
+		    			String ext = f.toString().substring(f.toString().length()-3);
 					
-		    			if(ext.equalsIgnoreCase("sch")||ext.equalsIgnoreCase("groovy")||ext.equalsIgnoreCase("xml")) {
+		    			if(ext.equalsIgnoreCase("sch")||ext.equalsIgnoreCase("ovy")||ext.equalsIgnoreCase("xml")) {
 		    				return true;
 		    			}
 					
@@ -1261,13 +1287,15 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		    int returnVal = chooser.showOpenDialog(desktop.getFrame());
 
 		    //wait for the transformer creation in the thread to complete 
-			try{
-				threadForSax.join();
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-	    	
+		    if(threadForSax!=null){
+		    	try{
+		    		threadForSax.join();
+		    		threadForSax=null;
+		    	} catch (InterruptedException e1) {
+		    		// TODO Auto-generated catch block
+		    		e1.printStackTrace();
+		    	}
+		    }
 		    
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
 		    	
@@ -1280,10 +1308,10 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		        schemaFile=chooser.getSelectedFile();
 		       //System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
 		       
-		        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().indexOf('.')+1));
+		        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().length()-3));
 		        
 		        //if the file chosen is of type ".groovy", then do groovy specific logic
-		        if(schemaFileSubString.equalsIgnoreCase("groovy") ){
+		        if(schemaFileSubString.equalsIgnoreCase("ovy") ){
 		        	jcBox.setSelectedIndex(0);
 		        	schemaFileType="groovy";
 		        	//phaseBox.setEnabled(false);
@@ -1314,8 +1342,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			//System.out.println("check na");
 			JCheckBoxMenuItem jcbmi=(JCheckBoxMenuItem)e.getSource();
 			
-			//okButtonED(jcbmi);
-			checkUncheck(jcbmi);
+			//okButtonED(jcbmi); // this method must be  a bit slower for large groups
+			checkUncheck(jcbmi); // This must be faster 
 			
 		}
 		
@@ -1325,7 +1353,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			if(((JCheckBox)e.getSource()).isSelected()){
 				System.out.println("jcb selected");
 				vhighlightAll();
-
 				PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
 			}
 			else {
@@ -1419,6 +1446,27 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			if(eng.hasVPathway()) valbutton.doClick();
 		}
 
+	}
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void componentResized(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		if(schemaString!=null){
+		schemaTitleTag.setText("Schema Title: "+cutTitleString(schemaString));
+		schemaTitleTag.setCaretPosition(0);
+		//System.out.println("no of chars "+schemaTitleTag.get);
+	
+		}
+	}
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }	
