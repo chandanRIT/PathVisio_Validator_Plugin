@@ -790,6 +790,11 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		schemaTitleTag.setCaretPosition(0);
 		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
 		
+		ArrayList<String> phasesList=mySHandler.getPhases();
+		String dp = mySHandler.getDefaultPhase();
+		SaxonTransformer.transformer1.setParameter("phase",dp);
+		System.out.println("Default Phase - "+dp);
+		
 		schemaFileType=mySHandler.getType();
 		//System.out.println("Schema Type = "+mySHandler.getType());
 		
@@ -801,7 +806,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		if(!phaseBox.isEnabled())
 			phaseBox.setEnabled(true);
 		
-		Iterator<String> tempIterator= mySHandler.getPhases().iterator();
+		Iterator<String> tempIterator= phasesList.iterator();
 		
 		//refreshing the drop down to include phases of the selected schema by clearing out the previous items and adding new ones
 		while(phaseBox.getItemCount()!=1){
@@ -812,7 +817,17 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			phaseBox.addItem("Phase: "+tempIterator.next());
 			//System.out.println(tempIterator.next());
 		}
-
+		
+		// to determine the index of the phaseBox based on value of default Phase(dp) 
+		changeOfSchema=true;
+		int phaseIndex;
+		if( (phaseIndex=phasesList.indexOf(dp))!=-1 ){
+			phaseBox.setSelectedIndex(phaseIndex+1);
+	   	}
+		else {
+			phaseBox.setSelectedIndex(0);
+		}
+		changeOfSchema=false;	
 		
 	}
 	
@@ -1299,7 +1314,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		    
 		    if(returnVal == JFileChooser.APPROVE_OPTION) {
 		    	
-		    	//stopping the changes made by change the state of phasebox to 0
+		    	//stopping the changes made by changing the state of phasebox to 0
 		    	changeOfSchema=true;
 		    	phaseBox.setSelectedIndex(0);
 		    	changeOfSchema=false;
@@ -1322,7 +1337,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		        // if the chosen file is of type ".sch" (schema file)
 		        else {
 		        	//phaseBox.setSelectedIndex(0);
-		        	SaxonTransformer.transformer1.clearParameters();
+		        	//SaxonTransformer.transformer1.setParameter("phase", defaultPhase );
 		        	parseSchemaAndSetValues();
 		        	svrlOutputChoose.setEnabled(true);
 		        }
@@ -1434,7 +1449,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				String temp=( (String)arg0.getItem() ).substring(7);
 
 				if(temp.equals("All")){
-					SaxonTransformer.transformer1.clearParameters();
+					SaxonTransformer.transformer1.setParameter("phase", "#ALL" );
 				}
 				else{
 					SaxonTransformer.transformer1.setParameter("phase", temp );

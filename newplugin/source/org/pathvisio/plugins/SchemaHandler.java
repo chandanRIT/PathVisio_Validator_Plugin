@@ -8,6 +8,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class SchemaHandler extends DefaultHandler {
 
 	private String theTitle; // schema's title
+	private String defaultPhase;
 	private String type; // schema's type
 	private ArrayList<String> phases = new ArrayList<String>();
 	private StringBuilder chars = new StringBuilder();
@@ -16,7 +17,11 @@ public class SchemaHandler extends DefaultHandler {
 	public void startElement(String uri, String localName, String rawName,
 			Attributes attributes) {
 
-		if (rawName.equals("iso:ns")) {
+		if (rawName.equals("iso:phase")) {
+			phases.add(attributes.getValue("id"));
+		}
+		
+		else if (rawName.equals("iso:ns")) {
 
 			iso_ns_counter++;
 
@@ -31,13 +36,14 @@ public class SchemaHandler extends DefaultHandler {
 												// empty spaces
 			this.theTitle = getCharacters();
 		}
-
-		else if (rawName.equals("iso:phase")) {
-			phases.add(attributes.getValue("id"));
+		
+		else if(rawName.equals("iso:schema")){
+			this.defaultPhase=attributes.getValue("defaultPhase");
 		}
 
 	}
 
+	
 	public void endElement(String namespaceURL, String localName, String rawName) {
 
 		if (rawName.equals("iso:title")) {
@@ -82,5 +88,10 @@ public class SchemaHandler extends DefaultHandler {
 	public String getTheTitle() {
 		return theTitle;
 	}
+	
+	public String getDefaultPhase() {
+		return defaultPhase;
+	}
+
 
 }
