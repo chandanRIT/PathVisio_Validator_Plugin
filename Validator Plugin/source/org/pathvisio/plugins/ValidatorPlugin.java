@@ -278,7 +278,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    			//System.out.println("tootl tip "+jtb.getToolTipText(e));
 	    			
 	    			if(discardFirst2Menus || allIgnored){
-	    				System.out.println("inside if d a "+discardFirst2Menus+" "+allIgnored);
+	    				//System.out.println("inside if d a "+discardFirst2Menus+" "+allIgnored);
 	    				if(discardFirst2Menus) 
 	    					jtb.getSelectionModel().setSelectionInterval(row, row);
 	    				
@@ -291,7 +291,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    					}
 	    			}	
 	    			else {
-	    				System.out.println("inside else d a "+discardFirst2Menus+" "+allIgnored);
+	    				//System.out.println("inside else d a "+discardFirst2Menus+" "+allIgnored);
 	    				jtb.getSelectionModel().setSelectionInterval(row, row);//to select the row with right click
 	    				//if(!popup.getComponent(2).isEnabled())
 	    					for(int MI=0; MI<3 ; MI++)
@@ -362,7 +362,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         //JTabbedPane bottomTabbedPane= new JTabbedPane();
         //bottomTabbedPane.add("validation",mySideBarPanel);
         sidebarTabbedPane.add("Validator", mySideBarPanel);
-        desktop.getSideBarTabbedPane().setSelectedComponent(mySideBarPanel);
+        sidebarTabbedPane.setSelectedComponent(mySideBarPanel);
         //setting the winx, winy values 
         
         //code for setting the winx and winy of main window of pathvisio in preference file
@@ -557,7 +557,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
          		mytbm.addRow(new Object[]{EWIcon,++k +".) "+tempSt});
          	}
          	else{
-         		System.out.println("not passed"); 
+         		//System.out.println("not passed"); 
          		//make tempSt null , so that only the corresponding nodes are highlighted, when selecting the drop down (E / W / E&W)
          		tempSt=null;
          		//highlightFlag=0;//for unhighlight method
@@ -792,8 +792,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		
 		ArrayList<String> phasesList=mySHandler.getPhases();
 		String dp = mySHandler.getDefaultPhase();
-		SaxonTransformer.transformer1.setParameter("phase",dp);
-		System.out.println("Default Phase - "+dp);
+		saxTfr.transformer1.setParameter("phase",dp);
+		//System.out.println("Default Phase - "+dp);
 		
 		schemaFileType=mySHandler.getType();
 		//System.out.println("Schema Type = "+mySHandler.getType());
@@ -944,7 +944,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			mytbm.addRow(new Object[]{EWIcon,++ijkew[2] +".) "+tempSt}); 
 		}
 		else{
-			System.out.println("not passed"); 
+			//System.out.println("not passed"); 
 			//make tempSt null , so that only the corresponding nodes are highlighted, when selecting the drop down (E / W / E&W)
 			graphId=null;tempSt=null;
 			
@@ -1256,7 +1256,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			
 			if(chooser.getDialogTitle()==null){
 				   
-				System.out.println("choose pressed for 1st time");
+				//System.out.println("choose pressed for 1st time");
 				threadForSax=new Thread(){ 
 					public void run(){
 						
@@ -1336,8 +1336,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		       
 		        // if the chosen file is of type ".sch" (schema file)
 		        else {
-		        	//phaseBox.setSelectedIndex(0);
-		        	//SaxonTransformer.transformer1.setParameter("phase", defaultPhase );
 		        	parseSchemaAndSetValues();
 		        	svrlOutputChoose.setEnabled(true);
 		        }
@@ -1366,12 +1364,12 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			//eng.getActiveVPathway().resetHighlight();
 
 			if(((JCheckBox)e.getSource()).isSelected()){
-				System.out.println("jcb selected");
+				//System.out.println("jcb selected");
 				vhighlightAll();
 				PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,1);
 			}
 			else {
-				System.out.println("jcb deselected");
+				//System.out.println("jcb deselected");
 				//valbutton.setEnabled(true);
 				PreferenceManager.getCurrent().setInt(SchemaPreference.CHECK_BOX_STATUS,0);
 				eng.getActiveVPathway().resetHighlight();//unhighlight all
@@ -1388,7 +1386,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				
 				printItOnTable();
 				
-				System.out.println(cbox.getSelectedItem());
+				//System.out.println(cbox.getSelectedItem());
 			}
 		}
 		
@@ -1449,14 +1447,14 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				String temp=( (String)arg0.getItem() ).substring(7);
 
 				if(temp.equals("All")){
-					SaxonTransformer.transformer1.setParameter("phase", "#ALL" );
+					saxTfr.transformer1.setParameter("phase", "#ALL" );
 				}
 				else{
-					SaxonTransformer.transformer1.setParameter("phase", temp );
+					saxTfr.transformer1.setParameter("phase", temp );
 				}
 
 
-				System.out.println("item selected --"+temp );
+				//System.out.println("item selected --"+temp );
 			}
 			if(eng.hasVPathway()) valbutton.doClick();
 		}
