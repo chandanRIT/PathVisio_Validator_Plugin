@@ -26,8 +26,8 @@ public class SaxonTransformer {
 
 	private static String svrl;
 	private static File schemaFile, inputFile;
-	private static final TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
-	static Transformer transformer1;
+	private TransformerFactory factory;// = new net.sf.saxon.TransformerFactoryImpl();
+	Transformer transformer1;
 	private static boolean produceSvrl = false;
 
 	/**
@@ -46,11 +46,11 @@ public class SaxonTransformer {
 	private final ArrayList<String> successfulReports = new ArrayList<String>();
 
 	public SaxonTransformer() throws TransformerConfigurationException {
-
+		factory = new net.sf.saxon.TransformerFactoryImpl();
 		System.setProperty("javax.xml.transform.TransformerFactory",
 				"net.sf.saxon.TransformerFactoryImpl");
-		SaxonTransformer.transformer1 = factory
-				.newTransformer(new StreamSource(getUrlToIso().toString()));
+		transformer1 = factory
+				.newTransformer(new StreamSource(getClass().getResource("/iso_svrl_for_xslt2.xsl").toString()));
 
 	}
 
@@ -90,15 +90,15 @@ public class SaxonTransformer {
 		return in;
 	}
 
-	public URL getUrlToIso() {
+	/*public URL getUrlToIso() {
 
 		return getClass().getResource("/iso_svrl_for_xslt2.xsl");
 		// above line for ECLIPSE build
 
 		// below line for ANT JAR BUILD
 		// return getClass().getResource("/XSLs/iso_svrl_for_xslt2.xsl");
-	}
-
+	}*/
+	
 	public void produceSvrlAndThenParse() throws Exception {
 
 		// String schemaSystemId = new File(args[0]).toURL().toExternalForm();
