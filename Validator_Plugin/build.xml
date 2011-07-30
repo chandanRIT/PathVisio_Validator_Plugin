@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-<project name="newplugin" default="build-install" basedir=".">
+<project name="Validator Plugin" default="build-install" basedir=".">
 	
 	<property name="base.name" value="ValidatorPlugin" />
 	<property name="jar.name" value="${base.name}.jar" />
     
 	<property environment="env" />
 	<property name="install.dir" value="${user.home}/.PathVisio/plugins" />
-	<property name="pathvisio.dir" value="../PathvisioTrunk" />
+	<property name="pathvisio.dir" value="../PathVisioJul29" />
 	<property name="lib.dir" value="${pathvisio.dir}/lib" />
     <property name="validator.lib" value="lib"/>
-	<property name="images.dir" value="images"/>
+	<property name="validator.images" value="images"/>
 	
 	<path id="project.class.path">
 		<pathelement location="${pathvisio.dir}/pathvisio.jar" />
@@ -30,7 +30,7 @@
 		<mkdir dir="build" />
 		
 		<copy todir="build">
-			<fileset dir="${images.dir}"/>
+			<fileset dir="${validator.images}"/>
 		</copy>
 		
 		<copy todir="build">
