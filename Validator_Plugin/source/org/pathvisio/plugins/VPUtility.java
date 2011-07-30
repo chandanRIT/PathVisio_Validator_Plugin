@@ -1,12 +1,16 @@
 package org.pathvisio.plugins;
 
 import java.awt.FontMetrics;
+import java.awt.event.MouseEvent;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
-import javax.swing.JMenu;
-import javax.swing.JPopupMenu;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JTextField;
+import javax.swing.MenuSelectionManager;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
+import javax.swing.table.DefaultTableModel;
 
 public class VPUtility {
 
@@ -42,31 +46,46 @@ public class VPUtility {
 		} else schemaTitleTag.setToolTipText(null);
 		return ss;
 	}
-	
+
 	/**
-	 * An alternate method to enable/disable the "Reconsider (Un-Ignore)" button in the sub menu item,
-	 * but this might be slower than the "checkUncheck" method
-	 * @param jcbmi the JCheckBoxMenuItem that received the check/uncheck event 
+	 * custom JTable class to override the the method "isCellEditable", in order to
+	 *  render all the cells un-editable for the table 
 	 */
-	private void okButtonED(JCheckBoxMenuItem jcbmi){ //ED: Enable / Disable  
-		
-		JMenu subMenu=(JMenu)((JPopupMenu)jcbmi.getParent()).getInvoker();//since can not acces the parent directly here
-		int lengthOfIgnored=subMenu.getMenuComponentCount();
-		int index=lengthOfIgnored-1;
-		int NOFchecked=0;
-		//System.out.println("total in submenu4 "+subMenu4.getMenuComponentCount());
-		while(index>1){
-			if( ( (JCheckBoxMenuItem)subMenu.getMenuComponent(index) ).getState() ){
-				NOFchecked++;
-				break;
-			}
-			index--;
-		}
-		if(NOFchecked!=0) 
-			subMenu.getMenuComponent(0).setEnabled(true);
-		else subMenu.getMenuComponent(0).setEnabled(false);
+	static class MyTableModel extends DefaultTableModel{
+		public boolean isCellEditable(int row, int column){  
+		    return false;  
+		  }  
 	}
 	
+	static class CustomMenuItem extends JMenuItem {
+
+		    public CustomMenuItem(String text) {
+		        super(text);
+		    }
+
+		    public CustomMenuItem() {
+		        super();
+		    }
+
+		    protected void processMouseEvent(MouseEvent e) {
+		        if (isEnabled()) super.processMouseEvent(e);
+		    }
+		}
 	
+	static class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
+
+		   //@Override
+		   protected void doClick(MenuSelectionManager msm) {
+		      menuItem.doClick(0);
+		   }
+
+		   public static ComponentUI createUI(JComponent c) {
+		      return new StayOpenCheckBoxMenuItemUI();
+		   }
+	}
+
+
 	
 }
+
+
