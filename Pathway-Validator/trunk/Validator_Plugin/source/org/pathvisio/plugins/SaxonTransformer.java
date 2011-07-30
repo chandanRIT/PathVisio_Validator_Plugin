@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -24,8 +26,10 @@ import org.xml.sax.SAXException;
 
 public class SaxonTransformer {
 
-	private static String svrl;
-	private static File schemaFile, inputFile;
+	//private static String svrl;
+	private static File schemaFile, inputFile, svrlFile;
+	private SAXParser saxParser;
+	private SVRLHandler handler ;
 	private TransformerFactory factory;// = new net.sf.saxon.TransformerFactoryImpl();
 	Transformer transformer1;
 	private static boolean produceSvrl = false;
@@ -60,6 +64,14 @@ public class SaxonTransformer {
 
 	public static boolean getProduceSvrl() {
 		return produceSvrl;
+	}
+
+	public static File getSvrlFile() {
+		return svrlFile;
+	}
+
+	public static void setSvrlFile(File svrlFile) {
+		SaxonTransformer.svrlFile = svrlFile;
 	}
 
 	public static void setschemaFile(File schemaFile) {
@@ -99,20 +111,13 @@ public class SaxonTransformer {
 		// return getClass().getResource("/XSLs/iso_svrl_for_xslt2.xsl");
 	}*/
 	
-	public void produceSvrlAndThenParse() throws Exception {
+	public void produceSvrlAndThenParse() throws 
+			ParserConfigurationException, TransformerException, IOException, SAXException {
 
 		// String schemaSystemId = new File(args[0]).toURL().toExternalForm();
 		// String inputFileSystemId = new
 		// File(args[1]).toURL().toExternalForm();
-
-		/*
-		 * System.out.println(getUrlToIso());
-		 * System.out.println("XSLT Version = " +
-		 * Version.getXSLVersionString());
-		 * System.out.println("Product Version = " +
-		 * Version.getProductVersion());
-		 */
-
+		
 		failedAssertions.clear();
 		successfulReports.clear();
 		diagnosticReference.clear();
@@ -122,9 +127,6 @@ public class SaxonTransformer {
 		Source schemaSource = new StreamSource(schemaFile);
 		Source inputSource = new StreamSource(inputFile);
 
-		// transformer = factory.newTransformer(new
-		// StreamSource(getUrlToIso().toString()));
-		// File r1,r2;
 		StringWriter sw1 = new StringWriter();
 		Result result1 = new StreamResult(sw1);
 		// Result result2 = new
@@ -141,22 +143,25 @@ public class SaxonTransformer {
 
 		transformer2.transform(inputSource, result2);
 		// to produce the svrl output in a file in the user's temp directory
-		File svrlFile = new File(System.getProperty("user.home"),
+		//if(svrlFile==null)
+		if(svrlFile==null)
+		svrlFile = new File(System.getProperty("user.home"),
 				"svrlOutput.svrl");
 
 		if (getProduceSvrl()) {
 			transformer2.transform(inputSource, new StreamResult(svrlFile));
 			// produceSvrl=false;
+			
 		}
-		svrlFile.deleteOnExit();
-
+		else {
+			svrlFile.delete();
+			svrlFile=null;
+		}
+		
 		System.out.println("svrl cretaed");
-
-		// System.out.println(sw.toString());
-		svrl = sw2.toString();
-		svrl = removeXMLheader(svrl);
-		// Logger.log.debug(svrl);
-		parseSVRL();
+		// System.out.println(sw2.toString());
+		
+		parseSVRL(removeXMLheader(sw2.toString()));
 		// printMessages();
 
 	}
@@ -172,18 +177,19 @@ public class SaxonTransformer {
 			return svrl;
 	}
 
-	private void parseSVRL() throws IOException, SAXException,
+	private void parseSVRL(String svrl) throws IOException, SAXException,
 			ParserConfigurationException {
 
-		SVRLHandler handler = new SVRLHandler(this.failedAssertions,
+		if(handler==null) 
+			handler = new SVRLHandler(this.failedAssertions,
 				this.successfulReports, this.diagnosticReference);
-		// Print the every source file name and validation result to console
-		// use SVRLHandler class to parse the svrl content
 		// System.out.println(this.svrl);
 		InputSource is = new InputSource(
-				new StringReader(SaxonTransformer.svrl));
+				new StringReader(svrl));
 		is.setEncoding("UTF-16");
-		SAXParserFactory.newInstance().newSAXParser().parse(is, handler);
+		
+		if(saxParser==null)saxParser= SAXParserFactory.newInstance().newSAXParser();
+		saxParser.parse(is, handler);
 
 	}
 
