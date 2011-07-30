@@ -39,6 +39,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -106,10 +107,11 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	static ArrayList<Object> globGroovyResult;
 	//private static int phaseBoxSelection=0;
 	private static boolean changeOfSchema=false;
-	final MyTableModel mytbm=new MyTableModel();
+	final VPUtility.MyTableModel mytbm=new VPUtility.MyTableModel();
 	final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
 	private GroovyValidator groovyValidator;
 	private ValidatorPlugin vPlugin=this;
+	private SAXParser saxParser;
 	
 	final JTable jtb = new JTable(mytbm){
     	public Class getColumnClass(int column){  
@@ -191,6 +193,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				currentPathwayFile.deleteOnExit();
 			} catch (Exception e) {
 				System.out.println("Exception in creating current pathway temp file "+e);
+				JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+						"Could not generate the export file ","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
 		}
@@ -338,17 +342,17 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		
 		popup = new JPopupMenu("filter");// popup named "filter"
 		
-		JMenuItem menuItem123= new CustomMenuItem("Ignore Element");
+		JMenuItem menuItem123= new VPUtility.CustomMenuItem("Ignore Element");
 		menuItem123.addActionListener(this);
 		menuItem123.setActionCommand("menuItem1");
 		popup.add(menuItem123);
 		
-		menuItem123 = new CustomMenuItem("Ignore this Error/Warning");
+		menuItem123 = new VPUtility.CustomMenuItem("Ignore this Error/Warning");
 		menuItem123.setActionCommand("menuItem2");
 		menuItem123.addActionListener(this);
 		popup.add(menuItem123);
 		
-		menuItem123 = new CustomMenuItem("Ignore this Error/Warning Type");
+		menuItem123 = new VPUtility.CustomMenuItem("Ignore this Error/Warning Type");
 		menuItem123.setActionCommand("menuItem3");
 		menuItem123.addActionListener(this);
 		popup.add(menuItem123);
@@ -364,19 +368,19 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		subMenu6= new JMenu("Ignored Errors/Warnings");
 		subMenu6.setIcon(img);
 		
-		JMenuItem subMenuItemOkButton=new CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
+		JMenuItem subMenuItemOkButton=new VPUtility.CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
 		subMenuItemOkButton.setActionCommand("subMenu4ReConsider");
 		subMenuItemOkButton.addActionListener(this);
 		subMenuItemOkButton.setEnabled(false);
 		subMenu4.add(subMenuItemOkButton);
 		
-		subMenuItemOkButton=new CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
+		subMenuItemOkButton=new VPUtility.CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
 		subMenuItemOkButton.setActionCommand("subMenu5ReConsider");
 		subMenuItemOkButton.addActionListener(this);
 		subMenuItemOkButton.setEnabled(false);
 		subMenu5.add(subMenuItemOkButton);
 		
-		subMenuItemOkButton=new CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
+		subMenuItemOkButton=new VPUtility.CustomMenuItem( "Reconsider (Un-Ignore)");//	new ImageIcon(getClass().getResource("/ignore.png")) );
 		subMenuItemOkButton.setActionCommand("subMenu6ReConsider");
 		subMenuItemOkButton.addActionListener(this);
 		subMenuItemOkButton.setEnabled(false);
@@ -471,16 +475,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			popup.show(e.getComponent(), e.getX(), e.getY());
 		}
 
-	}
-	
-	/**
-	 * custom JTable class to override the the method "isCellEditable", in order to
-	 *  render all the cells un-editable for the table 
-	 */
-	 class MyTableModel extends DefaultTableModel{
-		public boolean isCellEditable(int row, int column){  
-		    return false;  
-		  }  
 	}
 	
 	/**
@@ -594,12 +588,67 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				System.out.println("after mimf export and b4 execute");
 				tempSaxTrnfr.produceSvrlAndThenParse();
 				System.out.println("after  st.execute");
-				printOnPanel();
+				printSchematron();
 			//}
 			//else runGroovy(grvyObject);
 	}
 	
-	private void printOnPanel(){
+	/**
+	 * this is used to parse the input Schematron file to derive its name, its default phase 
+	 * and set them to corresponding fields in the plugin, and reset the phase combo-box 
+	 */
+	private void parseSchemaAndSetValues(){
+		
+		SchemaHandler mySHandler=new SchemaHandler();
+		
+		try {
+			saxParser.parse(schemaFile, mySHandler);
+		} catch (SAXException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem while accessing Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+		
+			e.printStackTrace();
+		}
+		
+		schemaString=mySHandler.getTheTitle();
+		schemaTitleTag.setText("Schema Title: "+VPUtility.cutTitleString(schemaString,schemaTitleTag));
+		schemaTitleTag.setCaretPosition(0);
+		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
+		
+		ArrayList<String> phasesList=mySHandler.getPhases();
+		String dp = mySHandler.getDefaultPhase();
+		saxTfr.transformer1.setParameter("phase",dp);
+		//System.out.println("Default Phase - "+dp);
+		
+		schemaFileType=mySHandler.getType();
+		//System.out.println("Schema Type = "+mySHandler.getType());
+		
+		VPUtility.resetPhaseBox(phaseBox);
+		
+		Iterator<String> tempIterator= phasesList.iterator();
+		while(tempIterator.hasNext()){
+			phaseBox.addItem("Phase: "+tempIterator.next());
+			//System.out.println(tempIterator.next());
+		}
+		
+		// to determine the index of the phaseBox based on value of default Phase(dp) 
+		changeOfSchema=true;
+		int phaseIndex;
+		if( (phaseIndex=phasesList.indexOf(dp))!=-1 ){
+			phaseBox.setSelectedIndex(phaseIndex+1);
+	   	}
+		else {
+			phaseBox.setSelectedIndex(0);
+		}
+		changeOfSchema=false;	
+		
+	}
+	
+	private void printSchematron(){
 		prevHighlight=true;
 		VPathwayElement vpe=null;
 		PathwayElement pe; 
@@ -610,9 +659,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         ImageIcon EWIcon=EIcon; 
         graphIdsList.clear();
         
+        //reset
         clearTableRows();
-        int higco=0; 
-        
         eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
         
         while (tempIterator.hasNext()) {
@@ -623,12 +671,13 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
          	tempSt=splitString[1];
          	tempsubSt=splitString[0];
          	
-         	//if(tempSt.compareTo("error - An interaction should not start and end with Line arrowheads.")==0) continue;
          	if(ignoredErrorTypesList.contains(tempSt)||
          			ignoredElements.contains(tempsubSt)|| ignoredSingleError.contains(combined)) 
          		continue;
          	
-         	if(tempSt.startsWith("warning")){ EWIcon=WIcon; wCount++;}else { EWIcon=EIcon;eCount++;}
+         	if(tempSt.startsWith("warning")){ 
+         		EWIcon=WIcon; wCount++;}else { EWIcon=EIcon;eCount++;
+         	}
          	
          	if(prevSelect==0){
          		mytbm.addRow(new Object[]{EWIcon,++i +".) "+tempSt});
@@ -646,9 +695,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
          		//System.out.println("not passed"); 
          		//make tempSt null , so that only the corresponding nodes are highlighted, when selecting the drop down (E / W / E&W)
          		tempSt=null;
-         		//highlightFlag=0;//for unhighlight method
          	}
-         	
          	
          	if(tempSt!=null){
          		//tempsubSt=null;
@@ -656,8 +703,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
          		//if(!tempsubSt.equals("null"))
          		graphIdsList.add(tempsubSt);
          		pe=pth.getElementById(tempsubSt);
-         		//System.out.println(++higco+" --> "+tempsubSt);
- 			
+         	
          		if(pe!=null) {
          			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
          			vpe.highlight(col2);
@@ -665,15 +711,11 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
          		}
          		else System.out.println("no available graphId @ id: "+tempsubSt);
          	}
-         	
-         	
         }
         
         eLabel.setText("Errors:"+eCount); wLabel.setText("Warnings:"+wCount);
      	
         //refreshing the pathway , so that all the nodes highlighted appear highlighted
-        //VPathway vpwTemp = eng.getActiveVPathway();
-		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
         eng.getActiveVPathway().redraw();
         
         if( (prevSelect==0 && i!=0) || (prevSelect==1 && j!=0) || (prevSelect==2 && k!=0) ){ 
@@ -698,34 +740,11 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         
 	}
 
-	private void clearRightClickStuff(){
-		
-			ignoredErrorTypesList.clear();
-			ignoredElements.clear();
-			ignoredSingleError.clear();
-		
-			subMenu4.setEnabled(false);
-			while(subMenu4.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
-				subMenu4.remove(2);
-			}
-			
-			subMenu5.setEnabled(false);
-			while(subMenu5.getMenuComponentCount()>2){// clearing the subMenu5's checkboxes
-				subMenu5.remove(2);
-			}
-			
-			subMenu6.setEnabled(false);
-			while(subMenu6.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
-				subMenu6.remove(2);
-			}
-	}
-	
 	private void printItOnTable(){
 		if(!schemaFileType.equalsIgnoreCase("groovy"))
-			printOnPanel();
+			printSchematron();
 		else
 			groovyValidator.sortGroovyResultsAndPrint(globGroovyResult);
-		
 	}
 	
 	/**
@@ -747,7 +766,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			else System.out.println("no available graphId @ id: "+s);
 
 		}
-		
 		eng.getActiveVPathway().redraw();
 	}
 	
@@ -757,28 +775,48 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	private void clearTableRows(){
 		mytbm.setRowCount(0);
 		jtb.setEnabled(true);
-		
 	}
+	
+	private void clearRightClickStuff(){
+		
+		ignoredErrorTypesList.clear();
+		ignoredElements.clear();
+		ignoredSingleError.clear();
+	
+		subMenu4.setEnabled(false);
+		while(subMenu4.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
+			subMenu4.remove(2);
+		}
+		
+		subMenu5.setEnabled(false);
+		while(subMenu5.getMenuComponentCount()>2){// clearing the subMenu5's checkboxes
+			subMenu5.remove(2);
+		}
+		
+		subMenu6.setEnabled(false);
+		while(subMenu6.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
+			subMenu6.remove(2);
+		}
+}
 	
 	/**
 	 * This method is to enable/disable the "Reconsider (Un-Ignore)" button in the sub menu item 
 	 * @param jcbmi the JCheckBoxMenuItem that received the check/uncheck event 
 	 */
 	private void checkUncheck(JCheckBoxMenuItem jcbmi){
-		
-		JMenu subMenu=(JMenu)((JPopupMenu)jcbmi.getParent()).getInvoker();//since can not acces the parent directly here
-		
+		//since can not acces the parent directly here
+		JMenu subMenu=(JMenu)((JPopupMenu)jcbmi.getParent()).getInvoker();
 		int indx = subMenu==subMenu4 ? 0 : ((subMenu==subMenu5) ? 2 : 4);
 		
 		if (jcbmi.getState())  checkedUnchecked[indx]++;
-		else checkedUnchecked[indx+1]++;
+		else 
+			checkedUnchecked[indx+1]++;
 		
 		if(checkedUnchecked[indx]==checkedUnchecked[indx+1]) {
 			checkedUnchecked[indx]=0;checkedUnchecked[indx+1]=0;
 			subMenu.getMenuComponent(0).setEnabled(false);
-			
-		}else subMenu.getMenuComponent(0).setEnabled(true);
-
+		}else 
+			subMenu.getMenuComponent(0).setEnabled(true);
 	}
 	
 	/**
@@ -829,78 +867,16 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		}
 		
 		JCheckBoxMenuItem subMenuItemCBMI= new JCheckBoxMenuItem(EWMtext);
-		subMenuItemCBMI.setUI(new StayOpenCheckBoxMenuItemUI());
+		subMenuItemCBMI.setUI(new VPUtility.StayOpenCheckBoxMenuItemUI());
 		subMenuItemCBMI.setActionCommand("subMenuItemCBMI");
 		subMenuItemCBMI.addActionListener(this);
 		subMenu.add(subMenuItemCBMI);
 		
 		if(ignList.size()==1) subMenu.setEnabled(true);  
 		printItOnTable();
-		
 	}
 	
-	/**
-	 * this is used to parse the schema file type, its name, its default phase and set them to corresponding fields,
-	 *  and reset the values in the phase combo-box 
-	 */
-	private void parseSchemaAndSetValues(){
-		
-		SchemaHandler mySHandler=new SchemaHandler();
-		
-		try {
-			SAXParserFactory.newInstance().newSAXParser().parse(schemaFile, mySHandler);
-		
-		} catch (SAXException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem while accessing Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-		
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		schemaString=mySHandler.getTheTitle();
-		schemaTitleTag.setText("Schema Title: "+VPUtility.cutTitleString(schemaString,schemaTitleTag));
-		schemaTitleTag.setCaretPosition(0);
-		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
-		
-		ArrayList<String> phasesList=mySHandler.getPhases();
-		String dp = mySHandler.getDefaultPhase();
-		saxTfr.transformer1.setParameter("phase",dp);
-		//System.out.println("Default Phase - "+dp);
-		
-		schemaFileType=mySHandler.getType();
-		//System.out.println("Schema Type = "+mySHandler.getType());
-		
-		/*Iterator<String> it=mySHandler.getPhases().iterator();
-		while(it.hasNext()){
-		System.out.println("Schema phase - "+it.next());	
-		}*/
-		
-		VPUtility.resetPhaseBox(phaseBox);
-		
-		Iterator<String> tempIterator= phasesList.iterator();
-		while(tempIterator.hasNext()){
-			phaseBox.addItem("Phase: "+tempIterator.next());
-			//System.out.println(tempIterator.next());
-		}
-		
-		// to determine the index of the phaseBox based on value of default Phase(dp) 
-		changeOfSchema=true;
-		int phaseIndex;
-		if( (phaseIndex=phasesList.indexOf(dp))!=-1 ){
-			phaseBox.setSelectedIndex(phaseIndex+1);
-	   	}
-		else {
-			phaseBox.setSelectedIndex(0);
-		}
-		changeOfSchema=false;	
-		
-	}
-
+	
 	private Thread create_SAXTFR_InAThread(){
 		//System.out.println("choose pressed for 1st time");
 		Thread threadForSax=new Thread(){ 
@@ -908,12 +884,22 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				
 				try {
 					System.out.println("This thread for saxtranform runs");
-					saxTfr= new SaxonTransformer();SaxonTransformer.setInputFile(currentPathwayFile);
+					if(saxParser==null)
+						saxParser=SAXParserFactory.newInstance().newSAXParser();
+					saxTfr= new SaxonTransformer(saxParser);SaxonTransformer.setInputFile(currentPathwayFile);
 					System.out.println("This thread for saxtranform completes its run");
 				} catch (TransformerConfigurationException e1) {
 						e1.printStackTrace();
 						JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-								"problem while configuring Saxon Transformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+							"problem while configuring Saxon Transformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+				} catch (ParserConfigurationException e) {
+					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+							"problem while configuring SaxParser","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
+				} catch (SAXException e) {
+					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+							"SaxException occured","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					e.printStackTrace();
 				}
 			}
 		};
@@ -922,7 +908,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	}
 	
 	// the actual Listener method which does the handling of events related to "Choose Ruleset" button
-	private void chooseRulesetListener(){
+	private void chooseRulesetButtonListener(){
 		
 		System.out.println("choose schema button pressed");
 		Thread threadForSax=null;
@@ -1009,7 +995,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	        // setting/clearing the rightclick related stuff
 			clearRightClickStuff();
 			
-	        valbutton.doClick();
+	        validateButtonListener();
 	        PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 	       
 	    }
@@ -1032,7 +1018,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			"Please choose a Ruleset and then press Validate");
 			//System.out.println("after ok");
 
-			chooseSchema.doClick();
+			chooseRulesetButtonListener();
 
 			return;
 		}
@@ -1050,7 +1036,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 					mimf=new MIMFormat();
 				}
 				validatePathway(saxTfr,mimf);
-				//printOnPanel();
+				//printSchematron();
 			}
 			else {
 				groovyValidator.runGroovy(grvyObject);
@@ -1066,7 +1052,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		}
 	}
 		
-	// Listeners for almost all of the UI components are below this line:
+//Listeners for almost all of the UI components are below this line:
 	
 	public void actionPerformed(ActionEvent e) {
 
@@ -1074,7 +1060,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			validateButtonListener();
 		}
 
-	// The listeners for the six right click menuItems go below  
+		// The listeners for the right click option's first 3 menuItems go below, the next 3 are popups  
 		else if ("menuItem1".equals(e.getActionCommand())) { //Ignore this Element
 			//System.out.println("pressed Igonore Element");
 			int rowNumberClicked = jtb.getSelectedRow() ;
@@ -1088,7 +1074,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 
 		else if ("menuItem2".equals(e.getActionCommand())) {//Ignore this Error
 			//System.out.println("pressed Ignore this Error/Warning");
-
 			int rowNumberClicked = jtb.getSelectedRow() ;
 			String graphIdToAdd = graphIdsList.get(rowNumberClicked);
 
@@ -1102,13 +1087,13 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		else if ("menuItem3".equals(e.getActionCommand())) {//Ignore this Error Type
 			//System.out.println("Ignore this Error Type pressed");
 			//if(ignoredErrorTypesList==null) ignoredErrorTypesList=new ArrayList<String>();
-
 			String valueAtTheRow=(String)jtb.getValueAt(jtb.getSelectedRow(), 1);
 			valueAtTheRow=valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3);
 
 			addToSubMenu(subMenu4,valueAtTheRow,ignoredErrorTypesList);
 		}
 		
+		// Listeners for the menuItems (4,5,6)'s popped-up-submenuitems :("Reconsider (Un-Ignore)" button Listeners)) 
 		else if ("subMenu5ReConsider".equals(e.getActionCommand())) {
 			reConsiderTheIgnored(subMenu5,ignoredElements);
 		}
@@ -1121,7 +1106,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			reConsiderTheIgnored(subMenu6,ignoredSingleError);
 		}
 		
-	// the listener for submenuItem contained in 4,5,6 menuItems above
+		// Listener for submenuItems that are dynamically generated in in 4,5,6 menuItems above
 		else if("subMenuItemCBMI".equals(e.getActionCommand())){
 			//System.out.println("item checked");
 			JCheckBoxMenuItem jcbmi=(JCheckBoxMenuItem)e.getSource();
@@ -1129,12 +1114,12 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			checkUncheck(jcbmi); // This must be faster 
 		}
 
-		//listener method for "Choose Ruleset" button
+		// Listener method for "Choose Ruleset" button
 		else if ("choose".equals(e.getActionCommand())) { // "Choose Ruleset" button pressed 
-			chooseRulesetListener();
+			chooseRulesetButtonListener();
 		}
 		
-		// listener for "Hightlight All" checkbox 
+		// Listener for "Hightlight All" checkbox 
 		else if("jcb".equals(e.getActionCommand())){ 
 
 			if(((JCheckBox)e.getSource()).isSelected()){
@@ -1151,7 +1136,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			//System.out.println("some event fired from jcb--"+PreferenceManager.getCurrent().getInt(SchemaPreference.CHECK_BOX_STATUS));
 		}
 
-		// listener for "errors/warnings drop down box"
+		// Listener for "errors/warnings drop down box"
 		else if("jcBox".equals(e.getActionCommand())){ 
 
 			JComboBox cbox = (JComboBox)e.getSource();
@@ -1162,7 +1147,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			}
 		}
 
-		// listener for the "Generate SVRL file" checkbox
+		// Listener for the "Generate SVRL file" checkbox
 		else if("svrlOutputChoose".equals(e.getActionCommand())){
 
 			if( ((JCheckBox)e.getSource()).isSelected() ){
@@ -1173,7 +1158,10 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 
 	}
 	
-	//@Override ApplicationEventListener interface, for receiving events when a pathway is opened/closed/loaded
+	/**
+	 * @Override ApplicationEventListener interface, for receiving events when a pathway is opened/closed/loaded
+	 *	basically to clear the panel and reset values on this event
+	 */
 	public void applicationEvent(ApplicationEvent e) {
 
 		if( e.getType()==ApplicationEvent.PATHWAY_OPENED || e.getType()==ApplicationEvent.PATHWAY_NEW){
@@ -1209,7 +1197,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 
 				//System.out.println("item selected --"+temp );
 			}
-			if(eng.hasVPathway()) valbutton.doClick();
+			if(eng.hasVPathway()) validateButtonListener();
 		}
 
 	}

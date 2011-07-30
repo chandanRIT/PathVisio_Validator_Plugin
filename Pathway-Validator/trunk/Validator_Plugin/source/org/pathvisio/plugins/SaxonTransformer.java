@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerConfigurationException;
@@ -28,7 +26,7 @@ public class SaxonTransformer {
 
 	//private static String svrl;
 	private static File schemaFile, inputFile, svrlFile;
-	private SAXParser saxParser;
+	SAXParser saxParser;
 	private SVRLHandler handler ;
 	private TransformerFactory factory;// = new net.sf.saxon.TransformerFactoryImpl();
 	Transformer transformer1;
@@ -49,13 +47,13 @@ public class SaxonTransformer {
 	 */
 	private final ArrayList<String> successfulReports = new ArrayList<String>();
 
-	public SaxonTransformer() throws TransformerConfigurationException {
+	public SaxonTransformer(SAXParser saxParser) throws TransformerConfigurationException {
 		factory = new net.sf.saxon.TransformerFactoryImpl();
 		System.setProperty("javax.xml.transform.TransformerFactory",
 				"net.sf.saxon.TransformerFactoryImpl");
 		transformer1 = factory
 				.newTransformer(new StreamSource(getClass().getResource("/iso_svrl_for_xslt2.xsl").toString()));
-
+		this.saxParser=saxParser;
 	}
 
 	public static void setProduceSvrl(boolean produceSvrl) {
@@ -188,7 +186,7 @@ public class SaxonTransformer {
 				new StringReader(svrl));
 		is.setEncoding("UTF-16");
 		
-		if(saxParser==null)saxParser= SAXParserFactory.newInstance().newSAXParser();
+		//if(saxParser==null)saxParser= SAXParserFactory.newInstance().newSAXParser();
 		saxParser.parse(is, handler);
 
 	}
