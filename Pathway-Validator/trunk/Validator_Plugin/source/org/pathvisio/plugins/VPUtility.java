@@ -13,6 +13,7 @@ import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.DefaultTableModel;
 
 public class VPUtility {
+	static final String USER_DIR = System.getProperty("user.home");
 
 	static void resetPhaseBox(JComboBox phaseBox){
 		if(!phaseBox.isEnabled())
@@ -25,8 +26,7 @@ public class VPUtility {
 		
 	}
 	
-	static String cutTitleString(String ss,JTextField schemaTitleTag)
-	{	
+	static String cutSchemaTitleString(String ss,JTextField schemaTitleTag){
 		
 		FontMetrics fm= schemaTitleTag.getFontMetrics(schemaTitleTag.getFont());
 		int fontWidth=fm.stringWidth(ss);
@@ -39,11 +39,15 @@ public class VPUtility {
 				if (fontWidth<TFwidfth){ 
 					ss=ss.substring(0,index-1)+"..";
 					//System.out.println(index);
-					return ss;
+					break;
 				}
 		
 			}
-		} else schemaTitleTag.setToolTipText(null);
+		} else 
+			schemaTitleTag.setToolTipText(null);
+		
+		schemaTitleTag.setText("Schema Title: "+ss);
+		schemaTitleTag.setCaretPosition(0);
 		return ss;
 	}
 
