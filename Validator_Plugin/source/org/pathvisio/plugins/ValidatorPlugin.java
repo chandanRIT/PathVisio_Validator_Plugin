@@ -25,6 +25,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -41,10 +42,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.codehaus.groovy.control.CompilationFailedException;
+import org.codehaus.groovy.control.Phases;
 import org.jdesktop.swingworker.SwingWorker;
 import org.pathvisio.ApplicationEvent;
 import org.pathvisio.Engine;
@@ -76,42 +79,44 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	//private JButton valbutton;
 	//private final static JEditorPane jta=new JEditorPane("text/html","");
 	private static File  schemaFile;
-	private static File currentPathwayFile;
+	private static File exportedPathwayFile;
 	//private JPanel mySideBarPanel ;
 	//private JScrollPane scrollPane;
 	static VPathwayElement prevPwe;
-	private static Engine eng;
+	static Engine eng;
 	static Pathway pth;
 	private static Color col1;//= new Color(255,0,0),col2=new Color(0,0,255);
 	static Color col2;
 	//private final  SchematronTask st=new SchematronTask();
-	private  static SaxonTransformer saxTfr ;
+	static SaxonTransformer saxTfr ;
 	private  static MIMFormat mimf;//=new MIMFormat();
 	private static JFileChooser chooser;
 	private final static JButton valbutton=new JButton("Validate");
-	private static int errorCounter;
+	//private static int errorCounter;
 	static int prevSelect;
 	private final static JButton chooseSchema=new JButton("Choose Ruleset"); 
-	private final static JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
+	final static JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
 	private final static JComboBox phaseBox = new JComboBox(new String[]{"Phase: All"});
 	private final ValidatorHelpAction vhelpAction= new ValidatorHelpAction();
 	static boolean prevHighlight=true;
-	private static JCheckBox jcb;
+	static JCheckBox jcb;
     final JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER);
 	final JLabel wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
     static final JTextField schemaTitleTag= new JTextField("Schema Title: ");
 	//private static boolean doExport=false;
-	private static String schemaFileType;
+	static String schemaFileType;
 	//private static Thread threadForSax;
 	private static GroovyObject grvyObject;
 	static ArrayList<Object> globGroovyResult;
 	//private static int phaseBoxSelection=0;
-	private static boolean changeOfSchema=false;
+	static boolean changeOfSchema=false;
 	final VPUtility.MyTableModel mytbm=new VPUtility.MyTableModel();
 	final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
 	private GroovyValidator groovyValidator;
+	private SchematronValidator schematronValidator;
 	private ValidatorPlugin vPlugin=this;
 	private SAXParser saxParser;
+	boolean exceptionOccured;
 	
 	final JTable jtb = new JTable(mytbm){
     	public Class getColumnClass(int column){  
@@ -121,7 +126,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	
     ImageIcon EIcon;
 	ImageIcon WIcon;
-	private final ArrayList<String> graphIdsList = new ArrayList<String>();
+	final ArrayList<String> graphIdsList = new ArrayList<String>();
 	ArrayList<String> ignoredErrorTypesList;
 	ArrayList<String> ignoredElements;
 	ArrayList<String> ignoredSingleError;
@@ -137,7 +142,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		 //errorCounter=0;prevSelect=0;
 		 //jta=new JEditorPane("text/html","");
 		 //schemaFile=null;
-		 //currentPathwayFile=null;
+		 //exportedPathwayFile=null;
 		 //private JPanel mySideBarPanel ;
 		 //private JScrollPane scrollPane;
 		 //col1=new Color(255,0,0);col2=new Color(0,0,255);
@@ -152,7 +157,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	
 	enum SchemaPreference implements Preference
     {
-            LAST_OPENED_SCHEMA_DIR (System.getProperty("user.home")),CHECK_BOX_STATUS ("0");
+            LAST_OPENED_SCHEMA_DIR (VPUtility.USER_DIR),
+            CHECK_BOX_STATUS ("0"),APPLY_IGNORED_RULES_CHECKBOX ("0"),SVRL_FILE (VPUtility.USER_DIR);
             
             private String defaultValue;
             SchemaPreference (String defaultValue) 
@@ -181,16 +187,16 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         //PreferenceManager.getCurrent().set(GlobalPreference.WIN_X, "0");
         //PreferenceManager.getCurrent().set(GlobalPreference.WIN_Y,"0");
         
-		//initialization code for currentPathwayFile object
-        if(currentPathwayFile==null){
+		//initialization code for exportedPathwayFile object
+        if(exportedPathwayFile==null){
 			//comment the below line for normal jfile chooser functionality
 			//schemaFile=new File("D:\\schematron\\mimschema.sch");
 			//commented below to remove  hardcode
-			//currentPathwayFile=new File("C:\\Users\\kayne\\Desktop\\currentPathwaytmp.mimml");
+			//exportedPathwayFile=new File("C:\\Users\\kayne\\Desktop\\currentPathwaytmp.mimml");
 			try {
-				//currentPathwayFile=File.createTempFile("pvv","val");
-				currentPathwayFile=new File(System.getProperty("java.io.tmpdir"), "ValidatorPluginExportedPathway.xml");
-				currentPathwayFile.deleteOnExit();
+				//exportedPathwayFile=File.createTempFile("pvv","val");
+				exportedPathwayFile=new File(System.getProperty("java.io.tmpdir"), "ValidatorPluginExportedPathway.xml");
+				exportedPathwayFile.deleteOnExit();
 			} catch (Exception e) {
 				System.out.println("Exception in creating current pathway temp file "+e);
 				JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
@@ -326,6 +332,13 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
         final JTabbedPane sidebarTabbedPane = desktop.getSideBarTabbedPane();
         sidebarTabbedPane.add("Validator", mySideBarPanel);
         sidebarTabbedPane.setSelectedComponent(mySideBarPanel);
+        
+        //adding options in the preferences window of edit->preferences
+        desktop.getPreferencesDlg().addPanel("Validator", 
+        		desktop.getPreferencesDlg().builder()
+        		.booleanField(SchemaPreference.APPLY_IGNORED_RULES_CHECKBOX, "Apply ignored rules globally")
+        		.fileField(SchemaPreference.SVRL_FILE, "Choose SVRL file Location:", true)
+        		.build());
     	
 	}
 	
@@ -406,7 +419,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	 * and handle them.
 	 */
 	private void listenToJTableMouseClicks(java.awt.event.MouseEvent e){
-		
+
 		//code for highlight node for a left/right click event
 		int row=jtb.rowAtPoint(e.getPoint());
 		if(prevPwe!=null && graphIdsList.size()!=0 ){ 
@@ -422,24 +435,21 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				prevPwe.unhighlight();
 
 			String gId=graphIdsList.get(row);
-			
 			if(!gId.equals("null") && !gId.equals("")){
 				//System.out.println("graphId is "+graphIdsList.get(row));
-				PathwayElement	pe=pth.getElementById(gId);
-				
-				if(pe!=null){
-					VPathwayElement	vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-					vpe.highlight(col1);//col1 is red
-					//code to scroll to the particular element that's being highlighted
-					eng.getActiveVPathway().getWrapper().scrollCenterTo((int)vpe.getVBounds().getCenterX(),(int)vpe.getVBounds().getCenterY());
-					prevPwe=vpe;
+				VPathwayElement vpe = null;
+				if( (vpe=highlightNode(gId,col1))!=null ){
+					eng.getActiveVPathway().getWrapper()
+					.scrollCenterTo((int)vpe.getVBounds().getCenterX(),(int)vpe.getVBounds().getCenterY());
 					eng.getActiveVPathway().redraw();
-				}
-				
-				//System.out.println("row # "+(row+1)+" pressed");
-			} else System.out.println("graphId is null or empty");
+				}//System.out.println("row # "+(row+1)+" pressed");
+			} 
+			else 
+				System.out.println("graphId is null or empty");
 			//System.out.println(" Value in the cell clicked :"+jtb.getValueAt(row,col).toString());
-		}else System.out.println("prevPwe is null or no errors");
+		}
+		else 
+			System.out.println("prevPwe is null or no errors");
 
 		//right click event handling is done below
 		if (e.getButton()== MouseEvent.BUTTON3) {
@@ -448,7 +458,6 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			String eachCellTip = jtb.getToolTipText(e);
 			boolean discardFirst2Menus=false;
 			if(eachCellTip!=null) discardFirst2Menus=eachCellTip.equals("----");    			
-			
 			//decide which main menuitems (1,2,3) to show and which not to
 			if(discardFirst2Menus || allIgnored){
 				//System.out.println("inside if d a "+discardFirst2Menus+" "+allIgnored);
@@ -471,10 +480,9 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				for(int MI=0; MI<3 ; MI++)
 					popup.getComponent(MI).setEnabled(true); 
 			}
-			
+
 			popup.show(e.getComponent(), e.getX(), e.getY());
 		}
-
 	}
 	
 	/**
@@ -518,17 +526,14 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		
 		try {
 			 sw.get();
-		} catch (ExecutionException e)
+			 //jcBox.setEnabled(true);jcb.setEnabled(true);
+		} catch (Exception e)//InterruptedException,ExecutionException
 		{
 			System.out.println("ExecutionException in ValidatorPlugin---"+e.getMessage());
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 					"Validation Exception in Schematron","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI();
 			return;
-		} catch (InterruptedException e) {
-			System.out.println("Interrupted Exception---"+e.getCause());
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"Validation Exception in Schematron","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			return ;
 		}
 	}
 
@@ -545,13 +550,15 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				pk.setTaskName("Validating pathway");
 					
 				try{
-					exportAndValidate(tempSaxTrnfr, mimf);
+					schematronValidator.exportAndValidate(tempSaxTrnfr, mimf, schemaFileType,
+							eng.getActivePathway(), exportedPathwayFile, schemaFile);
 				}
 				catch (Exception e1) { //changed from ConverterException to catch all the errors
 					//System.out.println("Exception in validatepathway method--"+e1.getMessage());
 					JOptionPane.showMessageDialog(desktop.getFrame(), 
 							"Validation Exception in Schematron","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 					e1.printStackTrace();
+					resetUI();
 					return null;
 				}
 				finally {
@@ -565,206 +572,36 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		 processTask(pk, d, sw);
 	}
 	
-	private void exportAndValidate(final SaxonTransformer tempSaxTrnfr,final MIMFormat mimf) 
-	throws ConverterException,IOException,ParserConfigurationException,
-	TransformerException,SAXException{
-		
-			//if(!schemaFileType.equalsIgnoreCase("groovy")){
-				System.out.println("b4 export called: "+schemaFileType);
-				//if(!doExport){
-				
-				if(schemaFileType.equalsIgnoreCase("gpml")){
-					GpmlFormat.writeToXml (eng.getActivePathway(), currentPathwayFile, true);
-					System.out.println("gpml export called");
-				}
-				else {
-					mimf.doExport(currentPathwayFile, eng.getActivePathway());
-					System.out.println("mimVis export called");
-				}
-
-				//}
-				//doExport=false;
-				SaxonTransformer.setschemaFile(schemaFile);
-				System.out.println("after mimf export and b4 execute");
-				tempSaxTrnfr.produceSvrlAndThenParse();
-				System.out.println("after  st.execute");
-				printSchematron();
-			//}
-			//else runGroovy(grvyObject);
-	}
 	
-	/**
-	 * this is used to parse the input Schematron file to derive its name, its default phase 
-	 * and set them to corresponding fields in the plugin, and reset the phase combo-box 
-	 */
-	private void parseSchemaAndSetValues(){
-		
-		SchemaHandler mySHandler=new SchemaHandler();
-		
-		try {
-			saxParser.parse(schemaFile, mySHandler);
-		} catch (SAXException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem while accessing Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-		
-			e.printStackTrace();
-		}
-		
-		schemaString=mySHandler.getTheTitle();
-		schemaTitleTag.setText("Schema Title: "+VPUtility.cutTitleString(schemaString,schemaTitleTag));
-		schemaTitleTag.setCaretPosition(0);
-		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
-		
-		ArrayList<String> phasesList=mySHandler.getPhases();
-		String dp = mySHandler.getDefaultPhase();
-		saxTfr.transformer1.setParameter("phase",dp);
-		//System.out.println("Default Phase - "+dp);
-		
-		schemaFileType=mySHandler.getType();
-		//System.out.println("Schema Type = "+mySHandler.getType());
-		
-		VPUtility.resetPhaseBox(phaseBox);
-		
-		Iterator<String> tempIterator= phasesList.iterator();
-		while(tempIterator.hasNext()){
-			phaseBox.addItem("Phase: "+tempIterator.next());
-			//System.out.println(tempIterator.next());
-		}
-		
-		// to determine the index of the phaseBox based on value of default Phase(dp) 
-		changeOfSchema=true;
-		int phaseIndex;
-		if( (phaseIndex=phasesList.indexOf(dp))!=-1 ){
-			phaseBox.setSelectedIndex(phaseIndex+1);
-	   	}
-		else {
-			phaseBox.setSelectedIndex(0);
-		}
-		changeOfSchema=false;	
-		
-	}
-	
-	private void printSchematron(){
-		prevHighlight=true;
-		VPathwayElement vpe=null;
-		PathwayElement pe; 
-		String tempSt,combined,tempsubSt;pth=eng.getActivePathway();
-        Iterator<String> tempIterator = (saxTfr.diagnosticReference).iterator();
-        int i=0,j=0,k=0,eCount=0,wCount=0;
-        //String imageUrl=imageUrlE;
-        ImageIcon EWIcon=EIcon; 
-        graphIdsList.clear();
-        
-        //reset
-        clearTableRows();
-        eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
-        
-        while (tempIterator.hasNext()) {
-         	errorCounter+=1;
-         	tempSt=tempIterator.next();
-         	combined=tempSt;
-         	String[] splitString=tempSt.split("@@");
-         	tempSt=splitString[1];
-         	tempsubSt=splitString[0];
-         	
-         	if(ignoredErrorTypesList.contains(tempSt)||
-         			ignoredElements.contains(tempsubSt)|| ignoredSingleError.contains(combined)) 
-         		continue;
-         	
-         	if(tempSt.startsWith("warning")){ 
-         		EWIcon=WIcon; wCount++;}else { EWIcon=EIcon;eCount++;
-         	}
-         	
-         	if(prevSelect==0){
-         		mytbm.addRow(new Object[]{EWIcon,++i +".) "+tempSt});
-         		//System.out.println("prevsel 0");
-         	}
-         	else if(prevSelect==1 && tempSt.startsWith("error")){
-         		//System.out.println("prevsel 1");
-         		mytbm.addRow(new Object[]{EWIcon,++j +".) "+tempSt});
-         	}
-         	else if(prevSelect==2 && tempSt.startsWith("warning")){
-         		//System.out.println("prevsel 2");
-         		mytbm.addRow(new Object[]{EWIcon,++k +".) "+tempSt});
-         	}
-         	else{
-         		//System.out.println("not passed"); 
-         		//make tempSt null , so that only the corresponding nodes are highlighted, when selecting the drop down (E / W / E&W)
-         		tempSt=null;
-         	}
-         	
-         	if(tempSt!=null){
-         		//tempsubSt=null;
-         		//System.out.println("the id--"+tempsubSt);
-         		//if(!tempsubSt.equals("null"))
-         		graphIdsList.add(tempsubSt);
-         		pe=pth.getElementById(tempsubSt);
-         	
-         		if(pe!=null) {
-         			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-         			vpe.highlight(col2);
-         			prevPwe=vpe;
-         		}
-         		else System.out.println("no available graphId @ id: "+tempsubSt);
-         	}
-        }
-        
-        eLabel.setText("Errors:"+eCount); wLabel.setText("Warnings:"+wCount);
-     	
-        //refreshing the pathway , so that all the nodes highlighted appear highlighted
-        eng.getActiveVPathway().redraw();
-        
-        if( (prevSelect==0 && i!=0) || (prevSelect==1 && j!=0) || (prevSelect==2 && k!=0) ){ 
-        	allIgnored=false;// this boolean required for disabling/enabling the right mouse click menuitems
-        }
-        else if(prevSelect==0){
-        	mytbm.addRow(new Object[]{"","No Errors and Warnings"});
-        	allIgnored=true;
-        	jtb.setEnabled(false);
-        }
-        else if(prevSelect==1){
-        	mytbm.addRow(new Object[]{EIcon,"No Errors"});
-        	allIgnored=true;
-        	jtb.setEnabled(false);
-        }
-        else if(prevSelect==2){
-        	mytbm.addRow(new Object[]{WIcon,"No Warnings"});
-        	allIgnored=true;
-        	jtb.setEnabled(false);
-     		
-        }
-        
-	}
-
 	private void printItOnTable(){
 		if(!schemaFileType.equalsIgnoreCase("groovy"))
-			printSchematron();
+			schematronValidator.printSchematron(eng,graphIdsList, ignoredErrorTypesList, ignoredElements
+					,ignoredSingleError,prevSelect );
 		else
 			groovyValidator.sortGroovyResultsAndPrint(globGroovyResult);
+	}
+	
+	VPathwayElement highlightNode(String gId, Color col){
+		PathwayElement pe=pth.getElementById(gId);
+		VPathwayElement vpe = null;
+		
+		if(pe!=null) {
+			vpe=eng.getActiveVPathway().getPathwayElementView(pe);
+			vpe.highlight(col);
+			prevPwe=vpe;
+		}
+		else {
+			System.out.println("no available graphId @ id: "+gId);
+		}
+		return vpe;
 	}
 	
 	/**
 	 * this highlights all the nodes in the list of nodes passed to it. 
 	 */
 	private void vhighlightAll(){
-		PathwayElement pe=null;
-		VPathwayElement vpe=null;
-		
 		for(String s:graphIdsList){
-			pe=pth.getElementById(s);
-			//System.out.println(++higco+" --> "+tempsubSt);
-
-			if(pe!=null) {
-				vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-				vpe.highlight(col2);
-				prevPwe=vpe;
-			}
-			else System.out.println("no available graphId @ id: "+s);
-
+			highlightNode(s,col2);
 		}
 		eng.getActiveVPathway().redraw();
 	}
@@ -772,7 +609,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	/**
 	 * removes all the JTable rows, (the validation messages) 
 	 */
-	private void clearTableRows(){
+	void clearTableRows(){
 		mytbm.setRowCount(0);
 		jtb.setEnabled(true);
 	}
@@ -852,13 +689,11 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	 * @param ignList the list to which a copy is added, to be used when considering back the E/W 
 	 */
 	private void addToSubMenu(JMenu subMenu,String EWMtext, ArrayList<String> ignList){ // Error/Warning message Text : EWMText
-		//ImageIcon EWIcon=null;
 		
 		ignList.add(EWMtext);
 		
 		if(EWMtext.length()>80) EWMtext = EWMtext.substring(0,78)+"...";
 		
-		//if(EWMtext.startsWith("error")) EWIcon=EIcon; else EWIcon=WIcon;
 		if(ignList==ignoredSingleError)
 			EWMtext=EWMtext.replace("@@", " : ");
 		else if (ignList==ignoredElements) {
@@ -886,19 +721,22 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 					System.out.println("This thread for saxtranform runs");
 					if(saxParser==null)
 						saxParser=SAXParserFactory.newInstance().newSAXParser();
-					saxTfr= new SaxonTransformer(saxParser);SaxonTransformer.setInputFile(currentPathwayFile);
+					saxTfr= new SaxonTransformer(saxParser);SaxonTransformer.setInputFile(exportedPathwayFile);
 					System.out.println("This thread for saxtranform completes its run");
 				} catch (TransformerConfigurationException e1) {
-						e1.printStackTrace();
-						JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 							"problem while configuring Saxon Transformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					resetUI();
 				} catch (ParserConfigurationException e) {
 					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 							"problem while configuring SaxParser","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					resetUI();
 					e.printStackTrace();
 				} catch (SAXException e) {
 					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 							"SaxException occured","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					resetUI();
 					e.printStackTrace();
 				}
 			}
@@ -907,8 +745,21 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		return threadForSax;
 	}
 	
-	// the actual Listener method which does the handling of events related to "Choose Ruleset" button
-	private void chooseRulesetButtonListener(){
+	void resetUI(){
+		clearTableRows();
+		
+		//if(eng.hasVPathway())
+		eng.getActiveVPathway().resetHighlight();
+		
+		if(ignoredErrorTypesList!=null){
+			clearRightClickStuff();
+		}
+		
+		jcBox.setEnabled(false);jcb.setEnabled(false);
+		eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
+	}
+	
+	private Thread chooseButtonInitialisation() throws InterruptedException{
 		
 		System.out.println("choose schema button pressed");
 		Thread threadForSax=null;
@@ -916,10 +767,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		if(chooser==null){
 			chooser=new JFileChooser();
 			createAndInitialize_RightClickMenuUI();
-		}
 		
-		if(chooser.getDialogTitle()==null){
-			   
 			threadForSax=create_SAXTFR_InAThread();
 			
 			chooser.setDialogTitle("Choose Ruleset");
@@ -949,21 +797,59 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	    	});
 	    	
 	    }
-	    
+		return threadForSax;
+	}
+	
+	private void chooseRuleset(){
+		try {
+			chooseRulesetButtonListener();
+		} catch (InterruptedException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the SaxonTranformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"Ruleset not accesible","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		} catch (SAXException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
+	}
+	
+	// the Listeners call these methods internally
+	// the method which does the handling of events related to "Choose Ruleset" button
+	private void chooseRulesetButtonListener() throws InterruptedException,
+							IOException,IllegalAccessException,InstantiationException,SAXException{
+		
+		Thread threadForSax=null;
+		threadForSax=chooseButtonInitialisation();
+		
 	    int returnVal = chooser.showOpenDialog(desktop.getFrame());
 
 	    //wait for the transformer creation in the thread to complete 
 	    if(threadForSax!=null){
-	    	try{
+	    	//try{
 	    		threadForSax.join();
 	    		threadForSax=null;
-	    	} catch (InterruptedException e1) {
+	    	/*} catch (InterruptedException e1) {
 	    		// TODO Auto-generated catch block
 	    		e1.printStackTrace();
-	    	}
+	    	}*/
 	    }
 	    
 	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    	
+	    	//resetUI();
 	    	
 	    	//stopping the changes made by changing the state of phasebox to 0
 	    	changeOfSchema=true;
@@ -975,36 +861,37 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	       //System.out.println("schema is of type: "+(schemaFileType=whichSchema(schemaFile)));
 	       
 	        String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().length()-3));
-	        
 	        //if the file chosen is of type ".groovy", then do groovy specific logic
 	        if(schemaFileSubString.equalsIgnoreCase("ovy") ){
 	        	jcBox.setSelectedIndex(0);
+	        	svrlOutputChoose.setEnabled(false);
 	        	schemaFileType="groovy";
 	        	//phaseBox.setEnabled(false);
 	        	if(groovyValidator==null) groovyValidator=new GroovyValidator(vPlugin,eng,phaseBox,graphIdsList);
 	        	grvyObject=groovyValidator.loadGroovy(schemaFile);
-	        	svrlOutputChoose.setEnabled(false);
+	        	
 	        }
-	       
 	        // if the chosen file is of type ".sch" (schema file)
 	        else {
-	        	parseSchemaAndSetValues();
 	        	svrlOutputChoose.setEnabled(true);
+	        	
+	        	if(schematronValidator == null) schematronValidator=new SchematronValidator(vPlugin);
+	        	schematronValidator.parseSchemaAndSetValues(saxParser, saxTfr.transformer1, schemaFile,
+	        			desktop.getFrame(), schemaTitleTag, phaseBox);
 	        }
-	     
 	        // setting/clearing the rightclick related stuff
 			clearRightClickStuff();
-			
-	        validateButtonListener();
+			validateButtonListener();
 	        PreferenceManager.getCurrent().setFile(SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 	       
 	    }
 			
 	}
 	
-	// the actual Listener method which does the handling of events related to "Validate" button
+	// the method which does the handling of events related to "Validate" button
 	private void validateButtonListener(){
 		System.out.println("validate button pressed ");
+		jcBox.setEnabled(true);jcb.setEnabled(true);
 		//initializing the color objects
 		if(col1==null){
 			col1= new Color(255,0,0);
@@ -1018,15 +905,14 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			"Please choose a Ruleset and then press Validate");
 			//System.out.println("after ok");
 
-			chooseRulesetButtonListener();
+			chooseRuleset();
 
 			return;
 		}
 
 		// check if a pathway is opened
 		if(eng.hasVPathway()){
-			errorCounter=0;
-
+				
 			//reset values, to make the drop down option to errors and warnings (default option), when validate is pressed
 			prevSelect=0;jcBox.setSelectedIndex(0);
 
@@ -1041,18 +927,19 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			else {
 				groovyValidator.runGroovy(grvyObject);
 			}
-
-			jcBox.setEnabled(true);jcb.setEnabled(true);
 		}
 		else{
 			JOptionPane.showMessageDialog(
 					desktop.getFrame(), 
 			"Please open a Pathway to start validation");
+			desktop.getSwingEngine().openPathway();
 			return;
 		}
 	}
-		
-//Listeners for almost all of the UI components are below this line:
+
+/////////////////////////////////////////////////////////////////////////////////		
+//Listeners for most of of the UI components are below this line:
+/////////////////////////////////////////////////////////////////////////////////
 	
 	public void actionPerformed(ActionEvent e) {
 
@@ -1116,7 +1003,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 
 		// Listener method for "Choose Ruleset" button
 		else if ("choose".equals(e.getActionCommand())) { // "Choose Ruleset" button pressed 
-			chooseRulesetButtonListener();
+			chooseRuleset();
 		}
 		
 		// Listener for "Hightlight All" checkbox 
@@ -1165,16 +1052,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	public void applicationEvent(ApplicationEvent e) {
 
 		if( e.getType()==ApplicationEvent.PATHWAY_OPENED || e.getType()==ApplicationEvent.PATHWAY_NEW){
-			
-			//reset values
-			clearTableRows();
-			// setting/clearing the rightclick related stuff
-			if(ignoredErrorTypesList!=null){
-				clearRightClickStuff();
-			}
-			jcBox.setEnabled(false);jcb.setEnabled(false);
-			errorCounter=0;
-			eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
+			resetUI();
 		}
 
 	}
@@ -1215,8 +1093,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	public void componentResized(ComponentEvent e) {
 		// TODO Auto-generated method stub
 		if(schemaString!=null){
-		schemaTitleTag.setText("Schema Title: "+VPUtility.cutTitleString(schemaString,schemaTitleTag));
-		schemaTitleTag.setCaretPosition(0);
+		VPUtility.cutSchemaTitleString(schemaString,schemaTitleTag);
+		//schemaTitleTag.setCaretPosition(0);
 		//System.out.println("no of chars "+schemaTitleTag.get);
 		}
 	}

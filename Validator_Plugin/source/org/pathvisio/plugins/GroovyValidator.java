@@ -6,6 +6,7 @@ import groovy.lang.GroovyObject;
 import groovy.lang.GroovyShell;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -103,31 +104,27 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
 		eng.getActiveVPathway().redraw();
         
-        if( (ValidatorPlugin.prevSelect==0 && ijkew[0]!=0) || (ValidatorPlugin.prevSelect==1 && ijkew[1]!=0) || (ValidatorPlugin.prevSelect==2 && ijkew[2]!=0) ){ 
-        	//jta.setText(sbf.toString());
-        	vPlugin.allIgnored=false;
-        }
-        else if(ValidatorPlugin.prevSelect==0){
-        	//jta.setText("<b><font size='4' face='verdana'>No Errors and Warnings</font></b>");
-        	vPlugin.mytbm.addRow(new Object[]{"","No Errors and Warnings"});
-        	vPlugin.allIgnored=true;
-        	vPlugin.jtb.setEnabled(false);
-        }
-        else if(ValidatorPlugin.prevSelect==1){
-        	//jta.setText("<b><font size='4' face='verdana'>No Errors</font></b>");	
-        	vPlugin.mytbm.addRow(new Object[]{vPlugin.EIcon,"No Errors"});
-        	vPlugin.allIgnored=true;
-        	vPlugin.jtb.setEnabled(false);
-        }
-        else if(ValidatorPlugin.prevSelect==2){
-        	//jta.setText("<b><font size='4' face='verdana'>No Warnings</font></b>");	
-        	vPlugin.mytbm.addRow(new Object[]{vPlugin.WIcon,"No Warnings"});
-        	vPlugin.allIgnored=true;
-        	vPlugin.jtb.setEnabled(false);
-        }
-        
+		if( (ValidatorPlugin.prevSelect==0 && ijkew[0]!=0) || (ValidatorPlugin.prevSelect==1 && ijkew[1]!=0) || (ValidatorPlugin.prevSelect==2 && ijkew[2]!=0) ){ 
+			//jta.setText(sbf.toString());
+			vPlugin.allIgnored=false;
+		}
+		else{ 
+			switch(ValidatorPlugin.prevSelect){
+			case 0:
+				vPlugin.mytbm.addRow(new Object[]{"","No Errors and Warnings"});
+				break;
+			case 1:
+				vPlugin.mytbm.addRow(new Object[]{vPlugin.EIcon,"No Errors"});
+				break;
+			case 2:
+				vPlugin.mytbm.addRow(new Object[]{vPlugin.WIcon,"No Warnings"});
+				break;
+			}
+			vPlugin.allIgnored=true;
+			vPlugin.jtb.setEnabled(false);
+		}
+		ValidatorPlugin.jcBox.setEnabled(true);ValidatorPlugin.jcb.setEnabled(true);
         System.out.println("-----------groovy part end-------------- ");
-        
 }
 	
 	private void printGroovy(String tempSt,String graphId,int[] ijkew){
@@ -178,7 +175,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
       
 	}
 	
-	 GroovyObject loadGroovy(File schemaFile){
+	 GroovyObject loadGroovy(File schemaFile) throws IOException,InstantiationException,IllegalAccessException{
 		
 		System.out.println("reached inside loadGroovy method");
 		ArrayList<String[]> tempArray;//=new ArrayList<String[]>();
@@ -187,20 +184,20 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
   	   	Class<GroovyObject> groovyClass=null;
   	   	GroovyObject groovyObject=null;
   	   
-  	   	try {
+  	   	//try {
   		   groovyClass = loader.parseClass(schemaFile);
   		   vPlugin.schemaString=groovyClass.getSimpleName();
-  		   ValidatorPlugin.schemaTitleTag.setText("Schema Title: "
-  				   +VPUtility.cutTitleString(vPlugin.schemaString,ValidatorPlugin.schemaTitleTag));
-  		   ValidatorPlugin.schemaTitleTag.setCaretPosition(0);
+  		   VPUtility.cutSchemaTitleString(vPlugin.schemaString,ValidatorPlugin.schemaTitleTag);
+  		   //ValidatorPlugin.schemaTitleTag.setCaretPosition(0);
  		   groovyObject = (GroovyObject) groovyClass.newInstance();
-  	   	}
+  	   	/*}
   	   	catch (Exception e1) {
   		   System.out.println("Exception @ groovy = "+e1.getMessage());
   		 JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-		   e1.printStackTrace();
-  	   	}
+		 vPlugin.resetUI();  
+  		 e1.printStackTrace();
+  	   	}*/
   	   	
   	   	VPUtility.resetPhaseBox(phaseBox);
 	   
@@ -218,7 +215,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	   	return groovyObject;
 	}
 	
-	 void runGroovy(GroovyObject groovyObject){
+	 void runGroovy(GroovyObject groovyObject) throws CompilationFailedException{
 		
 		System.out.println("--------------groovy---------------");
 		ArrayList<Object> tempArray=new ArrayList<Object>();
@@ -246,16 +243,16 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
   	   		binding.setVariable("argPw",argPw );
   	   		GroovyShell shell = new GroovyShell(binding);
   
-  	   		try {
+  	   		//try {
   	   			//running groovy script from a file named GroovyScriptKC.kc
   	   			shell.evaluate(getClass().getResourceAsStream("/GroovyScriptKC.kc"));
-  	   		} catch (CompilationFailedException e) {
+  	   		/*} catch (CompilationFailedException e) {
   	   			System.out.println("CompilationFailedException in the groovyshell code");
   	   			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 					"Validation Exception in Groovy","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			
+  	   			vPlugin.resetUI();
   	   			e.printStackTrace();
-  	   		} 
+  	   		}*/ 
   	   	}
   	   	
   	   	else { // this code runs only when there are phases present in the groovy rule 

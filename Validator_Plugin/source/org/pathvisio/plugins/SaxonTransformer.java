@@ -143,7 +143,7 @@ public class SaxonTransformer {
 		// to produce the svrl output in a file in the user's temp directory
 		//if(svrlFile==null)
 		if(svrlFile==null)
-		svrlFile = new File(System.getProperty("user.home"),
+		svrlFile = new File(VPUtility.USER_DIR,
 				"svrlOutput.svrl");
 
 		if (getProduceSvrl()) {
