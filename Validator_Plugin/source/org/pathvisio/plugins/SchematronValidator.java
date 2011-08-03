@@ -31,15 +31,15 @@ class SchematronValidator {
 	}
 	
 	void exportAndValidate(final SaxonTransformer tempSaxTrnfr,
-			final MIMFormat mimf, String schemaFileType, Pathway pwObject, File exportedPwFile,File schemaFile) 
+			final MIMFormat mimf, Pathway pwObject, File exportedPwFile,File schemaFile) 
 	throws ConverterException,IOException,ParserConfigurationException,
 	TransformerException,SAXException{
 		
 			//if(!schemaFileType.equalsIgnoreCase("groovy")){
-				System.out.println("b4 export called: "+schemaFileType);
+				System.out.println("b4 export called: "+VPUtility.schemaFileType);
 				//if(!doExport){
 				
-				if(schemaFileType.equalsIgnoreCase("gpml")){
+				if(VPUtility.schemaFileType.equalsIgnoreCase("gpml")){
 					GpmlFormat.writeToXml (pwObject, exportedPwFile, true);
 					System.out.println("gpml export called");
 				}
@@ -54,8 +54,8 @@ class SchematronValidator {
 				//System.out.println("after mimf export and b4 execute");
 				tempSaxTrnfr.produceSvrlAndThenParse();
 				System.out.println("after  produce and parsing SVRL");
-				printSchematron(vPlugin.eng, vPlugin.graphIdsList, vPlugin.ignoredErrorTypesList, vPlugin.ignoredElements
-						,vPlugin.ignoredSingleError,vPlugin.prevSelect );
+				printSchematron(ValidatorPlugin.eng, vPlugin.graphIdsList, vPlugin.ignoredErrorTypesList,vPlugin.globallyIgnoredEWType, 
+						vPlugin.ignoredElements,vPlugin.ignoredSingleError);
 			//}
 			//else runGroovy(grvyObject);
 	}
@@ -83,8 +83,8 @@ class SchematronValidator {
 			e.printStackTrace();
 		}*/
 		
-		vPlugin.schemaString=mySHandler.getTheTitle();
-		VPUtility.cutSchemaTitleString(vPlugin.schemaString,schemaTitleTag);
+		VPUtility.schemaString=mySHandler.getTheTitle();
+		VPUtility.cutSchemaTitleString(VPUtility.schemaString,schemaTitleTag);
 		//schemaTitleTag.setCaretPosition(0);
 		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
 		
@@ -92,7 +92,7 @@ class SchematronValidator {
 		tfr1.setParameter("phase",dp);
 		//System.out.println("Default Phase - "+dp);
 		
-		ValidatorPlugin.schemaFileType=mySHandler.getType();
+		VPUtility.schemaFileType=mySHandler.getType();
 		//System.out.println("Schema Type = "+mySHandler.getType());
 		
 		//setting phases in the phase-box 
@@ -105,7 +105,7 @@ class SchematronValidator {
 		}
 		
 		// to determine the index of the phaseBox based on value of default Phase(dp) 
-		ValidatorPlugin.changeOfSchema=true;
+		VPUtility.changeOfSchema=true;
 		int phaseIndex;
 		if( (phaseIndex=phasesList.indexOf(dp))!=-1 ){
 			phaseBox.setSelectedIndex(phaseIndex+1);
@@ -113,18 +113,19 @@ class SchematronValidator {
 		else {
 			phaseBox.setSelectedIndex(0);
 		}
-		ValidatorPlugin.changeOfSchema=false;	
+		VPUtility.changeOfSchema=false;	
 		
 	}
 
 	 void printSchematron(Engine eng, ArrayList<String> graphIdsList, ArrayList<String> ignoredErrorTypesList,
-			 ArrayList<String> ignoredElements,ArrayList<String> ignoredSingleError, int prevSelect){
-			ValidatorPlugin.prevHighlight=true;
+			 ArrayList<String> globallyIgnoredEWType,ArrayList<String> ignoredElements,
+			 ArrayList<String> ignoredSingleError){
+			VPUtility.prevHighlight=true;
 			String tempSt,combined,tempsubSt;
 			ValidatorPlugin.pth=eng.getActivePathway();
 	        Iterator<String> tempIterator = (ValidatorPlugin.saxTfr.diagnosticReference).iterator();
 	        int i=0,j=0,k=0,eCount=0,wCount=0;
-	        ImageIcon EWIcon=vPlugin.EIcon; 
+	        ImageIcon EWIcon=VPUtility.eIcon; 
 	        graphIdsList.clear();
 	        
 	        //reset
@@ -138,26 +139,26 @@ class SchematronValidator {
 	         	tempSt=splitString[1];
 	         	tempsubSt=splitString[0];
 	         	
-	         	if(ignoredErrorTypesList.contains(tempSt)||
+	         	if(ignoredErrorTypesList.contains(tempSt)||globallyIgnoredEWType.contains(tempSt)||
 	         			ignoredElements.contains(tempsubSt)|| ignoredSingleError.contains(combined)) 
 	         		continue;
 	         	
 	         	if(tempSt.startsWith("warning")){ 
-	         		EWIcon=vPlugin.WIcon; wCount++;
+	         		EWIcon=VPUtility.wIcon; wCount++;
 	         	}
 	         	else { 
-	         		EWIcon=vPlugin.EIcon;eCount++;
+	         		EWIcon=VPUtility.eIcon;eCount++;
 	         	}
 	         	
-	         	if(prevSelect==0){
+	         	if(VPUtility.prevSelect==0){
 	         		vPlugin.mytbm.addRow(new Object[]{EWIcon,++i +".) "+tempSt});
 	         		//System.out.println("prevsel 0");
 	         	}
-	         	else if(prevSelect==1 && tempSt.startsWith("error")){
+	         	else if(VPUtility.prevSelect==1 && tempSt.startsWith("error")){
 	         		//System.out.println("prevsel 1");
 	         		vPlugin.mytbm.addRow(new Object[]{EWIcon,++j +".) "+tempSt});
 	         	}
-	         	else if(prevSelect==2 && tempSt.startsWith("warning")){
+	         	else if(VPUtility.prevSelect==2 && tempSt.startsWith("warning")){
 	         		//System.out.println("prevsel 2");
 	         		vPlugin.mytbm.addRow(new Object[]{EWIcon,++k +".) "+tempSt});
 	         	}
@@ -169,7 +170,7 @@ class SchematronValidator {
 	         	
 	         	if(tempSt!=null){
 	         		graphIdsList.add(tempsubSt);
-	         		vPlugin.highlightNode(tempsubSt,vPlugin.col2);
+	         		vPlugin.highlightNode(tempsubSt,VPUtility.col2);
 	         	}
 	        }
 	        
@@ -179,22 +180,22 @@ class SchematronValidator {
 	        //refreshing the pathway , so that all the nodes highlighted appear highlighted
 	        eng.getActiveVPathway().redraw();
 	        
-	        if( (prevSelect==0 && i!=0) || (prevSelect==1 && j!=0) || (prevSelect==2 && k!=0) ){ 
-	        	vPlugin.allIgnored=false;// this boolean required for disabling/enabling the right mouse click menuitems
+	        if( (VPUtility.prevSelect==0 && i!=0) || (VPUtility.prevSelect==1 && j!=0) || (VPUtility.prevSelect==2 && k!=0) ){ 
+	        	VPUtility.allIgnored=false;// this boolean required for disabling/enabling the right mouse click menuitems
 	        }
 	        else{ 
-	        	switch(prevSelect){
+	        	switch(VPUtility.prevSelect){
 	        	case 0:
 	        		vPlugin.mytbm.addRow(new Object[]{"","No Errors and Warnings"});
 	        		break;
 	        	case 1:	
-	        		vPlugin.mytbm.addRow(new Object[]{vPlugin.EIcon,"No Errors"});
+	        		vPlugin.mytbm.addRow(new Object[]{VPUtility.eIcon,"No Errors"});
 	        		break;
 	        	case 2:	
-	        		vPlugin.mytbm.addRow(new Object[]{vPlugin.WIcon,"No Warnings"});
+	        		vPlugin.mytbm.addRow(new Object[]{VPUtility.wIcon,"No Warnings"});
 	        		break;
 	        	}
-	        	vPlugin.allIgnored=true;
+	        	VPUtility.allIgnored=true;
 	    		vPlugin.jtb.setEnabled(false);
 	        }
 	    }
