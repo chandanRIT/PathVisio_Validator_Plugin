@@ -1,8 +1,10 @@
 package org.pathvisio.plugins;
 
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -12,8 +14,40 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.DefaultTableModel;
 
+import org.pathvisio.preferences.Preference;
+import org.pathvisio.view.VPathwayElement;
+
 public class VPUtility {
 	static final String USER_DIR = System.getProperty("user.home");
+	static ImageIcon eIcon;
+	static ImageIcon wIcon;
+	static boolean prevHighlight=true;
+	static boolean changeOfSchema=false;
+	static boolean allIgnored;
+	static int prevSelect;
+	static Color col1;//= new Color(255,0,0),col2=new Color(0,0,255);
+	static Color col2;
+	static VPathwayElement prevPwe;
+	static String schemaFileType;
+	static String schemaString;
+	
+	
+	enum SchemaPreference implements Preference
+	{
+		LAST_OPENED_SCHEMA_DIR (VPUtility.USER_DIR),
+		CHECK_BOX_STATUS ("0"),APPLY_IGNORED_RULES_CHECKBOX ("0"),SVRL_FILE (VPUtility.USER_DIR);
+
+		private String defaultValue;
+		SchemaPreference (String defaultValue) 
+		{
+			this.defaultValue = defaultValue;
+		}
+
+		public String getDefault() {
+			return defaultValue;
+		}               
+	}
+	
 
 	static void resetPhaseBox(JComboBox phaseBox){
 		if(!phaseBox.isEnabled())

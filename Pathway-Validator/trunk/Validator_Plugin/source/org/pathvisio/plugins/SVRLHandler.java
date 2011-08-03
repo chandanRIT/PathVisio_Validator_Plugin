@@ -237,6 +237,12 @@ public final class SVRLHandler extends DefaultHandler {
        
        //this.diag_attr.setLength(0);
     }
+    //chandan
+    else if (rawName.equals(FAILED_ASSERT_ELT)){
+    	if(svrlDiagRefCounter==0)
+    		this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
+    }
+    
   //chandan
     this.lastElement = "";
   }

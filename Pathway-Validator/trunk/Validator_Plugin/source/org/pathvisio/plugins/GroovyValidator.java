@@ -27,7 +27,6 @@ public class GroovyValidator {
 	private Engine eng;
 	private JComboBox phaseBox;
 	private ArrayList<String> graphIdsList;
-	//private ImageIcon EIcon,WIcon;
 	private ValidatorPlugin vPlugin;
 	//private ValidatorPlugin.MyTableModel mytbm;
 	//private JTable jtb;
@@ -70,7 +69,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	         			graphId=sa[2];
 	         			tempSt=sa[0]+" - "+sa[1];
 	         			combinedStrings=graphId+"@@"+tempSt;
-	         			if(vPlugin.ignoredErrorTypesList.contains(tempSt)||
+	         			if(vPlugin.ignoredErrorTypesList.contains(tempSt)||vPlugin.globallyIgnoredEWType.contains(tempSt)||
 	         					vPlugin.ignoredElements.contains(graphId)|| vPlugin.ignoredSingleError.contains(combinedStrings)) 
 	         				continue;
 	         		
@@ -88,7 +87,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	         		graphId=tempArray[2];
 	         		tempSt=tempArray[0]+" - "+tempArray[1];
 	         		combinedStrings=graphId+"@@"+tempSt;
-	         		if(vPlugin.ignoredErrorTypesList.contains(tempSt)|| 
+	         		if(vPlugin.ignoredErrorTypesList.contains(tempSt)|| vPlugin.globallyIgnoredEWType.contains(tempSt)||
 	         				vPlugin.ignoredElements.contains(graphId)|| vPlugin.ignoredSingleError.contains(combinedStrings) ) 
 	         			continue;
 	         		
@@ -104,23 +103,24 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
 		eng.getActiveVPathway().redraw();
         
-		if( (ValidatorPlugin.prevSelect==0 && ijkew[0]!=0) || (ValidatorPlugin.prevSelect==1 && ijkew[1]!=0) || (ValidatorPlugin.prevSelect==2 && ijkew[2]!=0) ){ 
+		if( (VPUtility.prevSelect==0 && ijkew[0]!=0) || (VPUtility.prevSelect==1 && ijkew[1]!=0) 
+				|| (VPUtility.prevSelect==2 && ijkew[2]!=0) ){ 
 			//jta.setText(sbf.toString());
-			vPlugin.allIgnored=false;
+			VPUtility.allIgnored=false;
 		}
 		else{ 
-			switch(ValidatorPlugin.prevSelect){
+			switch(VPUtility.prevSelect){
 			case 0:
 				vPlugin.mytbm.addRow(new Object[]{"","No Errors and Warnings"});
 				break;
 			case 1:
-				vPlugin.mytbm.addRow(new Object[]{vPlugin.EIcon,"No Errors"});
+				vPlugin.mytbm.addRow(new Object[]{VPUtility.eIcon,"No Errors"});
 				break;
 			case 2:
-				vPlugin.mytbm.addRow(new Object[]{vPlugin.WIcon,"No Warnings"});
+				vPlugin.mytbm.addRow(new Object[]{VPUtility.wIcon,"No Warnings"});
 				break;
 			}
-			vPlugin.allIgnored=true;
+			VPUtility.allIgnored=true;
 			vPlugin.jtb.setEnabled(false);
 		}
 		ValidatorPlugin.jcBox.setEnabled(true);ValidatorPlugin.jcb.setEnabled(true);
@@ -129,25 +129,30 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	
 	private void printGroovy(String tempSt,String graphId,int[] ijkew){
 		
-		ValidatorPlugin.prevHighlight=true;
+		VPUtility.prevHighlight=true;
 		VPathwayElement vpe=null;
 		PathwayElement pe; 
 		//String imageUrl=imageUrlE;
-		ImageIcon EWIcon=vPlugin.EIcon;
+		ImageIcon EWIcon=VPUtility.eIcon;
 		ValidatorPlugin.pth=eng.getActivePathway();
         //int higco=0; 
         
-        if(tempSt.startsWith("warning")){ EWIcon=vPlugin.WIcon; ijkew[4]++;}else { EWIcon=vPlugin.EIcon; ijkew[3]++;}
+        if(tempSt.startsWith("warning")){
+        	EWIcon=VPUtility.wIcon; ijkew[4]++;
+        }
+        else {
+        	EWIcon=VPUtility.eIcon; ijkew[3]++;
+        }
 		
-		if(ValidatorPlugin.prevSelect==0){
+		if(VPUtility.prevSelect==0){
 			//System.out.println("prevsel 0");
 			vPlugin.mytbm.addRow(new Object[]{EWIcon,++ijkew[0] +".) "+tempSt});
         }
-		else if(ValidatorPlugin.prevSelect==1 && tempSt.startsWith("error")){
+		else if(VPUtility.prevSelect==1 && tempSt.startsWith("error")){
 			//System.out.println("prevsel 1");
 			vPlugin.mytbm.addRow(new Object[]{EWIcon,++ijkew[1] +".) "+tempSt});
 		}
-		else if(ValidatorPlugin.prevSelect==2 && tempSt.startsWith("warning")){
+		else if(VPUtility.prevSelect==2 && tempSt.startsWith("warning")){
 			//System.out.println("prevsel 2");
 			vPlugin.mytbm.addRow(new Object[]{EWIcon,++ijkew[2] +".) "+tempSt}); 
 		}
@@ -167,8 +172,8 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
          	
          	if(pe!=null) {
          		vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-         		vpe.highlight(ValidatorPlugin.col2);
-         		ValidatorPlugin.prevPwe=vpe;
+         		vpe.highlight(VPUtility.col2);
+         		VPUtility.prevPwe=vpe;
          	}
          	else System.out.println("no available graphId @ id: "+graphId);
          }
@@ -186,8 +191,8 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
   	   
   	   	//try {
   		   groovyClass = loader.parseClass(schemaFile);
-  		   vPlugin.schemaString=groovyClass.getSimpleName();
-  		   VPUtility.cutSchemaTitleString(vPlugin.schemaString,ValidatorPlugin.schemaTitleTag);
+  		   VPUtility.schemaString=groovyClass.getSimpleName();
+  		   VPUtility.cutSchemaTitleString(VPUtility.schemaString,ValidatorPlugin.schemaTitleTag);
   		   //ValidatorPlugin.schemaTitleTag.setCaretPosition(0);
  		   groovyObject = (GroovyObject) groovyClass.newInstance();
   	   	/*}
