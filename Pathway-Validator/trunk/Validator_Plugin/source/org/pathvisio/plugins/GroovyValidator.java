@@ -45,7 +45,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 		int counter=0;
 		String tempSt,graphId,combinedStrings;
 		String[] tempArray;
-		int[] ijkew={0,0,0,0,0};
+		int[] ijkew={0,0,0,0,0,0};
 		
 		//clear and reset 
 		vPlugin.mytbm.setRowCount(0);
@@ -65,7 +65,10 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	         		
 	         		for(String[] sa: (ArrayList<String[]>)tempObject){
 	         		
-	         			if(sa[0]==null) sa[0]="error"; // default role is null, if role is not set
+	         			if(sa[0]==null) sa[0]="Error"; // default role is null, if role is not set
+	         			else 
+	         				sa[0]=VPUtility.convertToTitleCase(sa[0]);
+	         			
 	         			graphId=sa[2];
 	         			tempSt=sa[0]+" - "+sa[1];
 	         			combinedStrings=graphId+"@@"+tempSt;
@@ -82,7 +85,9 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	         		System.out.println("String Array detected "+counter);
 	         		tempArray= (String[])tempObject;
 	         		
-	         		if(tempArray[0]==null) tempArray[0]="error";
+	         		if(tempArray[0]==null) tempArray[0]="Error";
+	         		else 
+	         			tempArray[0]=VPUtility.convertToTitleCase(tempArray[0]);
 	         		
 	         		graphId=tempArray[2];
 	         		tempSt=tempArray[0]+" - "+tempArray[1];
@@ -95,6 +100,11 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	         }
 	      
 		 }
+		
+		if(ijkew[5]>0)
+			ValidatorPlugin.highlightAllButton.setEnabled(true);
+		else	
+			ValidatorPlugin.highlightAllButton.setEnabled(false);
 		
 		vPlugin.eLabel.setText("Errors:"+ijkew[3]); vPlugin.wLabel.setText("Warnings:"+ijkew[4]);
 		
@@ -123,7 +133,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 			VPUtility.allIgnored=true;
 			vPlugin.jtb.setEnabled(false);
 		}
-		ValidatorPlugin.jcBox.setEnabled(true);ValidatorPlugin.jcb.setEnabled(true);
+		ValidatorPlugin.jcBox.setEnabled(true);//ValidatorPlugin.highlightAllButton.setEnabled(true);
         System.out.println("-----------groovy part end-------------- ");
 }
 	
@@ -137,7 +147,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 		ValidatorPlugin.pth=eng.getActivePathway();
         //int higco=0; 
         
-        if(tempSt.startsWith("warning")){
+        if(tempSt.startsWith("Warning")){
         	EWIcon=VPUtility.wIcon; ijkew[4]++;
         }
         else {
@@ -148,11 +158,11 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 			//System.out.println("prevsel 0");
 			vPlugin.mytbm.addRow(new Object[]{EWIcon,++ijkew[0] +".) "+tempSt});
         }
-		else if(VPUtility.prevSelect==1 && tempSt.startsWith("error")){
+		else if(VPUtility.prevSelect==1 && tempSt.startsWith("Error")){
 			//System.out.println("prevsel 1");
 			vPlugin.mytbm.addRow(new Object[]{EWIcon,++ijkew[1] +".) "+tempSt});
 		}
-		else if(VPUtility.prevSelect==2 && tempSt.startsWith("warning")){
+		else if(VPUtility.prevSelect==2 && tempSt.startsWith("Warning")){
 			//System.out.println("prevsel 2");
 			vPlugin.mytbm.addRow(new Object[]{EWIcon,++ijkew[2] +".) "+tempSt}); 
 		}
@@ -167,16 +177,9 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
         }
 		
         if(graphId!=null){
-				
-         	pe=ValidatorPlugin.pth.getElementById(graphId);
-         	
-         	if(pe!=null) {
-         		vpe=eng.getActiveVPathway().getPathwayElementView(pe);
-         		vpe.highlight(VPUtility.col2);
-         		VPUtility.prevPwe=vpe;
-         	}
-         	else System.out.println("no available graphId @ id: "+graphId);
-         }
+        	if(vPlugin.highlightNode(graphId, VPUtility.col2)!=null) 
+        		++ijkew[5];
+        }
       
 	}
 	

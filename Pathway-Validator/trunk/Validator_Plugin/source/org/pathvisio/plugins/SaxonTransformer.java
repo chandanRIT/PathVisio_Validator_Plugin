@@ -19,6 +19,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.pathvisio.preferences.PreferenceManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -26,6 +27,7 @@ public class SaxonTransformer {
 
 	//private static String svrl;
 	private static File schemaFile, inputFile, svrlFile;
+
 	SAXParser saxParser;
 	private SVRLHandler handler ;
 	private TransformerFactory factory;// = new net.sf.saxon.TransformerFactoryImpl();
@@ -140,16 +142,14 @@ public class SaxonTransformer {
 		Result result2 = new StreamResult(sw2);
 
 		transformer2.transform(inputSource, result2);
-		// to produce the svrl output in a file in the user's temp directory
+		// to produce the svrl output in a file in the user's preferred directory
 		//if(svrlFile==null)
-		if(svrlFile==null)
-		svrlFile = new File(VPUtility.USER_DIR,
-				"svrlOutput.svrl");
+			svrlFile = new File(PreferenceManager.getCurrent()
+					.get(VPUtility.SchemaPreference.SVRL_FILE));
 
 		if (getProduceSvrl()) {
 			transformer2.transform(inputSource, new StreamResult(svrlFile));
 			// produceSvrl=false;
-			
 		}
 		else {
 			svrlFile.delete();
