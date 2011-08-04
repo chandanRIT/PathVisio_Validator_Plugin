@@ -1,9 +1,7 @@
 package org.pathvisio.plugins;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -20,8 +18,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.ExecutionException;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -29,8 +25,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -43,39 +37,29 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.DefaultTableModel;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.codehaus.groovy.control.CompilationFailedException;
-import org.codehaus.groovy.control.Phases;
 import org.jdesktop.swingworker.SwingWorker;
 import org.pathvisio.ApplicationEvent;
 import org.pathvisio.Engine;
 import org.pathvisio.Engine.ApplicationEventListener;
 import org.pathvisio.gui.swing.ProgressDialog;
 import org.pathvisio.gui.swing.PvDesktop;
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.GpmlFormat;
-import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.plugin.Plugin;
-import org.pathvisio.preferences.Preference;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.util.ProgressKeeper;
 import org.pathvisio.view.VPathwayElement;
+import org.pathvisio.view.VPathwayListener;
 import org.xml.sax.SAXException;
 import edu.stanford.ejalbert.BrowserLauncher;
 import gov.nih.nci.lmp.mimGpml.MIMFormat;
-import groovy.lang.Binding;
-import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
-import groovy.lang.GroovyShell;
 
 public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventListener,
 ItemListener, ComponentListener
@@ -93,7 +77,7 @@ ItemListener, ComponentListener
 	final static JComboBox jcBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
 	private final static JComboBox phaseBox = new JComboBox(new String[]{"Phase: All"});
 	private final ValidatorHelpAction vhelpAction= new ValidatorHelpAction();
-	static JCheckBox jcb;
+	static JButton highlightAllButton;
 	final JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER);
 	final JLabel wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
 	static final JTextField schemaTitleTag= new JTextField("Schema Title: ");
@@ -114,6 +98,7 @@ ItemListener, ComponentListener
 		}  
 	};
 
+	private VPathwayListener vpwListener = new VPUtility.VPWListener(jtb);
 	final ArrayList<String> graphIdsList = new ArrayList<String>();
 	ArrayList<String> ignoredErrorTypesList;
 	ArrayList<String> ignoredElements;
@@ -202,10 +187,10 @@ ItemListener, ComponentListener
 			jbcinit=true;
 		}else jbcinit=false;
 
-		jcb= new JCheckBox(" Highlight All", jbcinit);
-		jcb.setActionCommand("jcb");
-		jcb.addActionListener(this);
-		jcb.setEnabled(false);//set to false , to enable it only when validate is pressed
+		highlightAllButton= new JButton(" Highlight All");
+		highlightAllButton.setActionCommand("HighlightAll");
+		highlightAllButton.addActionListener(this);
+		highlightAllButton.setEnabled(false);//set to false , to enable it only when validate is pressed
 		//valbutton.setEnabled(!jbcinit);
 
 		svrlOutputChoose.setActionCommand("svrlOutputChoose");
@@ -285,7 +270,7 @@ ItemListener, ComponentListener
 		c.weighty = 0.0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth = GridBagConstraints.RELATIVE;
-		mySideBarPanel.add(jcb,c);
+		mySideBarPanel.add(highlightAllButton,c);
 
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		mySideBarPanel.add(jcBox,c);
@@ -307,7 +292,7 @@ ItemListener, ComponentListener
 		desktop.getPreferencesDlg().addPanel("Validator", 
 				desktop.getPreferencesDlg().builder()
 				.booleanField(VPUtility.SchemaPreference.APPLY_IGNORED_RULES_CHECKBOX, "Apply ignored rules globally")
-				.fileField(VPUtility.SchemaPreference.SVRL_FILE, "Choose SVRL file Location:", true)
+				.fileField(VPUtility.SchemaPreference.SVRL_FILE, "Choose SVRL file Location:", false)
 				.build());
 
 	}
@@ -448,7 +433,7 @@ ItemListener, ComponentListener
 			System.out.println("VPUtility.prevPwe is null or no errors");
 
 		//right click event handling is done below
-		if (e.getButton()== MouseEvent.BUTTON3) {
+		if ( e.getButton()== MouseEvent.BUTTON3 || e.isControlDown() ) {
 			jtb.clearSelection();
 
 			String eachCellTip = jtb.getToolTipText(e);
@@ -476,7 +461,6 @@ ItemListener, ComponentListener
 				for(int MI=0; MI<3 ; MI++)
 					popup.getComponent(MI).setEnabled(true); 
 			}
-
 			popup.show(e.getComponent(), e.getX(), e.getY());
 		}
 	}
@@ -528,7 +512,7 @@ ItemListener, ComponentListener
 			System.out.println("ExecutionException in ValidatorPlugin---"+e.getMessage());
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 					"Validation Exception in Schematron","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			resetUI();
+			resetUI(false);
 			return;
 		}
 	}
@@ -553,7 +537,7 @@ ItemListener, ComponentListener
 					JOptionPane.showMessageDialog(desktop.getFrame(), 
 							"Validation Exception in Schematron","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 					e1.printStackTrace();
-					resetUI();
+					resetUI(false);
 					return null;
 				}
 				finally {
@@ -670,9 +654,9 @@ ItemListener, ComponentListener
 			subMenu.setText(subMenuText.substring(0,subMenuText.indexOf('('))+"("+ignoredList.size()+")");
 		
 		checkedUnchecked=new int[4];// reset all the integers to 0
-		subMenu.getMenuComponent(0).setEnabled(false);
+		subMenu.getMenuComponent(0).setEnabled(false);//disable reconsider button
 		//serializeIgnoredRules();
-		printItOnTable();
+		printItOnTable();// in order to refresh the validation messages
 	}
 
 	/**
@@ -743,6 +727,26 @@ ItemListener, ComponentListener
 		}
 	} 
 
+	void resetUI(boolean resetSchemaTitleAlso){
+		clearTableRows();
+		
+		if(resetSchemaTitleAlso){
+			schemaTitleTag.setText("Schema Title: ");
+			VPUtility.schemaString="";
+			VPUtility.resetPhaseBox(phaseBox);
+		}	
+		
+		//if(eng.hasVPathway())
+		eng.getActiveVPathway().resetHighlight();
+
+		if(ignoredErrorTypesList!=null){
+			clearRightClickStuff();
+		}
+
+		jcBox.setEnabled(false);highlightAllButton.setEnabled(false);
+		eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
+	}
+
 	private Thread create_SAXTFR_InAThread(){
 		//System.out.println("choose pressed for 1st time");
 		Thread threadForSax=new Thread(){ 
@@ -758,16 +762,16 @@ ItemListener, ComponentListener
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 							"problem while configuring Saxon Transformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-					resetUI();
+					resetUI(true);
 				} catch (ParserConfigurationException e) {
 					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 							"problem while configuring SaxParser","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-					resetUI();
+					resetUI(true);
 					e.printStackTrace();
 				} catch (SAXException e) {
 					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 							"SaxException occured","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-					resetUI();
+					resetUI(true);
 					e.printStackTrace();
 				}
 			}
@@ -776,19 +780,6 @@ ItemListener, ComponentListener
 		return threadForSax;
 	}
 
-	void resetUI(){
-		clearTableRows();
-
-		//if(eng.hasVPathway())
-		eng.getActiveVPathway().resetHighlight();
-
-		if(ignoredErrorTypesList!=null){
-			clearRightClickStuff();
-		}
-
-		jcBox.setEnabled(false);jcb.setEnabled(false);
-		eLabel.setText("Errors:0");wLabel.setText("Warnings:0");
-	}
 
 	private Thread chooseButtonInitialisation() throws InterruptedException,IOException,ClassNotFoundException{
 
@@ -829,47 +820,6 @@ ItemListener, ComponentListener
 
 		}
 		return threadForSax;
-	}
-
-	private void chooseRuleset(){
-		try {
-			chooseRulesetButtonListener();
-		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the SaxonTranformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"Ruleset/serialized file not accesible","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		} catch (SAXException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		}
-		catch (CompilationFailedException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem while compiling Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with deserialization","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		}
-		catch (Exception e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		}
 	}
 
 	// the Listeners call these methods internally
@@ -926,12 +876,63 @@ ItemListener, ComponentListener
 			PreferenceManager.getCurrent().setFile(VPUtility.SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 		}
 	}
+	
+	private void chooseRuleset(){
+		try {
+			chooseRulesetButtonListener();
+		} catch (InterruptedException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the SaxonTranformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"Ruleset/serialized file not accesible","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		} catch (SAXException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		}
+		catch (CompilationFailedException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem while compiling Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		}
+		catch (ClassNotFoundException e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with deserialization","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		}
+		catch (Exception e) {
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"problem with the Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		}
+	}
+
 
 	// the method which does the handling of events related to "Validate" button
 	private void validateButtonListener(){
 		System.out.println("validate button pressed ");
-		jcBox.setEnabled(true);jcb.setEnabled(true);
+		jcBox.setEnabled(true);highlightAllButton.setEnabled(true);
 		//initializing the color objects
+		
 		if(VPUtility.col1==null){
 			VPUtility.col1= new Color(255,0,0);
 			VPUtility.col2=new Color(0,0,255);
@@ -944,6 +945,13 @@ ItemListener, ComponentListener
 			chooseRuleset();
 			return;
 		}
+		
+		if(VPUtility.schemaString.equals("")){//check "Choose Ruleset" success
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
+				"cannot validate with the current ruleset, please choose another");
+			return;
+		}
+			
 
 		// check if a pathway is opened
 		if(eng.hasVPathway()){
@@ -1046,23 +1054,10 @@ ItemListener, ComponentListener
 			chooseRuleset();
 		}
 
-		// Listener for "Hightlight All" checkbox 
-		else if("jcb".equals(e.getActionCommand())){ 
-		
+		// Listener for "Hightlight All" button 
+		else if("HighlightAll".equals(e.getActionCommand())){ 
 			serializeIgnoredRules();
-			
-			if(((JCheckBox)e.getSource()).isSelected()){
-				//System.out.println("jcb selected");
-				vhighlightAll();
-				PreferenceManager.getCurrent().setInt(VPUtility.SchemaPreference.CHECK_BOX_STATUS,1);
-			}
-			else {
-				//System.out.println("jcb deselected");
-				//valbutton.setEnabled(true);
-				PreferenceManager.getCurrent().setInt(VPUtility.SchemaPreference.CHECK_BOX_STATUS,0);
-				eng.getActiveVPathway().resetHighlight();//unhighlight all
-			}
-			//System.out.println("some event fired from jcb--"+PreferenceManager.getCurrent().getInt(SchemaPreference.CHECK_BOX_STATUS));
+			vhighlightAll();
 		}
 
 		// Listener for "errors/warnings drop down box"
@@ -1094,7 +1089,9 @@ ItemListener, ComponentListener
 	public void applicationEvent(ApplicationEvent e) {
 
 		if( e.getType()==ApplicationEvent.PATHWAY_OPENED || e.getType()==ApplicationEvent.PATHWAY_NEW){
-			resetUI();
+			resetUI(false);
+			eng.getActiveVPathway().addVPathwayListener(vpwListener);
+			
 		}
 	}
 

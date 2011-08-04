@@ -8,6 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.MenuSelectionManager;
 import javax.swing.plaf.ComponentUI;
@@ -16,6 +17,8 @@ import javax.swing.table.DefaultTableModel;
 
 import org.pathvisio.preferences.Preference;
 import org.pathvisio.view.VPathwayElement;
+import org.pathvisio.view.VPathwayEvent;
+import org.pathvisio.view.VPathwayListener;
 
 public class VPUtility {
 	static final String USER_DIR = System.getProperty("user.home");
@@ -30,12 +33,14 @@ public class VPUtility {
 	static VPathwayElement prevPwe;
 	static String schemaFileType;
 	static String schemaString;
+	//static VPWListener vpwListener;//=new VPUtility.VPWListener();
 	
 	
 	enum SchemaPreference implements Preference
 	{
 		LAST_OPENED_SCHEMA_DIR (VPUtility.USER_DIR),
-		CHECK_BOX_STATUS ("0"),APPLY_IGNORED_RULES_CHECKBOX ("0"),SVRL_FILE (VPUtility.USER_DIR);
+		CHECK_BOX_STATUS ("0"),APPLY_IGNORED_RULES_CHECKBOX ("0"),SVRL_FILE (VPUtility.USER_DIR
+				+ System.getProperty("file.separator")+"svrlOutput.svrl");
 
 		private String defaultValue;
 		SchemaPreference (String defaultValue) 
@@ -47,7 +52,6 @@ public class VPUtility {
 			return defaultValue;
 		}               
 	}
-	
 
 	static void resetPhaseBox(JComboBox phaseBox){
 		if(!phaseBox.isEnabled())
@@ -85,6 +89,12 @@ public class VPUtility {
 		return ss;
 	}
 
+	static String convertToTitleCase(String str){
+		str=str.toLowerCase();
+		str=(str.charAt(0)+"").toUpperCase()+str.substring(1,str.length());
+		return str;
+	}
+	
 	/**
 	 * custom JTable class to override the the method "isCellEditable", in order to
 	 *  render all the cells un-editable for the table 
@@ -122,6 +132,22 @@ public class VPUtility {
 		   }
 	}
 
+	static class VPWListener implements VPathwayListener{
+		private JTable jtb;
+		VPWListener(JTable jtb){
+			this.jtb=jtb;
+		} 
+		
+		public void vPathwayEvent(VPathwayEvent e) {
+			// TODO Auto-generated method stub
+			org.pathvisio.view.MouseEvent me;
+			if( ((me=e.getMouseEvent())!=null) && 
+					me.getType()==org.pathvisio.view.MouseEvent.MOUSE_DOWN ){
+				System.out.println("Pathway area clicked");
+				jtb.clearSelection();
+			}
+		}
+	}
 
 	
 }
