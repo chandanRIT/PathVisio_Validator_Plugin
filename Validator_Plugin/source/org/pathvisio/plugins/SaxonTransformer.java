@@ -23,6 +23,11 @@ import org.pathvisio.preferences.PreferenceManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * Responsible for XSL Transformations of ruleset with SVRL skeleton file and then the resultant 
+ *  with the exported pathway file; also does the parsing of the resultant SVRL file
+ *  using SAX Parser and the SVRLHandler class
+ */
 public class SaxonTransformer {
 
 	//private static String svrl;
@@ -92,7 +97,7 @@ public class SaxonTransformer {
 
 	}
 
-	public InputStream[] getFiles() {
+	/*public InputStream[] getFiles() {
 
 		// String isoName = "/XSLs/iso_svrl_for_xslt2.xsl";
 
@@ -101,7 +106,7 @@ public class SaxonTransformer {
 				getClass().getResourceAsStream("/resources/example.mimml") };
 		return in;
 	}
-
+*/
 	/*public URL getUrlToIso() {
 
 		return getClass().getResource("/iso_svrl_for_xslt2.xsl");
@@ -111,6 +116,10 @@ public class SaxonTransformer {
 		// return getClass().getResource("/XSLs/iso_svrl_for_xslt2.xsl");
 	}*/
 	
+	/**
+	 * this does the XSL Transformations on the ruleset and the exported Pathway Object
+	 * and then invokes the SAX parser through "parseSVRL" method on the transformation's result.
+	 */
 	public void produceSvrlAndThenParse() throws 
 			ParserConfigurationException, TransformerException, IOException, SAXException {
 
@@ -164,6 +173,12 @@ public class SaxonTransformer {
 
 	}
 
+	/**
+	 * removes the first line in the SVRL if it contains XML header i.e
+	 * strips the input string of its XML header
+	 * @param svrl the SVRL string for which the XML header is to be removed
+	 * @return String without the XML header 
+	 */
 	private String removeXMLheader(String svrl) {
 
 		int firstLineEnd = svrl.indexOf("\n");
@@ -175,12 +190,20 @@ public class SaxonTransformer {
 			return svrl;
 	}
 
+	/**
+	 * parses the input SVRL String using the SVRLHandler, results are put into 
+	 *  diagnosticReference
+	 * @param svrl resultant SVRL String from the XSL Transformations
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
 	private void parseSVRL(String svrl) throws IOException, SAXException,
 			ParserConfigurationException {
 
 		if(handler==null) 
-			handler = new SVRLHandler(this.failedAssertions,
-				this.successfulReports, this.diagnosticReference);
+			handler = new SVRLHandler(failedAssertions,
+				successfulReports, diagnosticReference);
 		// System.out.println(this.svrl);
 		InputSource is = new InputSource(
 				new StringReader(svrl));
@@ -191,7 +214,7 @@ public class SaxonTransformer {
 
 	}
 
-	private void printMessages() {
+	/*private void printMessages() {
 
 		Iterator<String> tempIterator = diagnosticReference.iterator();
 		while (tempIterator.hasNext()) {
@@ -200,5 +223,5 @@ public class SaxonTransformer {
 		}
 
 	}
-
+*/
 }

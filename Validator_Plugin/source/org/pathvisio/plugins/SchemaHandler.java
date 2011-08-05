@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * SAX handler to parse Schematron rulesets chosen using the "Choose Ruleset" button. The 
+ * retrieved values are then stored in the corresponding variables to be used by the plugin
+ * for setting the ruleset's title, type (GPML/MIM/SBGN) and extracting rule-groups.
+ */
 public class SchemaHandler extends DefaultHandler {
 
 	private String theTitle; // schema's title
@@ -57,6 +62,10 @@ public class SchemaHandler extends DefaultHandler {
 		this.chars.append(ch, start, length);
 	}
 
+	/**
+	 * To retrieve and clear the String in the String Builder "chars"
+	 * @return the String accumulated in the "chars" 
+	 */
 	private String getCharacters() {
 		String retstr = this.chars.toString();
 		this.chars.setLength(0);

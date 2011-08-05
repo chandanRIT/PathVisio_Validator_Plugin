@@ -1,16 +1,12 @@
 package org.pathvisio.plugins;
 
-import javax.swing.JEditorPane;
 import javax.swing.JTable; 
 import javax.swing.JTextArea; 
-import javax.swing.JTextField;
-import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableCellRenderer; 
 import javax.swing.table.TableCellRenderer; 
 import javax.swing.table.TableColumn; 
 import javax.swing.table.TableColumnModel; 
 import java.awt.Component; 
-import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Enumeration; 
 import java.util.HashMap; 

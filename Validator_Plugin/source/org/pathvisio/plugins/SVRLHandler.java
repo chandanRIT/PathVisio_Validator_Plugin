@@ -1,5 +1,5 @@
 /*
- 
+
 
 Open Source Initiative OSI - The MIT License:Licensing
 [OSI Approved License]
@@ -32,251 +32,247 @@ package org.pathvisio.plugins;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
- 
+
 import java.util.ArrayList;
 /**
  * SAX handler for svrl xml file
- *
  * @author Christophe lauret
  * @author Willy Ekasalim
- * 
  * @version 9 February 2007
  */
-  
+
 /**
  * @author Xin Chen
  * @version 20 July 2007
- * TEXT_ELT is not just under FAILED_ASSERT_ELT and SUCCESSFUL_REPORT_ELT.
- * <p> in schematron will also be copied to SVRL as TEXT_ELT
- * Fixed: Make sure the TEXT_ELT parsed under FAILED_ASSERT_ELT and SUCCESSFUL_REPORT_ELT by
- * adding a boolean variable.
+ * SAX Parser class which parses the exported Pathway file to extract the failed 
+ * validation messages. Actual class modified to be used in the Validator plugin, 
  */
 
 public final class SVRLHandler extends DefaultHandler {
 
-// constants --------------------------------------------------------------------------------------
-	
+	// constants --------------------------------------------------------------------------------------
+
 	//chandan 
-	
+
 	/** 
 	 * used as a flag to put only the first <svrl:diagnostic-reference> element's value in the output if there are more than one present in the svrl:failed-assert element
 	 */
 	private int svrlDiagRefCounter=0;
-    private String roleAttribute;
+	private String roleAttribute;
 	private boolean removePrev;
-    //chandan
-	
+	//chandan
+
 	/**
-   * Static name for failed assertions.
-   */ 
+	 * Static name for failed assertions.
+	 */ 
 	private static final String FAILED_ASSERT_ELT = "svrl:failed-assert";
 
-  /**
-   * Static name for simple text
-   */
-  private static final String TEXT_ELT = "svrl:text";
+	/**
+	 * Static name for simple text
+	 */
+	private static final String TEXT_ELT = "svrl:text";
 
-  /**
-   * Static name for successful report.
-   */
-  private static final String SUCCESSFUL_REPORT_ELT = "svrl:successful-report";
+	/**
+	 * Static name for successful report.
+	 */
+	private static final String SUCCESSFUL_REPORT_ELT = "svrl:successful-report";
 
-  //chandan
-  /**
-   * Static name for diagnostic-reference.
-   */
-  private static final String DIAGNOSTIC_REFERENCE_ELT = "svrl:diagnostic-reference";
- //chandan
-  
-  /**
-   * Static name for test attribute.
-   * Currently not used because test condition are not showed in the console output
-   */
-  private static final String TEST_ATT = "test";
+	//chandan
+	/**
+	 * Static name for diagnostic-reference.
+	 */
+	private static final String DIAGNOSTIC_REFERENCE_ELT = "svrl:diagnostic-reference";
+	//chandan
 
-  //chandan
-  /**
-   * Static name for diagnostic attribute.
-   */
-  //private static final String DIAGNOSTIC_ATT = "diagnostic";
-  //chandan
-  
-  /**
-   * Static name for location attribute.
-   */
-  private static final String LOCATION_ATT = "location";
+	/**
+	 * Static name for test attribute.
+	 * Currently not used because test condition are not showed in the console output
+	 */
+	private static final String TEST_ATT = "test";
 
-// class attributes -------------------------------------------------------------------------------
+	//chandan
+	/**
+	 * Static name for diagnostic attribute.
+	 */
+	//private static final String DIAGNOSTIC_ATT = "diagnostic";
+	//chandan
 
-  /**
-   * StringBuffer to collect text/character data received from characters() callback
-   */
-  private StringBuffer chars = new StringBuffer();
-  
-  /**
-   * StringBuffer for constructing failed assertion/succesfull message
-   */
-  private StringBuffer message = new StringBuffer();
+	/**
+	 * Static name for location attribute.
+	 */
+	private static final String LOCATION_ATT = "location";
 
-  /**
-   * StringBuffer for storing the diagnostic message
-   */
-  private StringBuffer diag_attr=new StringBuffer();
-  /**
-   * String to store the element name that are currently being produced
-   */
-  private String lastElement;
+	// class attributes -------------------------------------------------------------------------------
 
-  /**
-   * An ArrayList to store (String) message of failed assertion found.
-   */
-  private ArrayList<String> failedAssertions;
+	/**
+	 * StringBuffer to collect text/character data received from characters() callback
+	 */
+	private StringBuffer chars = new StringBuffer();
 
-  /**
-   * An ArrayList to store (String) message of diagnostic-reference found.
-   */
-  private ArrayList<String> diagnosticReference;
+	/**
+	 * StringBuffer for constructing failed assertion/succesfull message
+	 */
+	private StringBuffer message = new StringBuffer();
 
-  /**
-   * An ArrayList to store (String) message of successful reports found.
-   */
-  private ArrayList<String> successfulReports;
-  
-  /***
-   * indicate that the current parsed element is either FAILED_ASSERT_ELT or SUCCESSFUL_REPORT_ELT.
-   */
-  private boolean underAssertorReport = false;
+	/**
+	 * StringBuffer for storing the diagnostic message
+	 */
+	private StringBuffer diag_attr=new StringBuffer();
+	/**
+	 * String to store the element name that are currently being produced
+	 */
+	private String lastElement;
 
-// contructor -------------------------------------------------------------------------------------
+	/**
+	 * An ArrayList to store (String) message of failed assertion found.
+	 */
+	private ArrayList<String> failedAssertions;
 
-  /**
-   * Constructor for SVRLHandler.
-   */
-  public SVRLHandler() {
-  }
+	/**
+	 * An ArrayList to store (String) message of diagnostic-reference found.
+	 */
+	private ArrayList<String> diagnosticReference;
 
-  /**
-   * Constructor for SVRLHandler that require reference of failedAssertions and successfulReports.
-   * @param failedAssertions & successfulReports to store validation message result.
-   */
-  public SVRLHandler(ArrayList<String> failedAssertions, ArrayList<String> successfulReports, ArrayList<String> diagnosticReference) {
-    this.failedAssertions = failedAssertions;
-    this.successfulReports = successfulReports;
-    this.diagnosticReference=diagnosticReference;
-  }
+	/**
+	 * An ArrayList to store (String) message of successful reports found.
+	 */
+	private ArrayList<String> successfulReports;
 
-// Handler methods --------------------------------------------------------------------------------
+	/***
+	 * indicate that the current parsed element is either FAILED_ASSERT_ELT or SUCCESSFUL_REPORT_ELT.
+	 */
+	private boolean underAssertorReport = false;
 
-  /**
-   * {@inheritDoc}
-   */
-  public void startElement(String uri, String localName, String rawName, Attributes attributes) {
-    // detect svrl:failed-assert and svrl:successful-report element
-    if (rawName.equals(FAILED_ASSERT_ELT)) {
-      svrlDiagRefCounter=0;
-      this.roleAttribute=attributes.getValue("role");
-      //if the role atrribute is not set, then consider the default as error
-      if(this.roleAttribute==null){
-    	  this.roleAttribute="Error";
-      }
-      else
-    	  roleAttribute=VPUtility.convertToTitleCase(roleAttribute);
-      
-      this.message.append("[assert] " + attributes.getValue(LOCATION_ATT));
-      this.lastElement = FAILED_ASSERT_ELT;
-      underAssertorReport = true;
-    } else if (rawName.equals(SUCCESSFUL_REPORT_ELT)) {
-      this.message.append("[report] " + attributes.getValue(LOCATION_ATT));
-      this.lastElement = SUCCESSFUL_REPORT_ELT;
-      underAssertorReport = true;
-    } else if (rawName.equals(TEXT_ELT) && underAssertorReport == true) {
-      // clean the buffer to start collecting text of svrl:text
-      getCharacters();
-      this.diag_attr.setLength(0);
-    }
-    else if (rawName.equals(DIAGNOSTIC_REFERENCE_ELT)) {
-    	svrlDiagRefCounter+=1;
-    	if(svrlDiagRefCounter==2 && attributes.getValue("diagnostic").equals("inter-vis-id")){
-    		this.diagnosticReference.remove(this.diagnosticReference.size()-1);
-    		removePrev=true;
-    	}
-    	//this.diag_attr.setLength(0);
-    	//this.diag_attr.append("GraphId="+attributes.getValue(DIAGNOSTIC_ATT));
-      getCharacters();
-    }
-    //chandan
-    //System.out.println("the  last processed element--"+ this.lastElement);
-  //chandan
-  }
+	// contructor -------------------------------------------------------------------------------------
 
-  /**
-   * {@inheritDoc}
-   */
-  public void endElement(String namespaceURL, String localName, String rawName) {
-	  String temp=null;
-	  // reach the end of svrl:text and collect the text data
-    if (rawName.equals(TEXT_ELT) && underAssertorReport == true) {
-    	diag_attr.append(getCharacters());
-    	this.message.append(" - " + diag_attr );
-      //check the last element name to decide where to store the validation message
-      if (this.lastElement.equals(FAILED_ASSERT_ELT)) {
-        this.failedAssertions.add(getMessage());
-      } else {
-        this.successfulReports.add(getMessage());       
-      }
-      underAssertorReport = false;
-    }
-   //chandan
-    else if(rawName.equals(DIAGNOSTIC_REFERENCE_ELT)){
-    	//this.diagnosticReference.add(diag_attr+":"+getCharacters()+" ");
-    	if(svrlDiagRefCounter==1){
-    	//the output containing the graphid and the diagonostic message 
-    		 temp = getCharacters();
-    	this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
-    	}else if(svrlDiagRefCounter==2 && removePrev){
-    		temp = getCharacters();
-    		this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
-    		removePrev=false;
-    	}
-    	//this.diagnosticReference.add(getCharacters());
-       
-       //this.diag_attr.setLength(0);
-    }
-    //chandan
-    else if (rawName.equals(FAILED_ASSERT_ELT)){
-    	if(svrlDiagRefCounter==0)
-    		this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
-    }
-    
-  //chandan
-    this.lastElement = "";
-  }
+	/**
+	 * Constructor for SVRLHandler.
+	 */
+	public SVRLHandler() {
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  public void characters(char[] ch, int start, int length) {
-    // print svrl:text text node if the lastElement is svrl:text
-    this.chars.append (ch, start, length);
-  }
+	/**
+	 * Constructor for SVRLHandler that require reference of failedAssertions and successfulReports.
+	 * @param failedAssertions & successfulReports to store validation message result.
+	 */
+	public SVRLHandler(ArrayList<String> failedAssertions, ArrayList<String> successfulReports, ArrayList<String> diagnosticReference) {
+		this.failedAssertions = failedAssertions;
+		this.successfulReports = successfulReports;
+		this.diagnosticReference=diagnosticReference;
+	}
 
-  /**
-   * Return the collected text data so far and clean the buffer
-   * @return collected text data on the buffer
-   */
-  private String getCharacters() {
-    String retstr = this.chars.toString();
-    this.chars.setLength(0);
-    return retstr;
-  }
-  
-  /**
-   * @return the constructed validation message
-   */
-  private String getMessage() {
-    String retstr = this.message.toString();
-    this.message.setLength(0);
-    return retstr;
-  }
+	// Handler methods --------------------------------------------------------------------------------
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void startElement(String uri, String localName, String rawName, Attributes attributes) {
+		// detect svrl:failed-assert and svrl:successful-report element
+		if (rawName.equals(FAILED_ASSERT_ELT)) {
+			svrlDiagRefCounter=0;
+			this.roleAttribute=attributes.getValue("role");
+			//if the role atrribute is not set, then consider the default as error
+			if(this.roleAttribute==null){
+				this.roleAttribute="Error";
+			}
+			else
+				roleAttribute=VPUtility.convertToTitleCase(roleAttribute);
+
+			this.message.append("[assert] " + attributes.getValue(LOCATION_ATT));
+			this.lastElement = FAILED_ASSERT_ELT;
+			underAssertorReport = true;
+		} else if (rawName.equals(SUCCESSFUL_REPORT_ELT)) {
+			this.message.append("[report] " + attributes.getValue(LOCATION_ATT));
+			this.lastElement = SUCCESSFUL_REPORT_ELT;
+			underAssertorReport = true;
+		} else if (rawName.equals(TEXT_ELT) && underAssertorReport == true) {
+			// clean the buffer to start collecting text of svrl:text
+			getCharacters();
+			this.diag_attr.setLength(0);
+		}
+		else if (rawName.equals(DIAGNOSTIC_REFERENCE_ELT)) {
+			svrlDiagRefCounter+=1;
+			if(svrlDiagRefCounter==2 && attributes.getValue("diagnostic").equals("inter-vis-id")){
+				this.diagnosticReference.remove(this.diagnosticReference.size()-1);
+				removePrev=true;
+			}
+			//this.diag_attr.setLength(0);
+			//this.diag_attr.append("GraphId="+attributes.getValue(DIAGNOSTIC_ATT));
+			getCharacters();
+		}
+		//chandan
+		//System.out.println("the  last processed element--"+ this.lastElement);
+		//chandan
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void endElement(String namespaceURL, String localName, String rawName) {
+		String temp=null;
+		// reach the end of svrl:text and collect the text data
+		if (rawName.equals(TEXT_ELT) && underAssertorReport == true) {
+			diag_attr.append(getCharacters());
+			this.message.append(" - " + diag_attr );
+			//check the last element name to decide where to store the validation message
+			if (this.lastElement.equals(FAILED_ASSERT_ELT)) {
+				this.failedAssertions.add(getMessage());
+			} else {
+				this.successfulReports.add(getMessage());       
+			}
+			underAssertorReport = false;
+		}
+		//chandan
+		else if(rawName.equals(DIAGNOSTIC_REFERENCE_ELT)){
+			//this.diagnosticReference.add(diag_attr+":"+getCharacters()+" ");
+			if(svrlDiagRefCounter==1){
+				//the output containing the graphid and the diagonostic message 
+				temp = getCharacters();
+				this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
+			}else if(svrlDiagRefCounter==2 && removePrev){
+				temp = getCharacters();
+				this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
+				removePrev=false;
+			}
+			//this.diagnosticReference.add(getCharacters());
+
+			//this.diag_attr.setLength(0);
+		}
+		//chandan
+		else if (rawName.equals(FAILED_ASSERT_ELT)){
+			if(svrlDiagRefCounter==0)
+				this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
+		}
+
+		//chandan
+		this.lastElement = "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void characters(char[] ch, int start, int length) {
+		// print svrl:text text node if the lastElement is svrl:text
+		this.chars.append (ch, start, length);
+	}
+
+	/**
+	 * Return the collected text data so far and clean the buffer
+	 * @return collected text data on the buffer
+	 */
+	private String getCharacters() {
+		String retstr = this.chars.toString();
+		this.chars.setLength(0);
+		return retstr;
+	}
+
+	/**
+	 * @return the constructed validation message
+	 */
+	private String getMessage() {
+		String retstr = this.message.toString();
+		this.message.setLength(0);
+		return retstr;
+	}
 
 }
