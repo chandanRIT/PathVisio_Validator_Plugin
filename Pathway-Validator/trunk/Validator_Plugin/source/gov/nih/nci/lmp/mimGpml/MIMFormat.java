@@ -42,9 +42,9 @@ package gov.nih.nci.lmp.mimGpml;
 import java.io.File;
 import java.io.IOException;
 
-//import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.*;
 
-//import org.pathvisio.core.debug.Logger;
+import org.pathvisio.debug.Logger;
 
 import org.pathvisio.model.ConverterException;
 import org.pathvisio.model.Pathway;
@@ -52,10 +52,10 @@ import org.pathvisio.model.PathwayExporter;
 import org.pathvisio.model.PathwayImporter;
 
 /**
- * Initiate the MIMML format within Pathvisio
+ * Initiate the MIMML format within Pathvisio 
  * 
  * @author Augustin Luna <augustin@mail.nih.gov>
- * @author Margot Sunshine
+ * @author Margot Sunshine 
  * 
  * @version 1.0
  * @since 1.0
@@ -83,7 +83,7 @@ public class MIMFormat implements PathwayExporter, PathwayImporter {
 	public String getName() {
 		return "MIM Markup Language";
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -93,15 +93,14 @@ public class MIMFormat implements PathwayExporter, PathwayImporter {
 	public void doExport(File file, Pathway pathway) throws ConverterException {
 		try {
 			ExporterHelper helper = new ExporterHelper(pathway);
+			helper.mapPathway(); 
 			helper.export(file);
 		} catch (IOException e) {
 			throw new ConverterException(e);
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see org.pathvisio.model.PathwayImporter#doImport(java.io.File)
 	 */
 	public Pathway doImport(File file) throws ConverterException {
@@ -109,7 +108,7 @@ public class MIMFormat implements PathwayExporter, PathwayImporter {
 
 		ImporterHelper helper = new ImporterHelper(file);
 		result = helper.getPw();
-
+		
 		return result;
 	}
 }

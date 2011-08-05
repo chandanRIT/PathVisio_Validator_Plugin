@@ -192,10 +192,10 @@ public final class SVRLHandler extends DefaultHandler {
 		}
 		else if (rawName.equals(DIAGNOSTIC_REFERENCE_ELT)) {
 			svrlDiagRefCounter+=1;
-			if(svrlDiagRefCounter==2 && attributes.getValue("diagnostic").equals("inter-vis-id")){
+			/*if(svrlDiagRefCounter==2 && attributes.getValue("diagnostic").equals("inter-vis-id")){
 				this.diagnosticReference.remove(this.diagnosticReference.size()-1);
 				removePrev=true;
-			}
+			}*/
 			//this.diag_attr.setLength(0);
 			//this.diag_attr.append("GraphId="+attributes.getValue(DIAGNOSTIC_ATT));
 			getCharacters();
@@ -229,21 +229,19 @@ public final class SVRLHandler extends DefaultHandler {
 				//the output containing the graphid and the diagonostic message 
 				temp = getCharacters();
 				this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
-			}else if(svrlDiagRefCounter==2 && removePrev){
+			}/*else if(svrlDiagRefCounter==2 && removePrev){
 				temp = getCharacters();
 				this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
 				removePrev=false;
-			}
+			}*/
 			//this.diagnosticReference.add(getCharacters());
-
 			//this.diag_attr.setLength(0);
 		}
 		//chandan
 		else if (rawName.equals(FAILED_ASSERT_ELT)){
-			if(svrlDiagRefCounter==0)
+			if(svrlDiagRefCounter==0)//temp will go as null in this case
 				this.diagnosticReference.add(temp+"@@"+this.roleAttribute+" - "+diag_attr);
 		}
-
 		//chandan
 		this.lastElement = "";
 	}
