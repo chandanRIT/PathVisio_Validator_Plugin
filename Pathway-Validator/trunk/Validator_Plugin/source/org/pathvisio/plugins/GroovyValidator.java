@@ -22,6 +22,11 @@ import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.view.VPathwayElement;
 
+/**
+ * This class is responsible for validating Pathways against Groovy rulesets. It loads(parses)
+ *  the Groovy ruleset and then runs it against the Pathway Object. The whole result is passed
+ *  to the sortGroovyResultsAndPrint, which is futher parsed and displayed on the panel.  
+ */
 public class GroovyValidator {
 
 	private Engine eng;
@@ -39,6 +44,11 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	this.vPlugin=vPlugin;
 }
 	
+/**
+ * separates the results coming in as mix of ArrayLists and String Arrays; and also filters the results based on 
+ * ignored rules and ewbox (Errors and Warnings combo-box) selection 
+ * @param tempList the result containing the validation messages after rungGroovy is called
+ */
  void sortGroovyResultsAndPrint(ArrayList<Object> tempList){
 		
 		Iterator<Object> tempIterator = tempList.iterator();
@@ -108,8 +118,6 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 		
 		vPlugin.eLabel.setText("Errors:"+ijkew[3]); vPlugin.wLabel.setText("Warnings:"+ijkew[4]);
 		
-		//refreshing the pathway , so that all the nodes highlighted appear highlighted
-		//VPathway vpwTemp = eng.getActiveVPathway();
 		//vpwTemp.setPctZoom(vpwTemp.getPctZoom());
 		eng.getActiveVPathway().redraw();
         
@@ -133,10 +141,16 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 			VPUtility.allIgnored=true;
 			vPlugin.jtb.setEnabled(false);
 		}
-		ValidatorPlugin.jcBox.setEnabled(true);//ValidatorPlugin.highlightAllButton.setEnabled(true);
+		ValidatorPlugin.ewBox.setEnabled(true);//ValidatorPlugin.highlightAllButton.setEnabled(true);
         System.out.println("-----------groovy part end-------------- ");
 }
 	
+ 	/**
+ 	 * 	This prints the mesages on the panel based on ewBOx selection and also highlights the nodes.
+ 	 * @param tempSt individual validation message without the graph-Id
+ 	 * @param graphId it is the graph-Id string which is used in highlighting nodes  
+ 	 * @param ijkew pass the array which is to contain the count for error and warning labels
+ 	 */
 	private void printGroovy(String tempSt,String graphId,int[] ijkew){
 		
 		VPUtility.prevHighlight=true;
@@ -183,6 +197,14 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
       
 	}
 	
+	/**
+	 * Parser for the Groovy Ruleset, sets the Groups in phaseBox, and also ruleset Title
+	 * @param schemaFile The file reference to Groovy ruleset 
+	 * @return parsed Groovy Object out of the ruleset
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
 	 GroovyObject loadGroovy(File schemaFile) throws IOException,InstantiationException,IllegalAccessException{
 		
 		System.out.println("reached inside loadGroovy method");
@@ -212,17 +234,24 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	   	try{
 	   		tempArray=(ArrayList<String[]>)(groovyObject.invokeMethod("phaseSupport", null));
 	   	}
-	   	catch(Exception e){System.out.println("phaseSupport method not present"); return groovyObject;}
+	   	catch(Exception e){
+	   		System.out.println("phaseSupport method not present"); return groovyObject;
+	   	}
 	   	
 	   	Iterator<String[]> tempIterator= tempArray.iterator();
 	   	while(tempIterator.hasNext()){
-	   		phaseBox.addItem("Phase: "+(tempIterator.next())[0]);
+	   		phaseBox.addItem(VPUtility.phaseLabelInCBox+(tempIterator.next())[0]);
 	   		//System.out.println(tempIterator.next());
 	   	}
 
 	   	return groovyObject;
 	}
 	
+	 /**
+	  * 
+	  * @param groovyObject object which contains the parsed rules from the Groovy ruleset (result of loadGroovy)
+	  * @throws CompilationFailedException
+	  */
 	 void runGroovy(GroovyObject groovyObject) throws CompilationFailedException{
 		
 		System.out.println("--------------groovy---------------");

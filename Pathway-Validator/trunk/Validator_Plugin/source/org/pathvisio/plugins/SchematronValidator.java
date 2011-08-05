@@ -30,6 +30,19 @@ class SchematronValidator {
 		this.vPlugin = vPlugin;
 	}
 
+	/**
+	 * export the Pathway object into XML format and then use it in the XSL Transformations to do the validation
+	 * @param tempSaxTrnfr reference to the {@link SaxonTransformer} object
+	 * @param mimf reference to {@link MIMFormat} object
+	 * @param pwObject reference to the Pathway (current pathway diagram) object which is to be exported 
+	 * @param exportedPwFile the file into which the pathway is to be exported
+	 * @param schemaFile file based which is passed to the transformer for XSLT with the exportedPwFile
+	 * @throws ConverterException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 * @throws TransformerException
+	 * @throws SAXException
+	 */
 	void exportAndValidate(final SaxonTransformer tempSaxTrnfr,
 			final MIMFormat mimf, Pathway pwObject, File exportedPwFile,File schemaFile) 
 	throws ConverterException,IOException,ParserConfigurationException,
@@ -61,7 +74,7 @@ class SchematronValidator {
 	}
 
 	/**
-	 * this is used to parse the input Schematron file to derive its name, its default phase 
+	 * this is used to parse the input Schematron file to derive the ruleset title, its default group 
 	 * and set them to corresponding fields in the plugin, and reset the phase combo-box 
 	 */
 	void parseSchemaAndSetValues(SAXParser saxParser, Transformer tfr1, File schemaFile,
@@ -95,12 +108,12 @@ class SchematronValidator {
 		VPUtility.schemaFileType=mySHandler.getType();
 		//System.out.println("Schema Type = "+mySHandler.getType());
 
-		//setting phases in the phase-box 
+		//setting groups in the phase-box 
 		VPUtility.resetPhaseBox(phaseBox);
 		ArrayList<String> phasesList=mySHandler.getPhases();
 		Iterator<String> tempIterator= phasesList.iterator();
 		while(tempIterator.hasNext()){
-			phaseBox.addItem("Phase: "+tempIterator.next());
+			phaseBox.addItem(VPUtility.phaseLabelInCBox+tempIterator.next());
 			//System.out.println(tempIterator.next());
 		}
 
@@ -117,6 +130,16 @@ class SchematronValidator {
 
 	}
 
+	/**
+	 * this method looks after the printing of results and highlighting nodes on the panel
+	 *  based on ignored lists and ewbox selection
+	 * @param eng Engine reference from the plugin
+	 * @param graphIdsList refernece to object containing list of graph-ids to be highlighted 
+	 * @param ignoredErrorTypesList list for "Ignore this Error/Warning Type"
+	 * @param globallyIgnoredEWType list for "Globally Ignore this Error/Warning Type"
+	 * @param ignoredElements list for "Ignore Element"
+	 * @param ignoredSingleError list for "Ignore this Error/Warning"
+	 */
 	void printSchematron(Engine eng, ArrayList<String> graphIdsList, ArrayList<String> ignoredErrorTypesList,
 			ArrayList<String> globallyIgnoredEWType,ArrayList<String> ignoredElements,
 			ArrayList<String> ignoredSingleError){
