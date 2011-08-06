@@ -623,14 +623,26 @@ ItemListener, ComponentListener
 		ignoredElements.clear();
 		ignoredSingleError.clear();
 		
+		//checkedUnchecked= new int[4];
 		int index=popup.getComponentIndex(subMenu5);
+		int cuIndex=0;
 		for(int i=index;i<index+3;i++){ // removing the 3 submenus 5,6,4
-				jm=(JMenu)popup.getComponent(i);
-				jm.setEnabled(false);
-				while(jm.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
-					jm.remove(2);
-				}
+			checkedUnchecked[cuIndex++]=0;
+			jm=(JMenu)popup.getComponent(i);
+			jm.setEnabled(false);
+			jm.getMenuComponent(0).setEnabled(false);
+			String jmText=jm.getText();
+			int jmIndex=jmText.indexOf('(');
+			if(jmIndex==-1)
+				jm.setText(jmText);
+			else
+				jm.setText(jmText.substring(0,jmIndex-1));
+
+			while(jm.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
+				jm.remove(2);
+			}
 		}
+		checkedUnchecked[cuIndex]=0;
 	}
 
 	/**
@@ -665,7 +677,7 @@ ItemListener, ComponentListener
 		//System.out.println("total in submenu4 "+subMenu4.getMenuComponentCount());
 		while(index>1){
 			if( ( (JCheckBoxMenuItem)subMenu.getMenuComponent(index) ).getState() ){
-				ignoredList.remove(index-2);
+				ignoredList.remove(index-2);//since index has min of 2
 				subMenu.remove(index);
 			}
 			index--;
@@ -686,12 +698,13 @@ ItemListener, ComponentListener
 	}
 
 	/**
-	 * This method adds the chosen Errors/Warnings (E/W) from the pop-up menu to the corresponding main 
+	 * This method adds ignored Errors/Warnings (E/W) chosen from the pop-up menu to the corresponding main 
 	 * menuItem and also to the ignored list, so they get picked up for validation.
-	 * @param subMenu the main menuItem to which the ignored E/W text has to be added
-	 * @param EWMtext the E/W text to be added
-	 * @param ignList the list to which a copy is added, to be used when considering back the E/W 
-	 * @param refreshTable indicates whether to add to the ignList and refresh the messages in the table or not
+	 * @param subMenu the main menuItem inside which the ignored E/W text has to be added as a subMenuItem
+	 * @param EWMtext E/W text to be added
+	 * @param ignList the list to which the ignored rules are added, to be used when considering back the E/W 
+	 * @param refreshTable indicates whether to add to the ignList and refresh the messages in the table or not,
+	 * set it to false when using this method in a loop.
 	 */
 	private void addToSubMenu(JMenu subMenu,String EWMtext, ArrayList<String> ignList, boolean refreshTable){ // Error/Warning message Text : EWMText
 		String subMenuText=subMenu.getText();
@@ -716,7 +729,11 @@ ItemListener, ComponentListener
 		
 		if(ignList.size()==1){ 
 			subMenu.setEnabled(true);  
-			subMenu.setText(subMenuText+" ("+1+")");
+			int indexP=subMenuText.indexOf('(');
+			if(indexP==-1)
+				subMenu.setText(subMenuText+" ("+1+")");
+			else 
+				subMenu.setText(subMenuText.substring(0,indexP-1)+" ("+1+")");
 		}
 		
 		if(refreshTable){
@@ -751,11 +768,11 @@ ItemListener, ComponentListener
 	 * this stores the "globallyIgnoredEWType" list's current state which can be retrieved on the next run. 
 	 */
 	private void saveGIRules(){
-		String result="";
+		StringBuilder result=new StringBuilder("");
 		for(String rule:globallyIgnoredEWType ){
-			result=result+rule+"@@"; // "@@" is the delimiter between the rule texts stored in String in the pref file 
+			result=result.append(rule+"@@"); // "@@" is the delimiter between the rule texts stored in String in the pref file 
 		}
-		PreferenceManager.getCurrent().set(VPUtility.SchemaPreference.GLOBALLY_IGNORED_RULES, result);
+		PreferenceManager.getCurrent().set(VPUtility.SchemaPreference.GLOBALLY_IGNORED_RULES, result.toString());
 	}
 	
 	/**
@@ -773,8 +790,8 @@ ItemListener, ComponentListener
 	} 
 
 	/**
-	 * 
-	 * @param resetSchemaTitleAlso flag to reset also phaseBox and schemaTitleTag. 
+	 * It resets the state of the UI elements (default)
+	 * @param resetSchemaTitleAlso flag based on which phaseBox and schemaTitleTag are reset. 
 	 */
 	void resetUI(boolean resetSchemaTitleAlso){
 		clearTableRows();
