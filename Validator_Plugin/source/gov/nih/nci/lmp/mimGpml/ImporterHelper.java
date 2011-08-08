@@ -44,7 +44,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//import javax.xml.namespace.QName;
+import javax.xml.namespace.QName;
 
 import gov.nih.nci.lmp.mim.mimVisLevel1.*;
 
@@ -66,13 +66,13 @@ import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.model.ShapeType;
-//import org.pathvisio.core.model.PathwayElement.Comment;
+import org.pathvisio.model.PathwayElement.Comment;
 import org.pathvisio.model.PathwayElement.MAnchor;
 import org.pathvisio.model.PathwayElement.MPoint;
-//import org.pathvisio.core.biopax.BiopaxReferenceManager;
+import org.pathvisio.biopax.BiopaxReferenceManager;
 import org.pathvisio.biopax.BiopaxElementManager;
 import org.pathvisio.biopax.reflect.PublicationXref;
-//import org.pathvisio.core.util.FileUtils;
+import org.pathvisio.util.FileUtils;
 import org.pathvisio.view.ShapeRegistry;
 
 /**
@@ -131,7 +131,7 @@ public class ImporterHelper extends CommonHelper {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}		
 	}
 
 	/**
@@ -147,19 +147,16 @@ public class ImporterHelper extends CommonHelper {
 	}
 
 	/**
-	 * Recalculate lines. Helps to adjust anchors on lines by clearing out
-	 * cache.
-	 * 
-	 * @param pathway
-	 *            the pathway
-	 * @throws ConverterException
-	 *             the converter exception
+	 * Recalculate lines. Helps to adjust anchors on lines by clearing out cache.
+	 *
+	 * @param pathway the pathway
+	 * @throws ConverterException the converter exception
 	 */
 	private static void recalculateLines(Pathway pathway)
 			throws ConverterException {
-
+		
 		for (PathwayElement pe : pathway.getDataObjects()) {
-			if (pe.getObjectType() == ObjectType.LINE) {
+			if (pe.getObjectType() == ObjectType.LINE) {			
 				((MLine) pe).getConnectorShape().recalculateShape(((MLine) pe));
 			}
 		}
@@ -174,9 +171,9 @@ public class ImporterHelper extends CommonHelper {
 		recalculateLines(pw);
 
 		// Taken from Pathway.readFromXml()
-		// pw.setSourceFile(file);
+		//pw.setSourceFile(file);
 		pw.clearChangedFlag();
-
+		
 		return pw;
 	}
 
@@ -218,9 +215,9 @@ public class ImporterHelper extends CommonHelper {
 
 		try {
 			parseDiagramXml(this.file);
-
-			// TODO: Add Junit test for invalid MIMML files
-			if (!validateXml(visDoc)) {
+			
+			//TODO: Add Junit test for invalid MIMML files
+			if(!validateXml(visDoc)) {
 				throw new ConverterException("Invalid MIMML file.");
 			}
 		} catch (XmlException e) {
@@ -314,8 +311,7 @@ public class ImporterHelper extends CommonHelper {
 	private void mapSimplePhysicalEntityGlyphs() {
 		for (EntityGlyphType glyph : dia.getEntityGlyphList()) {
 
-			if (glyph.getType().equals(
-					EntityGlyphType.Type.SIMPLE_PHYSICAL_ENTITY)) {
+			if (glyph.getType().equals("SimplePhysicalEntity")) {
 
 				PathwayElement pwElem = PathwayElement
 						.createPathwayElement(ObjectType.DATANODE);
@@ -341,8 +337,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(),
-								genProp.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(), genProp
+								.getValue());
 					}
 				}
 
@@ -366,7 +362,7 @@ public class ImporterHelper extends CommonHelper {
 	private void mapEntityFeatureGlyphs() {
 		for (EntityGlyphType glyph : dia.getEntityGlyphList()) {
 
-			if (glyph.getType().equals(EntityGlyphType.Type.ENTITY_FEATURE)) {
+			if (glyph.getType().equals("EntityFeature")) {
 
 				PathwayElement pwElem = PathwayElement
 						.createPathwayElement(ObjectType.DATANODE);
@@ -391,8 +387,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(),
-								genProp.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(), genProp
+								.getValue());
 					}
 				}
 
@@ -416,7 +412,7 @@ public class ImporterHelper extends CommonHelper {
 	private void mapModifierEntityGlyphs() {
 		for (EntityGlyphType glyph : dia.getEntityGlyphList()) {
 
-			if (glyph.getType().equals(EntityGlyphType.Type.MODIFIER)) {
+			if (glyph.getType().equals("Modifier")) {
 
 				PathwayElement pwElem = PathwayElement
 						.createPathwayElement(ObjectType.DATANODE);
@@ -441,8 +437,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(),
-								genProp.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(), genProp
+								.getValue());
 					}
 				}
 
@@ -466,7 +462,7 @@ public class ImporterHelper extends CommonHelper {
 	private void mapConceptualEntityGlyphs() {
 		for (EntityGlyphType glyph : dia.getEntityGlyphList()) {
 
-			if (glyph.getType().equals(EntityGlyphType.Type.CONCEPTUAL_ENTITY)) {
+			if (glyph.getType().equals("ConceptualEntity")) {
 
 				PathwayElement pwElem = PathwayElement
 						.createPathwayElement(ObjectType.DATANODE);
@@ -491,8 +487,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(),
-								genProp.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(), genProp
+								.getValue());
 					}
 				}
 
@@ -515,7 +511,7 @@ public class ImporterHelper extends CommonHelper {
 	private void mapSourceSinkGlyphs() {
 		for (EntityGlyphType glyph : dia.getEntityGlyphList()) {
 
-			if (glyph.getType().equals(EntityGlyphType.Type.SOURCE_SINK)) {
+			if (glyph.getType().equals("SourceSink")) {
 
 				PathwayElement pwElem = PathwayElement
 						.createPathwayElement(ObjectType.DATANODE);
@@ -539,8 +535,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(),
-								genProp.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(), genProp
+								.getValue());
 					}
 				}
 
@@ -575,7 +571,7 @@ public class ImporterHelper extends CommonHelper {
 	private void mapRestrictedCopyEntityGlyphs() {
 		for (EntityGlyphType glyph : dia.getEntityGlyphList()) {
 
-			if (glyph.getType().equals(EntityGlyphType.Type.RESTRICTED_COPY)) {
+			if (glyph.getType().equals("RestrictedCopy")) {
 
 				PathwayElement pwElem = PathwayElement
 						.createPathwayElement(ObjectType.DATANODE);
@@ -599,8 +595,8 @@ public class ImporterHelper extends CommonHelper {
 				for (EntityGlyphType.GenericProperty genProp : glyph
 						.getGenericPropertyList()) {
 					if (!genProp.getKey().equals("ShapeType")) {
-						pwElem.setDynamicProperty(genProp.getKey(),
-								genProp.getValue());
+						pwElem.setDynamicProperty(genProp.getKey(), genProp
+								.getValue());
 					}
 				}
 
@@ -661,8 +657,8 @@ public class ImporterHelper extends CommonHelper {
 					pwElem.setConnectorType(ConnectorType.fromName(genProp
 							.getValue()));
 				} else {
-					pwElem.setDynamicProperty(genProp.getKey(),
-							genProp.getValue());
+					pwElem.setDynamicProperty(genProp.getKey(), genProp
+							.getValue());
 				}
 			}
 
@@ -759,12 +755,12 @@ public class ImporterHelper extends CommonHelper {
 					MAnchor gpmlAnc = pwElem.addMAnchor(mimAnc.getPosition());
 					gpmlAnc.setGraphId(mimAnc.getVisId());
 
-					if (mimAnc.getType().equals(AnchorGlyphType.Type.IN_TRANS)) {
+					if (mimAnc.getType().equals("InTrans")) {
 						gpmlAnc.setShape(AnchorType.create("Intermolecular",
 								true));
 					}
 
-					if (mimAnc.getType().equals(AnchorGlyphType.Type.INVISIBLE)) {
+					if (mimAnc.getType().equals("Invisible")) {
 						gpmlAnc.setShape(AnchorType.NONE);
 					}
 				} else {
@@ -783,7 +779,7 @@ public class ImporterHelper extends CommonHelper {
 			// Map PublicationXRefs
 			List<String> mimBioRefs = mapPublicationXRefs(glyph, pwElem);
 			pwElem.setBiopaxRefs(mimBioRefs);
-
+			
 			pw.add(pwElem);
 		}
 	}
@@ -791,7 +787,7 @@ public class ImporterHelper extends CommonHelper {
 	private void mapImplicitComplexEntityGlyphs() {
 		for (EntityGlyphType glyph : dia.getEntityGlyphList()) {
 
-			if (glyph.getType().equals(EntityGlyphType.Type.IMPLICIT_COMPLEX)) {
+			if (glyph.getType().equals("ImplicitComplex")) {
 
 				PathwayElement pwElem = PathwayElement
 						.createPathwayElement(ObjectType.GROUP);
@@ -906,25 +902,31 @@ public class ImporterHelper extends CommonHelper {
 	/**
 	 * Map RelationshipXRefs.
 	 * 
-	 * 
 	 * @param pwElem
 	 *            the pw elem
 	 */
 	private void mapRelationshipXRefs(EntityGlyphType glyph,
 			PathwayElement pwElem) {
 		for (String mimBioRef : glyph.getMimBioRefList()) {
-			XmlObject xmlObj = getVisXmlObjectById(visDoc, mimBioRef);
+			XmlObject o1 = getVisXmlObjectById(visDoc, mimBioRef);
 
 			// Logger.log.debug("RelXRef xmlText: " + xmlObj.xmlText());
 
-			if (xmlObj instanceof RelationshipXRefType) {
-				RelationshipXRefType mimRelXRef = (RelationshipXRefType) xmlObj;
+			Logger.log.debug("o1.class1 mapRelXRefs: " + o1.getClass());
+			Logger.log.debug("o1.text mapRelXRefs: " + o1.xmlText());
+			
+			RelationshipXRefType o2 = (RelationshipXRefType) o1.changeType(gov.nih.nci.lmp.mim.mimVisLevel1.RelationshipXRefType.type);
+
+			Logger.log.debug("o2.class mapRelXRefs: " + o2.getClass());
+									
+			if (o2 instanceof RelationshipXRefType) {
+				RelationshipXRefType mimRelXRef = o2;
 
 				pwElem.setDataSource(DataSource.getByFullName(mimRelXRef
 						.getDb()));
 				pwElem.setGeneID(mimRelXRef.getId());
 
-				// DEBUG
+				//DEBUG
 				// Logger.log.debug("RelXRef ID: " + mimRelXRef.getId());
 				// Logger.log.debug("RelXRef DB: " + mimRelXRef.getDb());
 
@@ -939,8 +941,7 @@ public class ImporterHelper extends CommonHelper {
 
 		List<String> mimBioRefs = new ArrayList<String>();
 
-		Logger.log.debug("mimBioRefs mapPubXRefs: "
-				+ glyph.sizeOfMimBioRefArray());
+		Logger.log.debug("mimBioRefs mapPubXRefs: " + glyph.sizeOfMimBioRefArray());
 
 		for (String mimBioRef : glyph.getMimBioRefList()) {
 
@@ -948,15 +949,14 @@ public class ImporterHelper extends CommonHelper {
 
 			Logger.log.debug("o1.class1 mapPubXRefs: " + o1.getClass());
 			Logger.log.debug("o1.text mapPubXRefs: " + o1.xmlText());
-
-			PublicationXRefType o2 = (PublicationXRefType) o1
-					.changeType(gov.nih.nci.lmp.mim.mimVisLevel1.PublicationXRefType.type);
+			
+			PublicationXRefType o2 = (PublicationXRefType) o1.changeType(gov.nih.nci.lmp.mim.mimVisLevel1.PublicationXRefType.type);
 
 			Logger.log.debug("o2.class mapPubXRefs: " + o2.getClass());
-
+				
 			if (o2 instanceof PublicationXRefType) {
 
-				PublicationXRefType mimPubXRef = (PublicationXRefType) o2;
+				PublicationXRefType mimPubXRef = o2;
 
 				Logger.log.debug("PubXRef Idx: " + mimPubXRef.getId());
 
