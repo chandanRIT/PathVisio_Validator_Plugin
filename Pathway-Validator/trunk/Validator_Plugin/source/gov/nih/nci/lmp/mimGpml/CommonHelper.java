@@ -61,11 +61,10 @@ import org.apache.xmlbeans.*;
 import org.pathvisio.debug.Logger;
 
 /**
- * A utility class of helper methods and variables used in both import and
- * export.
+ * A utility class of helper methods and variables used in both import and export.
  * 
  * @author Augustin Luna <augustin@mail.nih.gov>
- * @author Margot Sunshine
+ * @author Margot Sunshine 
  * 
  * @version 1.0
  * @since 1.0
@@ -84,36 +83,27 @@ public abstract class CommonHelper {
 	public static BidiMap getGpmlToMimVisArrowHeadMap() {
 		BidiMap arrowHash = new DualHashBidiMap();
 
-		arrowHash.put("mim-necessary-stimulation",
-				ArrowHeadEnumType.NECESSARY_STIMULATION);
-		arrowHash.put("mim-stimulation", ArrowHeadEnumType.STIMULATION);
-		arrowHash.put("mim-inhibition", ArrowHeadEnumType.INHIBITION);
-		arrowHash.put("mim-absolute-inhibition",
-				ArrowHeadEnumType.ABSOLUTE_INHIBITION);
-		arrowHash.put("mim-catalysis", ArrowHeadEnumType.CATALYSIS);
-		arrowHash.put("mim-cleavage", ArrowHeadEnumType.COVALENT_BOND_CLEAVAGE);
-		arrowHash.put("mim-binding",
-				ArrowHeadEnumType.NON_COVALENT_REVERSIBLE_BINDING);
-		arrowHash.put("mim-covalent-bond",
-				ArrowHeadEnumType.COVALENT_IRREVERSIBLE_BINDING);
-		arrowHash.put("mim-modification",
-				ArrowHeadEnumType.COVALENT_MODIFICATION);
-		arrowHash.put("mim-production-wo-loss",
-				ArrowHeadEnumType.PRODUCTION_WITHOUT_LOSS);
-		arrowHash.put("mim-conversion",
-				ArrowHeadEnumType.STOCHIOMETRIC_CONVERSION);
-		arrowHash.put("mim-transcription-translation",
-				ArrowHeadEnumType.TEMPLATE_REACTION);
-		arrowHash.put("Line", ArrowHeadEnumType.LINE);
-		arrowHash.put("mim-next-feature", ArrowHeadEnumType.NEXT_FEATURE);
-		arrowHash.put("mim-first-feature", ArrowHeadEnumType.FIRST_FEATURE);
-		arrowHash.put("mim-branching-right", ArrowHeadEnumType.BRANCHING_RIGHT);
-		arrowHash.put("mim-branching-left", ArrowHeadEnumType.BRANCHING_LEFT);
-		arrowHash.put("mim-state-combination",
-				ArrowHeadEnumType.STATE_COMBINATION);
-
-		// TODO: To be added in a future MIM specification
-		// arrowHash.put("mim-gap", ArrowHeadEnumType.GAP);
+		arrowHash.put("mim-necessary-stimulation", "NecessaryStimulation");
+		arrowHash.put("mim-stimulation", "Stimulation");
+		arrowHash.put("mim-inhibition", "Inhibition");
+		arrowHash.put("mim-absolute-inhibition", "AbsoluteInhibition");		
+		arrowHash.put("mim-catalysis", "Catalysis");
+		arrowHash.put("mim-cleavage", "CovalentBondCleavage");
+		arrowHash.put("mim-binding", "NonCovalentReversibleBinding");
+		arrowHash.put("mim-covalent-bond", "CovalentIrreversibleBinding");
+		arrowHash.put("mim-modification", "CovalentModification");
+		arrowHash.put("mim-production-wo-loss", "ProductionWithoutLoss");
+		arrowHash.put("mim-conversion", "StochiometricConversion");
+		arrowHash.put("mim-transcription-translation","TemplateReaction");
+		arrowHash.put("Line", "Line");
+		arrowHash.put("mim-next-feature", "NextFeature");
+		arrowHash.put("mim-first-feature", "FirstFeature");
+		arrowHash.put("mim-branching-right", "BranchingRight");
+		arrowHash.put("mim-branching-left", "BranchingLeft");
+		arrowHash.put("mim-state-combination", "StateCombination");
+		
+		//TODO: To be added in a future MIM specification
+		//arrowHash.put("mim-gap", ArrowHeadEnumType.GAP);
 		return arrowHash;
 	}
 
@@ -253,8 +243,7 @@ public abstract class CommonHelper {
 
 				return xmlObj;
 			} else {
-				// Logger.log.info("ERROR: Most likely a duplicate ID.");
-				System.out.println("ERROR: Most likely a duplicate ID.");
+				Logger.log.info("ERROR: Most likely a duplicate ID.");
 			}
 		} catch (XmlException e) {
 			e.printStackTrace();
@@ -312,7 +301,7 @@ public abstract class CommonHelper {
 		}
 		return isXmlValid;
 	}
-
+	
 	/**
 	 * Receives the collection containing errors found during validation and
 	 * print the errors to the console.
@@ -323,8 +312,7 @@ public abstract class CommonHelper {
 	public static void printErrors(ArrayList<XmlError> validationErrors) {
 		Iterator<XmlError> iter = validationErrors.iterator();
 		while (iter.hasNext()) {
-			// Logger.log.error(">> " + iter.next().toString() + "\n");
-			System.out.println(">> " + iter.next().toString());
+			Logger.log.error(">> " + iter.next().toString() + "\n");
 		}
 	}
 
@@ -345,7 +333,7 @@ public abstract class CommonHelper {
 
 		return hexColorStr.toUpperCase();
 	}
-
+	
 	/**
 	 * Convert hex string to color.
 	 * 
@@ -354,11 +342,11 @@ public abstract class CommonHelper {
 	 * @return the color object
 	 */
 	public static Color convertHexToColor(String hexStr) {
-
-		Color color = null;
-
+		
+		Color color = null; 
+		
 		// Color.decode() only works if there is a '#' at the start
-		if (hexStr.charAt(0) == '#') {
+		if(hexStr.charAt(0) == '#') {
 			Logger.log.debug("Not appending '#'");
 			color = Color.decode(hexStr);
 		} else {
@@ -368,6 +356,7 @@ public abstract class CommonHelper {
 
 		return color;
 	}
+	
 
 	// TODO: Get by Id, Get GenericProperty by Key
 }

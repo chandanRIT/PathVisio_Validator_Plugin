@@ -270,8 +270,7 @@ public class ExporterHelper extends CommonHelper {
 					.getGroupId());
 		}
 
-		entGlyph.setType(EntityGlyphType.Type.Enum.forString(pwElem
-				.getDataNodeType()));
+		entGlyph.setType(pwElem.getDataNodeType());
 
 		// Set GenericProperties and RelationshipXRefs
 		for (String key : pwElem.getDynamicPropertyKeys()) {
@@ -614,7 +613,7 @@ public class ExporterHelper extends CommonHelper {
 			pt.setX(mPoint.getX());
 			pt.setY(mPoint.getY());
 
-			ArrowHeadEnumType.Enum mimArrowHead = null;
+			String mimArrowHead = null;
 
 			// ArrowHeads can only exist on the start and end Points
 			if (i == 0) {
@@ -707,7 +706,7 @@ public class ExporterHelper extends CommonHelper {
 				if (isNotBlank(pwElem.getGroupRef())) {
 					entGlyph.setGroupRef(pwElem.getGroupRef());
 				}
-				entGlyph.setType(EntityGlyphType.Type.EXPLICIT_COMPLEX);
+				entGlyph.setType("ExplicitComplex");
 			} else {
 
 				AnchorGlyphType anc = dia.addNewAnchor();
@@ -722,7 +721,7 @@ public class ExporterHelper extends CommonHelper {
 
 				anc.setPosition(mAnchor.getPosition());
 
-				AnchorGlyphType.Type.Enum mimAnchor = convertAnchor(gpmlAnchor);
+				String mimAnchor = convertAnchor(gpmlAnchor);
 				anc.setType(mimAnchor);
 
 				// This will be needed in the conversion of MIM-Vis to MIM-Bio
@@ -785,7 +784,7 @@ public class ExporterHelper extends CommonHelper {
 			EntityGlyphType ic = dia.addNewEntityGlyph();
 			ic.setVisId(pwElem.getGroupId());
 
-			ic.setType(EntityGlyphType.Type.IMPLICIT_COMPLEX);
+			ic.setType("ImplicitComplex");
 
 			// TODO: Add a display name to the implicit complex. This is
 			// currently not
@@ -802,11 +801,11 @@ public class ExporterHelper extends CommonHelper {
 			grp.setVisId(pwElem.getGroupId());
 
 			if (pwElem.getGroupStyle().toString().equals("EntityWithFeatures")) {
-				grp.setType(GroupEnumType.ENTITY_WITH_FEATURES);
+				grp.setType("EntityWithFeatures");
 			}
 
 			if (pwElem.getGroupStyle().toString().equals("Group")) {
-				grp.setType(GroupEnumType.GENERIC);
+				grp.setType("Generic");
 			}
 
 			// Add RelationshipXref to this element
@@ -834,9 +833,7 @@ public class ExporterHelper extends CommonHelper {
 
 			if (isNotBlank(pwElem.getDynamicProperty("DatabaseRelationship"))) {
 
-				RelationshipXRefType.Type.Enum relXRefType = RelationshipXRefType.Type.Enum
-						.forString(pwElem
-								.getDynamicProperty("DatabaseRelationship"));
+				String relXRefType = pwElem.getDynamicProperty("DatabaseRelationship");
 
 				if (!relXRefType.equals(null)) {
 					relXRef.setType(relXRefType);
@@ -844,7 +841,7 @@ public class ExporterHelper extends CommonHelper {
 					Logger.log.error("Unknown database relationship type.");
 				}
 			} else {
-				relXRef.setType(RelationshipXRefType.Type.IS);
+				relXRef.setType("Is");
 			}
 
 			relXRef.setDb(pwElem.getDataSource().getFullName());
@@ -872,9 +869,7 @@ public class ExporterHelper extends CommonHelper {
 					.addNewEntityControlledVocabulary();
 			ecv.setVisId(visId);
 
-			EntityControlledVocabularyType.Type.Enum ecvType = EntityControlledVocabularyType.Type.Enum
-					.forString(pwElem
-							.getDynamicProperty("EntityControlledVocabulary"));
+			String ecvType = pwElem.getDynamicProperty("EntityControlledVocabulary");
 
 			if (!ecvType.equals(null)) {
 				ecv.setType(ecvType);
@@ -954,28 +949,20 @@ public class ExporterHelper extends CommonHelper {
 	 *             If the diagram is using non-MIM arrowheads
 	 * @return the MIM arrow head type
 	 */
-	private static ArrowHeadEnumType.Enum convertArrowHead(String gpmlArrowHead)
-			throws ConverterException {
+	private static String convertArrowHead(String gpmlArrowHead) {
 
-		ArrowHeadEnumType.Enum mimArrowHead = null;
+		String mimArrowHead = null;
 
 		BidiMap arrowHash = getGpmlToMimVisArrowHeadMap();
 
 		if (arrowHash.get(gpmlArrowHead) != null) {
-			mimArrowHead = (ArrowHeadEnumType.Enum) arrowHash
-					.get(gpmlArrowHead);
+			mimArrowHead = (String) arrowHash.get(gpmlArrowHead);
 		} else {
 			// Removed users should be using the Validator Plugin to avoid this
 			// type of error.
 			// mimArrowHead = ArrowHeadEnumType.LINE;
-
-			ConverterException ce = new ConverterException(
-					"Pathway contains an arrow not supported in MIM: "
-							+ gpmlArrowHead);
-			Logger.log.info("Pathway contains an arrow not supported in MIM: "
-					+ gpmlArrowHead);
-
-			throw ce;
+			
+			mimArrowHead = gpmlArrowHead; 
 		}
 
 		return mimArrowHead;
@@ -986,27 +973,27 @@ public class ExporterHelper extends CommonHelper {
 	 * 
 	 * @param gpmlAnchor
 	 *            the GPML anchor
-	 * @return the interaction glyph type. anchor. anchor type. enum
+	 * @return the interaction glyph type anchor as MIM anchor type
 	 */
-	private static AnchorGlyphType.Type.Enum convertAnchor(String gpmlAnchor) {
+	private static String convertAnchor(String gpmlAnchor) {
 
-		HashMap<String, AnchorGlyphType.Type.Enum> anchorHash = new HashMap<String, AnchorGlyphType.Type.Enum>();
+		HashMap<String, String> anchorHash = new HashMap<String, String>();
 
 		// TODO: Naming issue
-		anchorHash.put("Intermolecular", AnchorGlyphType.Type.IN_TRANS);
+		anchorHash.put("Intermolecular", "InTrans");
 
 		// TODO: Annotation labels in Pathvisio
 		// anchorHash.put("Annotation",
 		// AnchorGlyphType.AnchorType.ANNOTATION_ANCHOR);
 
-		anchorHash.put("None", AnchorGlyphType.Type.INVISIBLE);
+		anchorHash.put("None", "Invisible");
 
-		AnchorGlyphType.Type.Enum mimAnchor = null;
+		String mimAnchor = null;
 
 		if (anchorHash.get(gpmlAnchor) != null) {
 			mimAnchor = anchorHash.get(gpmlAnchor);
 		} else {
-			mimAnchor = AnchorGlyphType.Type.INVISIBLE;
+			mimAnchor = "Invisible";
 			Logger.log.info("Pathway contains an anchor not supported in MIM: "
 					+ gpmlAnchor);
 		}
