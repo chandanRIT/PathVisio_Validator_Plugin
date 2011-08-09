@@ -56,9 +56,12 @@ class SchematronValidator {
 			GpmlFormat.writeToXml (pwObject, exportedPwFile, true);
 			System.out.println("gpml export called");
 		}
-		else {
+		else if(VPUtility.schemaFileType.equalsIgnoreCase("mimVis")){
 			mimf.doExport(exportedPwFile, pwObject);
 			System.out.println("mimVis export called");
+		}else if(VPUtility.schemaFileType.equalsIgnoreCase("sbgn")){
+			//sbgnf.doExport(exportedPwFile,pwObject);
+			System.out.println("sbgn export called");
 		}
 
 		//}

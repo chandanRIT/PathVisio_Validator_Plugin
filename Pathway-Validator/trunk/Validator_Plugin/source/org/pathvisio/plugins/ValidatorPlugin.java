@@ -63,6 +63,10 @@ import edu.stanford.ejalbert.BrowserLauncher;
 import gov.nih.nci.lmp.mimGpml.MIMFormat;
 import groovy.lang.GroovyObject;
 
+/**
+ * The plugin class for the Validator
+ * 
+ */
 public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventListener,
 ItemListener, ComponentListener
 {
@@ -73,6 +77,7 @@ ItemListener, ComponentListener
 	static Pathway pth; // "Pathway" object reference
 	static SaxonTransformer saxTfr ; 
 	private  static MIMFormat mimf;//=new MIMFormat();
+	//private static SbgnFormat sbgnf;
 	private static JFileChooser chooser; // for "Choose Ruleset" button
 	private final static JButton valbutton=new JButton("Validate"); // the "Validate" button
 	private final static JButton chooseSchema=new JButton("Choose Ruleset"); // "Choose Ruleset" button
@@ -89,6 +94,7 @@ ItemListener, ComponentListener
 	final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
 	private GroovyValidator groovyValidator;
 	private SchematronValidator schematronValidator;
+	private VPRightClickMenu vpRCMenu;
 	private ValidatorPlugin vPlugin=this;
 	private SAXParser saxParser;
 	//private File serializedInfoFile= new File(System.getProperty("user.home"), "GloballyIgnored.ser");
@@ -106,9 +112,12 @@ ItemListener, ComponentListener
 	ArrayList<String> ignoredElements;
 	ArrayList<String> ignoredSingleError;
 	ArrayList<String> globallyIgnoredEWType;
-	private JPopupMenu popup;
-	private JMenu subMenu4,subMenu5,subMenu6,subMenu8;
-	private int[] checkedUnchecked;
+	JPopupMenu popup;
+	JMenu subMenu4;
+	JMenu subMenu5;
+	JMenu subMenu6;
+	JMenu subMenu8;
+	int[] checkedUnchecked;
 
 	public ValidatorPlugin(){
 
@@ -226,7 +235,7 @@ ItemListener, ComponentListener
 		jtb.addMouseListener(new java.awt.event.MouseAdapter()
 		{
 			public void mouseClicked(java.awt.event.MouseEvent e){
-				listenToJTableMouseClicks(e);
+				vpRCMenu.listenToJTableMouseClicks(e);
 			}
 		});
 
@@ -300,188 +309,6 @@ ItemListener, ComponentListener
 	}
 
 	/**
-	 * Instantiation and layout of right-click related Objects done here (like JPopupMenu,
-	 *  menuItems in it, lists of ignored messages etc. ) 
-	 */
-	private void createAndInitialize_RightClickMenuUI()throws IOException,ClassNotFoundException{
-		// loading the globally ignored list from the list saved in memory.
-/*		if(serializedInfoFile.exists()){
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(serializedInfoFile));
-			globallyIgnoredEWType = (ArrayList<String>) ois.readObject();
-			ois.close();
-		}
-		else 
-			//globallyIgnoredEWType = new ArrayList<String>();*/
-		
-		String IRList = PreferenceManager.getCurrent().get
-			(VPUtility.SchemaPreference.GLOBALLY_IGNORED_RULES);
-		
-		if(!IRList.equals(""))
-			globallyIgnoredEWType = new ArrayList<String>( Arrays.asList(IRList.split( "@@" )));
-		else 
-			globallyIgnoredEWType = new ArrayList<String>();
-			
-		ignoredErrorTypesList=new ArrayList<String>();
-		ignoredElements=new ArrayList<String>();
-		ignoredSingleError=new ArrayList<String>();
-		checkedUnchecked = new int[4];
-
-		//The 2 icon objects below are used wherever the icon images appear in the UI
-		VPUtility.eIcon = new ImageIcon(getClass().getResource("/error.png"));
-		VPUtility.wIcon = new ImageIcon(getClass().getResource("/warning.png"));
-
-		popup = new JPopupMenu("filter");// popup named "filter"
-
-		JMenuItem menuItem1237= new VPUtility.CustomMenuItem("Ignore Element");
-		menuItem1237.addActionListener(this);
-		menuItem1237.setActionCommand("menuItem1");
-		popup.add(menuItem1237);
-
-		menuItem1237 = new VPUtility.CustomMenuItem("Ignore this Error/Warning");
-		menuItem1237.setActionCommand("menuItem2");
-		menuItem1237.addActionListener(this);
-		popup.add(menuItem1237);
-
-		menuItem1237 = new VPUtility.CustomMenuItem("Ignore this Error/Warning Type");
-		menuItem1237.setActionCommand("menuItem3");
-		menuItem1237.addActionListener(this);
-		popup.add(menuItem1237);
-		
-		menuItem1237 = new VPUtility.CustomMenuItem("Ignore this Error/Warning Type Globally");
-		menuItem1237.setActionCommand("menuItem7");
-		menuItem1237.addActionListener(this);
-		popup.add(menuItem1237);
-		popup.addSeparator();
-
-		ImageIcon img=new ImageIcon(getClass().getResource("/ignore.png"));
-		subMenu4= new JMenu("Ignored Error/Warning Types");
-		subMenu4.setIcon(img);
-
-		subMenu5= new JMenu("Ignored Elements");
-		subMenu5.setIcon(img);
-
-		subMenu6= new JMenu("Ignored Errors/Warnings");
-		subMenu6.setIcon(img);
-
-		subMenu8= new JMenu("Globally Ignored Error/Warning Types");
-		subMenu8.setIcon(img);
-
-		JMenuItem subMenuItemOkButton=new VPUtility.CustomMenuItem( "Reconsider (Un-Ignore)");
-		subMenuItemOkButton.setActionCommand("subMenu4ReConsider");
-		subMenuItemOkButton.addActionListener(this);
-		subMenuItemOkButton.setEnabled(false);
-		subMenu4.add(subMenuItemOkButton);
-
-		subMenuItemOkButton=new VPUtility.CustomMenuItem( "Reconsider (Un-Ignore)");
-		subMenuItemOkButton.setActionCommand("subMenu5ReConsider");
-		subMenuItemOkButton.addActionListener(this);
-		subMenuItemOkButton.setEnabled(false);
-		subMenu5.add(subMenuItemOkButton);
-
-		subMenuItemOkButton=new VPUtility.CustomMenuItem( "Reconsider (Un-Ignore)");
-		subMenuItemOkButton.setActionCommand("subMenu6ReConsider");
-		subMenuItemOkButton.addActionListener(this);
-		subMenuItemOkButton.setEnabled(false);
-		subMenu6.add(subMenuItemOkButton);
-
-		subMenuItemOkButton=new VPUtility.CustomMenuItem( "Reconsider (Un-Ignore)");
-		subMenuItemOkButton.setActionCommand("subMenu8ReConsider");
-		subMenuItemOkButton.addActionListener(this);
-		subMenuItemOkButton.setEnabled(false);
-		subMenu8.add(subMenuItemOkButton);
-
-		subMenu4.addSeparator();
-		subMenu4.setEnabled(false);
-
-		subMenu5.addSeparator();
-		subMenu5.setEnabled(false);
-
-		subMenu6.addSeparator();
-		subMenu6.setEnabled(false);
-
-		subMenu8.addSeparator();
-		subMenu8.setEnabled(false);
-		
-		popup.add(subMenu5);
-		popup.add(subMenu6);
-		popup.add(subMenu4);
-		popup.add(subMenu8);
-		
-		repopulateGIEWTSubMenu();
-	}
-
-	/**
-	 * delegate method to listen to the mouse-click events from the JTable present in JPanel.
-	 */
-	private void listenToJTableMouseClicks(java.awt.event.MouseEvent e){
-
-		//code to highlight node whether its a left/right click event
-		int row=jtb.rowAtPoint(e.getPoint());
-		if(VPUtility.prevPwe!=null && graphIdsList.size()!=0 ){ 
-
-			if( ! VPUtility.prevPwe.isHighlighted() ){
-				VPUtility.prevHighlight=false; 
-			}
-
-			if(VPUtility.prevHighlight){
-				VPUtility.prevPwe.highlight(VPUtility.col2);//col2 is blue
-			}
-			else 
-				VPUtility.prevPwe.unhighlight();
-
-			String gId=graphIdsList.get(row);
-			if(!gId.equals("null") && !gId.equals("")){
-				//System.out.println("graphId is "+graphIdsList.get(row));
-				VPathwayElement vpe = null;
-				if( (vpe=highlightNode(gId,VPUtility.col1))!=null ){
-					//to focus on the highlighted  element
-					eng.getActiveVPathway().getWrapper()
-					.scrollCenterTo((int)vpe.getVBounds().getCenterX(),(int)vpe.getVBounds().getCenterY());
-					eng.getActiveVPathway().redraw();
-				}
-			} 
-			else 
-				System.out.println("graphId is null or empty");
-			//System.out.println(" Value in the cell clicked :"+jtb.getValueAt(row,col).toString());
-		}
-		else 
-			System.out.println("VPUtility.prevPwe is null or no errors");
-
-		//right click event handling is done here
-		if ( e.getButton()== MouseEvent.BUTTON3 || e.isControlDown() ) { //iscontrolDown is for MAC OS
-			jtb.clearSelection();
-
-			boolean discardFirst2Menus=false;
-			String eachCellTip = jtb.getToolTipText(e);
-			if(eachCellTip!=null) 
-				discardFirst2Menus=eachCellTip.equals("----");    			
-			//decide which main menuitems (1,2,3) to show and which not to
-			if(discardFirst2Menus || VPUtility.allIgnored){
-				//System.out.println("inside if d a "+discardFirst2Menus+" "+VPUtility.allIgnored);
-				if(discardFirst2Menus) 
-					jtb.getSelectionModel().setSelectionInterval(row, row);
-
-				//if(popup.getComponent(2).isEnabled())
-				for(int MI=0; MI<4 ; MI++){
-					if( (MI==2 || MI==3)&& discardFirst2Menus){
-						popup.getComponent(MI).setEnabled(true); 
-					}
-					else
-						popup.getComponent(MI).setEnabled(false); 
-				}
-			}	
-			else {
-				//System.out.println("inside else d a "+discardFirst2Menus+" "+VPUtility.allIgnored);
-				jtb.getSelectionModel().setSelectionInterval(row, row);//to select the row with right click
-				//if(!popup.getComponent(2).isEnabled())
-				for(int MI=0; MI<4 ; MI++)
-					popup.getComponent(MI).setEnabled(true); 
-			}
-			popup.show(e.getComponent(), e.getX(), e.getY());
-		}
-	}
-
-	/**
 	 * Open a Browser link to the plugin's help page when this action is triggered. 
 	 */
 	private class ValidatorHelpAction extends AbstractAction
@@ -515,7 +342,7 @@ ItemListener, ComponentListener
 	/**
 	 * "validatePathway" calls this method internally , it runs in a separate thread to do the task 
 	 */
-	public void processTask(ProgressKeeper pk, ProgressDialog d, SwingWorker<Object, Object> sw) {
+	void processTask(ProgressKeeper pk, ProgressDialog d, SwingWorker<Object, Object> sw) {
 
 		sw.execute();
 		d.setVisible(true);
@@ -536,7 +363,7 @@ ItemListener, ComponentListener
 	/**
 	 * method to carry out the validation task in background, while a progress bar runs in the foreground   
 	 */
-	public void validatePathway(final SaxonTransformer tempSaxTrnfr,final MIMFormat mimf){
+	void validatePathway(final SaxonTransformer tempSaxTrnfr,final MIMFormat mimf){
 
 		final ProgressKeeper pk = new ProgressKeeper();
 		final ProgressDialog d = new ProgressDialog(desktop.getFrame(),"Validator plugin", pk, false, true);
@@ -570,7 +397,7 @@ ItemListener, ComponentListener
 	/**
 	 * a method which decides , whether to call Schematron or Groovy's print method
 	 */
-	private void printItOnTable(){
+	void printItOnTable(){
 		if(!VPUtility.schemaFileType.equalsIgnoreCase("groovy"))
 			schematronValidator.printSchematron(eng,graphIdsList, ignoredErrorTypesList,
 					globallyIgnoredEWType, ignoredElements,ignoredSingleError);
@@ -613,184 +440,9 @@ ItemListener, ComponentListener
 		mytbm.setRowCount(0);
 		jtb.setEnabled(true);
 	}
-
-	/**
-	 * removes all the ignored rules (except the global one) from the lists and the pop-up menu
-	 */
-	private void clearRightClickStuff(){
-		JMenu jm;
-		ignoredErrorTypesList.clear();
-		ignoredElements.clear();
-		ignoredSingleError.clear();
-		
-		//checkedUnchecked= new int[4];
-		int index=popup.getComponentIndex(subMenu5);
-		int cuIndex=0;
-		for(int i=index;i<index+3;i++){ // removing the 3 submenus 5,6,4
-			checkedUnchecked[cuIndex++]=0;
-			jm=(JMenu)popup.getComponent(i);
-			jm.setEnabled(false);
-			jm.getMenuComponent(0).setEnabled(false);
-			String jmText=jm.getText();
-			int jmIndex=jmText.indexOf('(');
-			if(jmIndex==-1)
-				jm.setText(jmText);
-			else
-				jm.setText(jmText.substring(0,jmIndex-1));
-
-			while(jm.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
-				jm.remove(2);
-			}
-		}
-		checkedUnchecked[cuIndex]=0;
-	}
-
-	/**
-	 * This method is to enable/disable the "Reconsider (Un-Ignore)" button in the sub menu item 
-	 * @param jcbmi the JCheckBoxMenuItem that received the check/uncheck event 
-	 */
-	private void checkUncheck(JCheckBoxMenuItem jcbmi){
-		//since can not access the parent directly, hence used getInvoker method 
-		JMenu subMenu=(JMenu)((JPopupMenu)jcbmi.getParent()).getInvoker();
-		int indx = subMenu==subMenu4 ? 0 : ((subMenu==subMenu5) ? 1 : ((subMenu==subMenu6)? 2 : 3 ));
-
-		if (jcbmi.getState())  // increment the corresponding index's value, if its an uncheck
-			checkedUnchecked[indx]++;
-		else 
-			checkedUnchecked[indx]--; // decrement the corresponding index's value, if its an uncheck 
-
-		if(checkedUnchecked[indx]==0) { // if value at index is 0, corresponding "Reconsider" button is disabled
-			subMenu.getMenuComponent(0).setEnabled(false);
-		}else 
-			subMenu.getMenuComponent(0).setEnabled(true);
-	}
-
-	/**
-	 * all the chosen items from the popup menu (in the Ignored list) are considered back for validation again.
-	 * @param subMenu the subMenu from which the items were selected to be reconsidered 
-	 * @param ignoredList the list corresponding to the subMenu
-	 */
-	private void reConsiderTheIgnored(JMenu subMenu,ArrayList<String> ignoredList){
-		int lengthOfIgnored=subMenu.getMenuComponentCount();
-		int index=lengthOfIgnored-1;
-		String subMenuText=subMenu.getText();
-		//System.out.println("total in submenu4 "+subMenu4.getMenuComponentCount());
-		while(index>1){
-			if( ( (JCheckBoxMenuItem)subMenu.getMenuComponent(index) ).getState() ){
-				ignoredList.remove(index-2);//since index has min of 2
-				subMenu.remove(index);
-			}
-			index--;
-		}
-
-		if(ignoredList.isEmpty()){ 
-			subMenu.setEnabled(false);
-			subMenu.setText( subMenuText.substring(0,subMenuText.indexOf('(')-1) );
-		} 
-		else 
-			subMenu.setText(subMenuText.substring(0,subMenuText.indexOf('('))+"("+ignoredList.size()+")");
-		
-		checkedUnchecked=new int[4];// reset all the indices to 0 after the reconsider button's clicked
-		subMenu.getMenuComponent(0).setEnabled(false);//disable reconsider button
-		printItOnTable();// in order to refresh the validation messages
-		//serializeIgnoredRules();
-		saveGIRules();
-	}
-
-	/**
-	 * This method adds ignored Errors/Warnings (E/W) chosen from the pop-up menu to the corresponding main 
-	 * menuItem and also to the ignored list, so they get picked up for validation.
-	 * @param subMenu the main menuItem inside which the ignored E/W text has to be added as a subMenuItem
-	 * @param EWMtext E/W text to be added
-	 * @param ignList the list to which the ignored rules are added, to be used when considering back the E/W 
-	 * @param refreshTable indicates whether to add to the ignList and refresh the messages in the table or not,
-	 * set it to false when using this method in a loop.
-	 */
-	private void addToSubMenu(JMenu subMenu,String EWMtext, ArrayList<String> ignList, boolean refreshTable){ // Error/Warning message Text : EWMText
-		String subMenuText=subMenu.getText();
-		if(refreshTable)
-			ignList.add(EWMtext);
-
-		if(EWMtext.length()>80) 
-			EWMtext = EWMtext.substring(0,78)+"...";
-
-		if(ignList==ignoredSingleError)
-			EWMtext=EWMtext.replace("@@", " : ");
-		else if (ignList==ignoredElements) {
-			PathwayElement pe=pth.getElementById(EWMtext);
-			EWMtext=EWMtext+" : "+pe.getObjectType();
-		}
-
-		JCheckBoxMenuItem subMenuItemCBMI= new JCheckBoxMenuItem(EWMtext);
-		subMenuItemCBMI.setUI(new VPUtility.StayOpenCheckBoxMenuItemUI());
-		subMenuItemCBMI.setActionCommand("subMenuItemCBMI");
-		subMenuItemCBMI.addActionListener(this);
-		subMenu.add(subMenuItemCBMI);
-		
-		if(ignList.size()==1){ 
-			subMenu.setEnabled(true);  
-			int indexP=subMenuText.indexOf('(');
-			if(indexP==-1)
-				subMenu.setText(subMenuText+" ("+1+")");
-			else 
-				subMenu.setText(subMenuText.substring(0,indexP-1)+" ("+1+")");
-		}
-		
-		if(refreshTable){
-			printItOnTable();
-			if(ignList.size()>1)
-				subMenu.setText(subMenuText.substring(0,subMenuText.indexOf('('))+"("+ignList.size()+")");
-			//serializeIgnoredRules();
-			saveGIRules();
-		}
-		//else System.out.println("adding the serialised stuff back to menu");
-	}
-
-	/*private void serializeIgnoredRules(){
-		try {
-			if(oos ==null){
-				System.out.println("serialize method called");
-				oos=new ObjectOutputStream(new FileOutputStream(serializedInfoFile));
-			}
-			oos.writeObject(globallyIgnoredEWType);
-			oos.flush();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with serializing gloabally ignored list","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-			e1.printStackTrace();
-		}
-		
-	}
-*/	
 	
 	/**
-	 * this stores the "globallyIgnoredEWType" list's current state which can be retrieved on the next run. 
-	 */
-	private void saveGIRules(){
-		StringBuilder result=new StringBuilder("");
-		for(String rule:globallyIgnoredEWType ){
-			result=result.append(rule+"@@"); // "@@" is the delimiter between the rule texts stored in String in the pref file 
-		}
-		PreferenceManager.getCurrent().set(VPUtility.SchemaPreference.GLOBALLY_IGNORED_RULES, result.toString());
-	}
-	
-	/**
-	 * this populates the "Globally Ignored EW Type" menu (subMenu8) with the list "globallyIgnoredEWType".
-	 */
-	private void repopulateGIEWTSubMenu(){
-		if(globallyIgnoredEWType.size()!=0){
-			subMenu8.setEnabled(true);
-			for(String str:globallyIgnoredEWType){
-				//System.out.println("adding the serialised stuff back to menu");
-				addToSubMenu(subMenu8, str, globallyIgnoredEWType,false);
-			}
-			subMenu8.setText("Globally Ignored Error/Warning Types ("+globallyIgnoredEWType.size()+")");
-		}
-	} 
-
-	/**
-	 * It resets the state of the UI elements (default)
+	 * It resets the state of the UI elements (to default state)
 	 * @param resetSchemaTitleAlso flag based on which phaseBox and schemaTitleTag are reset. 
 	 */
 	void resetUI(boolean resetSchemaTitleAlso){
@@ -806,7 +458,7 @@ ItemListener, ComponentListener
 		eng.getActiveVPathway().resetHighlight();
 
 		if(ignoredErrorTypesList!=null){
-			clearRightClickStuff();
+			vpRCMenu.clearRightClickStuff();
 		}
 
 		ewBox.setEnabled(false);highlightAllButton.setEnabled(false);
@@ -814,7 +466,8 @@ ItemListener, ComponentListener
 	}
 
 	/**
-	 * This method creates the thread in which saxParser and saxTfr are instantiated and also starts the thread.
+	 * This method creates the thread in which saxParser and saxTfr are instantiated and also starts the thread. 
+	 * Called only once at the start. 
 	 * @return Thread object on which join is called later, to make sure that the thread has
 	 *  completed its run before proceeding further 
 	 */
@@ -828,7 +481,11 @@ ItemListener, ComponentListener
 					//if(saxParser==null)
 					saxParser=SAXParserFactory.newInstance().newSAXParser();
 					saxTfr= new SaxonTransformer(saxParser);SaxonTransformer.setInputFile(exportedPathwayFile);
+					//PreferenceManager.init();
+					//SbgnShapes.registerShapes();
 					mimf=new MIMFormat();
+					//sbgnf = new SbgnFormat(); 
+					
 					System.out.println("This thread for saxtranform completes its run");
 				} catch (TransformerConfigurationException e1) {
 					e1.printStackTrace();
@@ -864,7 +521,8 @@ ItemListener, ComponentListener
 
 		if(chooser==null){
 			chooser=new JFileChooser();
-			createAndInitialize_RightClickMenuUI();
+			vpRCMenu=new VPRightClickMenu(vPlugin);
+			vpRCMenu.createAndInitialize_RightClickMenuUI();
 
 			threadForSax=create_SAXTFR_InAThread();
 
@@ -900,7 +558,8 @@ ItemListener, ComponentListener
 
 	
 	/**
-	 *  a chooseRuleset delegates to this method which does the handling of events related to "Choose Ruleset" button
+	 *  "chooseRuleset" method delegates to this method. This does the handling of events related to 
+	 *  "Choose Ruleset" button.
 	 */
 	private void chooseRulesetButtonListener() throws InterruptedException,
 		IOException,IllegalAccessException,InstantiationException,
@@ -951,14 +610,14 @@ ItemListener, ComponentListener
 						desktop.getFrame(), schemaTitleTag, phaseBox);
 			}
 			// setting/clearing the rightclick related stuff
-			clearRightClickStuff();
+			vpRCMenu.clearRightClickStuff();
 			validateButtonListener();
 			PreferenceManager.getCurrent().setFile(VPUtility.SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
 		}
 	}
 	
 	/**
-	 * delegate method which listens directly to the events from "Choose Ruleset" button, its there
+	 * delegate method which listens directly to the events from "Choose Ruleset" button, its present
 	 * especially to avoid passing of the exceptions to the validation phase (validateButtonListener method)
 	 */
 	private void chooseRuleset(){
@@ -1065,71 +724,9 @@ ItemListener, ComponentListener
 	/////////////////////////////////////////////////////////////////////////////////
 
 	public void actionPerformed(ActionEvent e) {
-
+		// Listener method for "Validate" button
 		if ("validate".equals(e.getActionCommand())) { // "Validate" button preseed
 			validateButtonListener();
-		}
-
-		// The listeners for the right click option's first 3 menuItems go below, the next 3 are popups  
-		else if ("menuItem1".equals(e.getActionCommand())) { //Ignore this Element
-			//System.out.println("pressed Igonore Element");
-			int rowNumberClicked = jtb.getSelectedRow() ;
-			String graphIdToAdd = graphIdsList.get(rowNumberClicked);
-			addToSubMenu(subMenu5,graphIdToAdd,ignoredElements, true);
-
-			/*for(String s : ignoredElements){
-				System.out.println(s);
-				}*/
-		}
-
-		else if ("menuItem2".equals(e.getActionCommand())) {//Ignore this Error
-			//System.out.println("pressed Ignore this Error/Warning");
-			int rowNumberClicked = jtb.getSelectedRow() ;
-			String graphIdToAdd = graphIdsList.get(rowNumberClicked);
-
-			String valueAtTheRow=(String)jtb.getValueAt(jtb.getSelectedRow(), 1);
-			valueAtTheRow=valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3);
-
-			String combined= graphIdToAdd+"@@"+valueAtTheRow;
-			addToSubMenu(subMenu6,combined,ignoredSingleError,true);
-		}
-
-		else if ("menuItem3".equals(e.getActionCommand())) {//Ignore this Error Type
-			//System.out.println("Ignore this Error Type pressed");
-			//if(ignoredErrorTypesList==null) ignoredErrorTypesList=new ArrayList<String>();
-			String valueAtTheRow=(String)jtb.getValueAt(jtb.getSelectedRow(), 1);
-			valueAtTheRow=valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3);
-			addToSubMenu(subMenu4,valueAtTheRow,ignoredErrorTypesList,true);
-		}
-		else if ("menuItem7".equals(e.getActionCommand())) {//Ignore this Error Type
-			//System.out.println("Ignore this Error Type Globally pressed");
-			//if(ignoredErrorTypesList==null) ignoredErrorTypesList=new ArrayList<String>();
-			String valueAtTheRow=(String)jtb.getValueAt(jtb.getSelectedRow(), 1);
-			valueAtTheRow=valueAtTheRow.substring(valueAtTheRow.indexOf('.')+3);
-			addToSubMenu(subMenu8,valueAtTheRow,globallyIgnoredEWType,true);
-		}
-		// Listeners for the menuItems (4,5,6)'s popped-up-submenuitems :("Reconsider (Un-Ignore)" button Listeners)) 
-		else if ("subMenu5ReConsider".equals(e.getActionCommand())) {
-			reConsiderTheIgnored(subMenu5,ignoredElements);
-		}
-
-		else if ("subMenu4ReConsider".equals(e.getActionCommand())) {
-			reConsiderTheIgnored(subMenu4,ignoredErrorTypesList);
-		}
-
-		else if ("subMenu6ReConsider".equals(e.getActionCommand())) {
-			reConsiderTheIgnored(subMenu6,ignoredSingleError);
-		}
-		else if ("subMenu8ReConsider".equals(e.getActionCommand())) {
-			reConsiderTheIgnored(subMenu8,globallyIgnoredEWType);
-		}
-
-		// Listener for submenuItems that are dynamically generated in in 4,5,6 menuItems above
-		else if("subMenuItemCBMI".equals(e.getActionCommand())){
-			//System.out.println("item checked");
-			JCheckBoxMenuItem jcbmi=(JCheckBoxMenuItem)e.getSource();
-			//okButtonED(jcbmi); // this method can be a bit slower for large groups
-			checkUncheck(jcbmi); // This must be faster 
 		}
 
 		// Listener method for "Choose Ruleset" button
@@ -1166,7 +763,7 @@ ItemListener, ComponentListener
 	}
 
 	/**
-	 * @Override ApplicationEventListener interface, for receiving events when a pathway is opened/closed/loaded
+	 * Override method for receiving events when a pathway is opened/closed/loaded
 	 *	basically to clear the panel and reset values on this event
 	 */
 	public void applicationEvent(ApplicationEvent e) {
@@ -1178,10 +775,10 @@ ItemListener, ComponentListener
 		}
 	}
 
-	// overriden method for ItemListener interface, invoked for change in phasebox selection
+	// overridden method for ItemListener interface, invoked for change in phasebox selection
 	public void itemStateChanged(ItemEvent arg0) {  
 
-		if(!VPUtility.changeOfSchema && arg0.getStateChange()==1){
+		if(!VPUtility.changeOfSchema && arg0.getStateChange()==ItemEvent.SELECTED){
 			//phaseBoxSelection=((JComboBox)arg0.getSource()).getSelectedIndex();
 			if(!VPUtility.schemaFileType.equalsIgnoreCase("groovy")){
 				//donot forget to change the index if the "Phase: " format is changed
@@ -1193,16 +790,14 @@ ItemListener, ComponentListener
 				else{
 					saxTfr.transformer1.setParameter("phase", temp );
 				}
-
 				//System.out.println("item selected --"+temp );
 			}
 			if(eng.hasVPathway()) validateButtonListener();
 		}
-
 	}
 
-	// the 4 methods below are the method overrides for ComponentListener interface, only the 3rd one below is required here, 
-	//in order to handle events related to change in component's size
+	// the 4 methods below are the method overrides for ComponentListener interface, only the 3rd one below is 
+	//actually used here, in order to handle events related to change in component's size
 	public void componentHidden(ComponentEvent e) {
 		// TODO Auto-generated method stub
 
@@ -1215,7 +810,6 @@ ItemListener, ComponentListener
 		// TODO Auto-generated method stub
 		if(VPUtility.schemaString!=null){
 			VPUtility.cutSchemaTitleString(VPUtility.schemaString,schemaTitleTag);
-			//schemaTitleTag.setCaretPosition(0);
 			//System.out.println("no of chars "+schemaTitleTag.get);
 		}
 	}
