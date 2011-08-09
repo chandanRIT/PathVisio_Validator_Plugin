@@ -18,7 +18,7 @@ String[] ruleTitle(Pathway pw) { //checks for the "Title" attribute in the "Path
     	
 		if(pw.getMappInfo().getMapInfoName()==null){
 			result= new String[3];						// String Array created to hold the result from rule (may contain 0.)role  1.)Diagnostic message   2.)GraphId  )
-			result[0]="warning"; 						// zeroth element in the string array must always contain the role (error/warning)
+			result[0]="error"; 						// zeroth element in the string array must always contain the role (error/warning)
 			result[1]="Diagrams should have a title.";  // first element must always contain the Diagnostic message
 			//result[2]=pw.getMappInfo().getGraphId();  // the second element must always the contain the graphId
 		}
@@ -33,7 +33,7 @@ String[] ruleOrganism(Pathway pw) { // checks for the "Organism" attribute in th
 	
     	if(pw.getMappInfo().getOrganism()==null){
     		result= new String[3];
-    		//result[0]="error"; // if the result[0] is not set (left as null), then the default value for role is taken as an "error"
+    		//result[0]="warning"; // if the result[0] is not set (left as null), then the default value for role is taken as an "error"
     		result[1]="Diagrams should have an organism.";
 		}
     	else System.out.println("organism found = "+pw.getMappInfo().getOrganism());
@@ -62,7 +62,7 @@ String[] ruleReferences(Pathway pw) { // this rule checks if a "biopax" tag is p
 	
     	if(pw.getBiopax()==null ){
 			result= new String[3];
-			result[0]="warning";
+			result[0]="error";
 			result[1]="Diagrams should have references.";
 		}
     	else System.out.println("passed the Biopax rule i.e references rule");
@@ -89,7 +89,7 @@ ArrayList<String[]> ruleDataBaseAnnotation(Pathway pw) { //checks every "Xref" t
 				//result[0]= "error";
 				//result[1]= "Datanodes should include database annotations.";
 				//result[2]= pwe.getGraphId();
-				String[] result = ["warning","Datanodes should include database annotations",pwe.getGraphId()];//the groovy way
+				String[] result = ["error","Datanodes should include database annotations",pwe.getGraphId()];//the groovy way
 
 				totalResultForThisRule.add(result);
     		}
