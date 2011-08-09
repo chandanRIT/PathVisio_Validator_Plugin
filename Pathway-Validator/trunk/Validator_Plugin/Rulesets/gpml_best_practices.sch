@@ -27,14 +27,14 @@ Schematron validation for GPML Best Practices
 	<!-- Check that the Author attribute is present and not empty -->	
 	<iso:pattern name="check-author" id="check-author">
 		<iso:rule context="gpml:Pathway">
-			<iso:assert test="@Author and not(@Author='')" role="warning">Diagrams should have an author.</iso:assert>
+			<iso:assert test="@Author and not(@Author='')" role="error">Diagrams should have an author.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 
 	<!-- Check that the Organism attribute is present and not empty -->	
 	<iso:pattern name="check-organism" id="check-organism">
 		<iso:rule context="gpml:Pathway">
-			<iso:assert test="@Organism and not(@Organism='')" role="warning">Diagrams should have a organism.</iso:assert>
+			<iso:assert test="@Organism and not(@Organism='')" role="error">Diagrams should have a organism.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 
