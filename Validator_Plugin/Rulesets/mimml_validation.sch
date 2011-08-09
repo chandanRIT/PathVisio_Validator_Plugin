@@ -49,7 +49,7 @@ limitations under the License.
   xmlns="http://purl.oclc.org/dsdl/schematron"
   xmlns:iso="http://purl.oclc.org/dsdl/schematron"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  defaultPhase="attribute-validation"
+  defaultPhase="#ALL"
   schemaVersion="0.1.1">
      
 	<iso:ns prefix="mimVis" uri="http://lmp.nci.nih.gov/mim/mimVisLevel1"/>
