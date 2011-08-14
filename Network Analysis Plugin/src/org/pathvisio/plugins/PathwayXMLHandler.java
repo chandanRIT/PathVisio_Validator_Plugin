@@ -49,7 +49,7 @@ public class PathwayXMLHandler extends DefaultHandler {
 		else if(rawName.equals("Point") && insideLine){
 			
 			String tref = attributes.getValue("GraphRef");
-			if(tref!=null){
+			if( tref!=null && !tref.equals("") ){
 				vpl.graphRef[refCounter]=tref;
 				refCounter++;
 			}
@@ -63,7 +63,11 @@ public class PathwayXMLHandler extends DefaultHandler {
 
 		if (rawName.equals("Line")) {
 			
-			vpnodes.add(vpl);
+			if(refCounter==2)
+				vpnodes.add(vpl);
+			else 
+				System.out.println(vpl+ " : Line doesnot have 2 grefs ");
+			
 			vpl=null;
 			insideLine=false;
 		}

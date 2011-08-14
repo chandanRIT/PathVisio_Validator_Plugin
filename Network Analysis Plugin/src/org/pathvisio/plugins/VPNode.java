@@ -1,11 +1,13 @@
 package org.pathvisio.plugins;
 
 //ALL the Node and Edge related classes defined here
+class Position {
+	boolean visitStatus;
+}
 
-class VPNode{
+class VPNode extends Position{
 	int id;// 
 	String graphId; // all the nodes will have this
-		
 }
 
 class VPDataNode extends VPNode{
@@ -53,7 +55,8 @@ class VPAnchor extends VPNode{
 	}
 }
 
-class JPEdge{
+// separate class Edge for the JUNG graph
+class JPEdge extends Position{
 	String[] nodesConnectedTo= new String[2];
 	static int count=0;
 	int eId;
