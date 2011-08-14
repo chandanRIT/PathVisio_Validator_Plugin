@@ -13,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,6 +80,7 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 	//private BufferedWriter jGObw;
 	private JCheckBox jcb1;
 	private GraphMLWriter<VPNode, JPEdge> jGOgw;
+	private FindCycleDFS alg_findCycle;
 	
 	public void init(PvDesktop pvdesktop) {
 		System.out.println("JPlugin init called");
@@ -123,7 +125,7 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 				System.out.println("exception in file for graph output");
 				e.printStackTrace();
 			}
-		} else System.out.println("JoutputFile deleted or not "+jGFile.delete());
+		} else System.out.println("JoutputFile deleted or not:"+jGFile.delete());
 
 	}
 	
@@ -192,6 +194,9 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 		stb.append("\n node1: "+vpn1.graphId+", count: "+graph.getNeighborCount(vpn1));
 		stb.append("\n node2: "+vpn2.graphId+", count: "+graph.getNeighborCount(vpn2));
 		
+		stb.append("\n\nConnectivityTest:");
+		stb.append("\n connectivity Test result: "+new ConnectivityDFS().execute(graph, vpn1, null));
+		
 		
 		//page rank score
 		/*stb.append("\n\n Page Rank score:");
@@ -229,7 +234,7 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 			graphIDs.add(jpe.nodesConnectedTo[1]);
 		} 
 		
-		//highlight all the listed nodes in red
+		//highlight all the listed nodes in blue
 		highlightNodes(graphIDs);
 		//for highlighting the source and destination. nodes in a different color
 		highLightNode(n1.graphId,Color.green);
@@ -238,6 +243,44 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 		engine.getActiveVPathway().redraw();
 		
 		System.out.println("shortest path nodes:"+graphIDs);
+		return l;
+	}
+	
+	private ArrayList<Position> alg_DFS_cycleFinding(Graph<VPNode, JPEdge> graph, VPNode vpn1){
+		JPEdge jpe;
+		if(alg_findCycle==null)
+			alg_findCycle=new FindCycleDFS();
+		//System.out.print(alg_findCycle.execute(graph, vpn1,null));
+		
+		ArrayList<Position> l = alg_findCycle.execute(graph, vpn1,null);
+		System.out.println("The cycle path for " + vpn1 +" is:"+l);
+		
+		if(l.isEmpty()) {
+			stb.append("Algorithm Analysis : No cycle detected");
+			return l;
+		}
+		else stb.append("Algorithm Analysis completed successfully!");
+		
+		//pickup the graphIds connected to the edges
+		HashSet<String> graphIDs = new HashSet<String>();
+		for (Position pos:l){
+			if(pos instanceof JPEdge){
+				jpe=(JPEdge)pos;
+			//if(!graphIDs.contains(jpe.nodesConnectedTo[0]))
+				graphIDs.add(jpe.nodesConnectedTo[0]);
+			//if(!graphIDs.contains(jpe.nodesConnectedTo[1]))
+				graphIDs.add(jpe.nodesConnectedTo[1]);
+		
+			} 
+		}
+		//highlight all the listed nodes in blue
+		highlightNodes(graphIDs);
+		//for highlighting the source and destination. nodes in a different color
+		highLightNode(vpn1.graphId,Color.green);
+		//highLightNode(n2.graphId,Color.red);
+		engine.getActiveVPathway().redraw();
+		
+		System.out.println("Cycle nodes:"+graphIDs);
 		return l;
 	}
 
@@ -252,7 +295,7 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 			} 
 		}
 		
-		System.out.println("no id matched in findNode");
+		System.out.println("node not found in findNode for "+gid);
 		return null;
 	}
 	
@@ -311,8 +354,14 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 		for(VPNode vpn:vpnodes){
 			if(vpn instanceof VPLine) {
 				vpgraph.addVertex(vpn);
+				try{
 				vpgraph.addEdge(new JPEdge(vpn.graphId, gId2=( (VPLine)vpn ).graphRef[0]), vpn, findNodebyGId(gId2));
 				vpgraph.addEdge(new JPEdge(vpn.graphId, gId2=( (VPLine)vpn ).graphRef[1]), vpn, findNodebyGId(gId2));
+				}catch(Exception e){
+					System.out.println("Exception in adding edges to line");
+					e.printStackTrace();
+					//continue;
+				}
 			}
 			else if(vpn instanceof VPAnchor){
 				//not needed to add the vertex since automatically added by the addEdge method 
@@ -404,8 +453,11 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 		if(!checkForGIdValidity(vpn1, vpn2)) return;
 				
 		if(alBoxselection==0)
-		alg_shortestPath_DA(createdJGraph, vpn1, vpn2);
-		else System.out.println("pressed another");
+			alg_shortestPath_DA(createdJGraph, vpn1, vpn2);
+		else if(alBoxselection==1)
+			alg_DFS_cycleFinding(createdJGraph,vpn1);
+		else 
+			System.out.println("pressed another");
 		
 		computeAndDisplayStatistics(createdJGraph,vpn1,vpn2);
 		
@@ -502,16 +554,16 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 		//c.weightx=0.0;
 		c2.gridwidth=GridBagConstraints.RELATIVE;
 		c2.fill=GridBagConstraints.NONE;
-		insideInput.add(alBox=new JComboBox(new String[]{"Dijkstra Algorith for the shortest path","another"}),c2);
+		insideInput.add(alBox=new JComboBox(NAP_Utility.algComboBoxList),c2);
 		alBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0) {
 				int selection=alBox.getSelectedIndex();
 				
-				if(selection==0){
-					tf1.setEnabled(true);tf2.setEnabled(true);
-				}
-				else if(selection==1){
+				if(selection==2){
 					tf1.setEnabled(false);tf2.setEnabled(false);
+				}
+				else {
+					tf1.setEnabled(true);tf2.setEnabled(true);
 				} 
 				
 
