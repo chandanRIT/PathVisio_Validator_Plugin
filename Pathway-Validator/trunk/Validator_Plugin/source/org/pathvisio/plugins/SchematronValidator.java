@@ -22,6 +22,7 @@ import org.pathvisio.model.GpmlFormat;
 import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
+import org.pathvisio.plugins.VPUtility.RuleNotSupportedException;
 import org.xml.sax.SAXException;
 
 class SchematronValidator {
@@ -68,10 +69,11 @@ class SchematronValidator {
 		else if(VPUtility.schemaFileType.equalsIgnoreCase("mimVis")){
 			mimf.doExport(exportedPwFile, pwObject);
 			System.out.println("mimVis export called");
-		}else if(VPUtility.schemaFileType.equalsIgnoreCase("sbgn")){
+		}/*else if(VPUtility.schemaFileType.equalsIgnoreCase("sbgn")){
 			//sbgnf.doExport(exportedPwFile,pwObject);
 			System.out.println("sbgn export called");
-		}
+		}*/
+		
 
 		//}
 		//doExport=false;
@@ -88,9 +90,10 @@ class SchematronValidator {
 	/**
 	 * this is used to parse the input Schematron file to derive the ruleset title, its default group 
 	 * and set them to corresponding fields in the plugin, and reset the phase combo-box 
+	 * @throws RuleNotSupportedException 
 	 */
 	void parseSchemaAndSetValues(SAXParser saxParser, Transformer tfr1, File schemaFile,
-			JFrame pvFrame, JTextField schemaTitleTag, JComboBox phaseBox) throws SAXException,IOException{
+			JFrame pvFrame, JTextField schemaTitleTag, JComboBox phaseBox) throws SAXException,IOException, RuleNotSupportedException{
 
 		SchemaHandler mySHandler=new SchemaHandler();
 
@@ -117,7 +120,9 @@ class SchematronValidator {
 		tfr1.setParameter("phase",dp);
 		//System.out.println("Default Phase - "+dp);
 
-		VPUtility.schemaFileType=mySHandler.getType();
+		if( !( (VPUtility.schemaFileType=mySHandler.getType()).equalsIgnoreCase("gpml") || 
+				VPUtility.schemaFileType.equalsIgnoreCase("mimVis") ) )
+			throw new VPUtility.RuleNotSupportedException(VPUtility.schemaFileType);
 		//System.out.println("Schema Type = "+mySHandler.getType());
 
 		//setting groups in the phase-box 

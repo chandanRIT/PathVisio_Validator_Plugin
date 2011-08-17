@@ -54,6 +54,7 @@ import org.pathvisio.gui.swing.PvDesktop;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.plugin.Plugin;
+import org.pathvisio.plugins.VPUtility.RuleNotSupportedException;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.util.ProgressKeeper;
 import org.pathvisio.view.VPathwayElement;
@@ -564,10 +565,11 @@ ItemListener, ComponentListener
 	/**
 	 *  "chooseRuleset" method delegates to this method. This does the handling of events related to 
 	 *  "Choose Ruleset" button.
+	 * @throws RuleNotSupportedException 
 	 */
 	private void chooseRulesetButtonListener() throws InterruptedException,
 		IOException,IllegalAccessException,InstantiationException,
-		SAXException,CompilationFailedException,ClassNotFoundException{
+		SAXException,CompilationFailedException,ClassNotFoundException, RuleNotSupportedException{
 		
 		//System.out.println("choose schema button pressed");
 		Thread threadForSax=null;
@@ -662,6 +664,12 @@ ItemListener, ComponentListener
 		catch (ClassNotFoundException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 					"problem with deserialization","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+			resetUI(true);
+			e.printStackTrace();
+		}
+		catch(VPUtility.RuleNotSupportedException e){
+			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					"Ruleset: "+e.rulesetType+" is not yet supported." ,"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
