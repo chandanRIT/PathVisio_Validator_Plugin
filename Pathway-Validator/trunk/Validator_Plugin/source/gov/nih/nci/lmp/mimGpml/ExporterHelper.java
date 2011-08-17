@@ -1008,19 +1008,19 @@ public class ExporterHelper extends CommonHelper {
 	 *            the gpml data node type
 	 * @return the schema type
 	 */
-	private static GroupEnumType.Enum convertGroup(String gpmlGroupType) {
+	private static String convertGroup(String gpmlGroupType) {
 
-		HashMap<String, GroupEnumType.Enum> groupHash = new HashMap<String, GroupEnumType.Enum>();
+		HashMap<String, String> groupHash = new HashMap<String, String>();
 
-		groupHash.put("EntityWithFeatures", GroupEnumType.ENTITY_WITH_FEATURES);
-		groupHash.put("Group", GroupEnumType.GENERIC);
+		groupHash.put("EntityWithFeatures", "EntityWithFeatures");
+		groupHash.put("Group", "Generic");
 
-		GroupEnumType.Enum mimGroupType = null;
+		String mimGroupType = null;
 
 		if (groupHash.get(gpmlGroupType) != null) {
 			mimGroupType = groupHash.get(gpmlGroupType);
 		} else {
-			mimGroupType = GroupEnumType.GENERIC;
+			mimGroupType = "Generic";
 			Logger.log
 					.info("Pathway contains an group type not supported in MIM: "
 							+ gpmlGroupType);

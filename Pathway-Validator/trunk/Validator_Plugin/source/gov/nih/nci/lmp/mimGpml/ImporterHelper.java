@@ -811,10 +811,10 @@ public class ImporterHelper extends CommonHelper {
 			pwElem.setGroupId(grp.getVisId());
 			pwElem.setGraphId(grp.getVisId());
 
-			if (grp.getType().equals(GroupEnumType.GENERIC)) {
+			if (grp.getType().equals("Generic")) {
 				// GroupStyle.GROUP yields "None"
 				pwElem.setGroupStyle(GroupStyle.GROUP);
-			} else if (grp.getType().equals(GroupEnumType.ENTITY_WITH_FEATURES)) {
+			} else if (grp.getType().equals("EntityWithFeatures")) {
 				pwElem.setGroupStyle(GroupStyle.create("EntityWithFeatures",
 						true));
 			} else {
@@ -882,14 +882,11 @@ public class ImporterHelper extends CommonHelper {
 
 		BidiMap arrowHash = getGpmlToMimVisArrowHeadMap();
 
-		ArrowHeadEnumType.Enum arr = ArrowHeadEnumType.Enum
-				.forString(mimArrowHead);
-
 		String gpmlArrowHead;
 
 		// Default to LINE
-		if (arrowHash.inverseBidiMap().get(arr) != null) {
-			gpmlArrowHead = arrowHash.inverseBidiMap().get(arr).toString();
+		if (arrowHash.inverseBidiMap().get(mimArrowHead) != null) {
+			gpmlArrowHead = arrowHash.inverseBidiMap().get(mimArrowHead).toString();
 		} else {
 			gpmlArrowHead = "Line";
 			Logger.log.info("Pathway contains an arrow not supported in MIM: "
