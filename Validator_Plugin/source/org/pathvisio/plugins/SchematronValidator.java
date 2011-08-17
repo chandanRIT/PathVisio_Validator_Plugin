@@ -19,7 +19,9 @@ import javax.xml.transform.TransformerException;
 import org.pathvisio.Engine;
 import org.pathvisio.model.ConverterException;
 import org.pathvisio.model.GpmlFormat;
+import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
+import org.pathvisio.model.PathwayElement;
 import org.xml.sax.SAXException;
 
 class SchematronValidator {
@@ -51,7 +53,14 @@ class SchematronValidator {
 		//if(!schemaFileType.equalsIgnoreCase("groovy")){
 		System.out.println("b4 export called: "+VPUtility.schemaFileType);
 		//if(!doExport){
-
+		
+		for(PathwayElement pwe: pwObject.getDataObjects()){
+	  		
+  	   		if( pwe.getObjectType()==ObjectType.LINE && ( pwe.getGraphId()=="" | pwe.getGraphId()==null) ){
+  	   			pwe.setGeneratedGraphId();
+  	   		}
+  		}
+  	   	
 		if(VPUtility.schemaFileType.equalsIgnoreCase("gpml")){
 			GpmlFormat.writeToXml (pwObject, exportedPwFile, true);
 			System.out.println("gpml export called");
