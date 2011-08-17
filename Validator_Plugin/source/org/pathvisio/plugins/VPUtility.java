@@ -139,6 +139,13 @@ class VPUtility {
 		}
 	}
 
+	static class RuleNotSupportedException extends Exception{
+		String rulesetType;
+		RuleNotSupportedException(String rulesetType){
+			this.rulesetType=rulesetType;
+		}
+	}
+	
 	static class VPWListener implements VPathwayListener{
 		private JTable jtb;
 		VPWListener(JTable jtb){
