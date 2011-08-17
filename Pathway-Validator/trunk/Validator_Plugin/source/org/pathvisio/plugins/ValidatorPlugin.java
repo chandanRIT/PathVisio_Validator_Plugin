@@ -148,7 +148,11 @@ ItemListener, ComponentListener
 
 		// register Validator help page action in the "Help" menu.
 		desktop.registerMenuAction ("Help", vhelpAction);
-
+		
+		//register listener for pathway area click event (especially for autosaved pathways)
+		if(eng.hasVPathway())
+			eng.getActiveVPathway().addVPathwayListener(vpwListener);
+		
 		createPluginUIAndTheirListeners();
 
 		//code for setting the winx and winy of main window of pathvisio in preference file

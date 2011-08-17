@@ -45,8 +45,8 @@ public class VPRightClickMenu implements ActionListener{
 
 		if(!IRList.equals("")){
 			vplugin.globallyIgnoredEWType = new ArrayList<String>( Arrays.asList(IRList.split( "@@" )));
-			for(String s:vplugin.globallyIgnoredEWType) 
-				System.out.println("GIL-- "+s);
+		/*	for(String s:vplugin.globallyIgnoredEWType) 
+				System.out.println("GIL-- "+s);*/
 		}else 
 			vplugin.globallyIgnoredEWType = new ArrayList<String>();
 
@@ -446,7 +446,6 @@ public class VPRightClickMenu implements ActionListener{
 
 		// Listener for submenuItems that are dynamically generated in in 4,5,6 menuItems above
 		else if("subMenuItemCBMI".equals(e.getActionCommand())){
-			//System.out.println("item checked");
 			JCheckBoxMenuItem jcbmi=(JCheckBoxMenuItem)e.getSource();
 			//okButtonED(jcbmi); // this method can be a bit slower for large groups
 			checkUncheck(jcbmi); // This must be faster 
