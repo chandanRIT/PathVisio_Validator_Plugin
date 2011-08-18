@@ -244,7 +244,7 @@ ItemListener, ComponentListener
 			}
 		});
 
-		jtb.getColumnModel().getColumn(1).setCellRenderer(new TextAreaRenderer(graphIdsList));
+		jtb.getColumnModel().getColumn(1).setCellRenderer(new TextAreaRenderer(vPlugin));
 
 		//create a scrollpane and adding jtable to the pane
 		final JScrollPane scrollPane = new JScrollPane(jtb);
@@ -345,7 +345,7 @@ ItemListener, ComponentListener
 	}
 
 	/**
-	 * "validatePathway" calls this method internally , it runs in a separate thread to do the task 
+	 * "validatePathway" method calls this method internally. This runs in a separate thread to do the task 
 	 */
 	void processTask(ProgressKeeper pk, ProgressDialog d, SwingWorker<Object, Object> sw) {
 
@@ -436,10 +436,11 @@ ItemListener, ComponentListener
 			highlightNode(s,VPUtility.col2);
 		}
 		eng.getActiveVPathway().redraw();
+		VPUtility.prevHighlight=true;
 	}
 
 	/**
-	 * removes all the JTable rows, (removes the validation messages) and enables mouse-clicks on JTable 
+	 * removes all the JTable rows (i.e removes the validation messages) and enables mouse-clicks on JTable 
 	 */
 	void clearTableRows(){
 		mytbm.setRowCount(0);
@@ -459,8 +460,8 @@ ItemListener, ComponentListener
 			VPUtility.resetPhaseBox(phaseBox);
 		}	
 		
-		//if(eng.hasVPathway())
-		eng.getActiveVPathway().resetHighlight();
+		if(eng.hasVPathway())
+			eng.getActiveVPathway().resetHighlight();
 
 		if(ignoredErrorTypesList!=null){
 			vpRCMenu.clearRightClickStuff();

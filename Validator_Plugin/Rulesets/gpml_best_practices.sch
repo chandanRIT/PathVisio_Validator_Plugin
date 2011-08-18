@@ -34,7 +34,7 @@ Schematron validation for GPML Best Practices
 	<!-- Check that the Organism attribute is present and not empty -->	
 	<iso:pattern name="check-organism" id="check-organism">
 		<iso:rule context="gpml:Pathway">
-			<iso:assert test="@Organism and not(@Organism='')" role="error">Diagrams should have a organism.</iso:assert>
+			<iso:assert test="@Organism and not(@Organism='')" role="error">Diagrams should have an organism.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 

@@ -41,6 +41,9 @@ class VPUtility {
 	static String schemaString;
 	//static VPWListener vpwListener;//=new VPUtility.VPWListener();
 
+	/**
+	 * This is used in storing and retrieving all the plugin's preferences
+	 */
 	enum SchemaPreference implements Preference
 	{
 		LAST_OPENED_SCHEMA_DIR (USER_DIR),
@@ -60,34 +63,44 @@ class VPUtility {
 		}               
 	}
 
+	/**
+	 * refreshing the drop down to include phases of the selected schema by clearing out
+	 *  the previous items and adding new ones
+	 * @param phaseBox the phaseBox object which is to be reset.
+	 */
 	static void resetPhaseBox(JComboBox phaseBox){
 		if(!phaseBox.isEnabled())
 			phaseBox.setEnabled(true);
 
-		//refreshing the drop down to include phases of the selected schema by clearing out the previous items and adding new ones
 		while(phaseBox.getItemCount()!=1){
 			phaseBox.removeItemAt(phaseBox.getItemCount()-1);
 		}
 
 	}
 
+	/**
+	 * its mainly to put (..) based on the string length in the schema title
+	 * @param ss the title string
+	 * @param schemaTitleTag the textfield object where the title would be displayed
+	 * @return the shortened string which would fit into the textfield
+	 */
 	static String cutSchemaTitleString(String ss,JTextField schemaTitleTag){
 
 		FontMetrics fm= schemaTitleTag.getFontMetrics(schemaTitleTag.getFont());
 		int fontWidth=fm.stringWidth(ss);
 		int TFwidfth= schemaTitleTag.getWidth()-37;
-		if(fontWidth>=TFwidfth)
-		{	schemaTitleTag.setToolTipText(ss);
-		for(int index=ss.length()-1; index>0 ; index=index-2)// for faster looping
-		{	
-			fontWidth=fm.stringWidth(ss.substring(0,index));
-			if (fontWidth<TFwidfth){ 
-				ss=ss.substring(0,index-1)+"..";
-				//System.out.println(index);
-				break;
-			}
+		if(fontWidth>=TFwidfth){
+			schemaTitleTag.setToolTipText(ss);
+			for(int index=ss.length()-1; index>0 ; index=index-2)// for faster looping
+			{	
+				fontWidth=fm.stringWidth(ss.substring(0,index));
+				if (fontWidth<TFwidfth){ 
+					ss=ss.substring(0,index-1)+"..";
+					//System.out.println(index);
+					break;
+				}
 
-		}
+			}
 		} else 
 			schemaTitleTag.setToolTipText(null);
 
@@ -96,6 +109,11 @@ class VPUtility {
 		return ss;
 	}
 
+	/**
+	 * converts the input string such that the firs tletter's capital and the rest's small
+	 * @param str input String
+	 * @return the coverted title cased String
+	 */
 	static String convertToTitleCase(String str){
 		str=str.toLowerCase();
 		str=(str.charAt(0)+"").toUpperCase()+str.substring(1,str.length());
@@ -104,7 +122,7 @@ class VPUtility {
 
 	/**
 	 * custom JTable class to override the the method "isCellEditable", in order to
-	 *  render all the cells un-editable for the table 
+	 *  render all its cells un-editable. 
 	 */
 	static class MyTableModel extends DefaultTableModel{
 		public boolean isCellEditable(int row, int column){  
@@ -112,6 +130,10 @@ class VPUtility {
 		}  
 	}
 
+	/**
+	 * custom {@link JMenuItem} class, to override the processMouseEvent method, mainly to render it un-clickable 
+	 * when in a disabled state  
+	 */
 	static class CustomMenuItem extends JMenuItem {
 
 		public CustomMenuItem(String text) {
@@ -123,10 +145,17 @@ class VPUtility {
 		}
 
 		protected void processMouseEvent(MouseEvent e) {
-			if (isEnabled()) super.processMouseEvent(e);
+			// process mouse related events, only when its enabled, i.e the mouse click will have no effect on
+			//the pop-up in which it resides
+			if (isEnabled()) 
+				super.processMouseEvent(e);
 		}
 	}
 
+	/**
+	 * {@link BasicCheckBoxMenuItemUI} class' methods override mainly to keep the pop-up open, when the check-box 
+	 * is selected/deselected
+	 */
 	static class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
 
 		//@Override
@@ -139,13 +168,19 @@ class VPUtility {
 		}
 	}
 
+	/**
+	 * Exception class for the case when the ruleset being used for validation is not yet supported.
+	 */
 	static class RuleNotSupportedException extends Exception{
 		String rulesetType;
 		RuleNotSupportedException(String rulesetType){
 			this.rulesetType=rulesetType;
 		}
 	}
-	
+
+	/**
+	 * The listener class to listen to VPathway view related events 
+	 */
 	static class VPWListener implements VPathwayListener{
 		private JTable jtb;
 		VPWListener(JTable jtb){

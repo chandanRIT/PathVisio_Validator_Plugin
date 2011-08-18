@@ -151,7 +151,7 @@ public class ExporterHelper extends CommonHelper {
 	/**
 	 * Map pathway.
 	 */
-	public void mapPathway() throws ConverterException {
+	public void mapPathway() {
 		PathwayElement info = pw.getMappInfo();
 
 		// Map XRef references to mimBioRefs
@@ -497,7 +497,7 @@ public class ExporterHelper extends CommonHelper {
 	 * @param pwElem
 	 *            the pathway element
 	 */
-	private void mapLine(PathwayElement pwElem) throws ConverterException {
+	private void mapLine(PathwayElement pwElem) {
 
 		InteractionGlyphType interGlyph = dia.addNewInteractionGlyph();
 
@@ -945,8 +945,6 @@ public class ExporterHelper extends CommonHelper {
 	 * 
 	 * @param gpmlArrowHead
 	 *            the GPML arrow head
-	 * @throws ConverterException
-	 *             If the diagram is using non-MIM arrowheads
 	 * @return the MIM arrow head type
 	 */
 	private static String convertArrowHead(String gpmlArrowHead) {

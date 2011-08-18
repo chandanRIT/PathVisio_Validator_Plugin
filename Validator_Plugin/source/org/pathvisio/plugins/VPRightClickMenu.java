@@ -17,6 +17,10 @@ import org.pathvisio.model.PathwayElement;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.view.VPathwayElement;
 
+/**
+ * This class is related to the right click related UI and events on the jtable. It also is responsible 
+ * for left click events on the jtable
+ */
 public class VPRightClickMenu implements ActionListener{
 
 	private ValidatorPlugin vplugin;
@@ -41,7 +45,7 @@ public class VPRightClickMenu implements ActionListener{
 			//globallyIgnoredEWType = new ArrayList<String>();*/
 
 		String IRList = PreferenceManager.getCurrent().get
-		(VPUtility.SchemaPreference.GLOBALLY_IGNORED_RULES);
+			(VPUtility.SchemaPreference.GLOBALLY_IGNORED_RULES);
 
 		if(!IRList.equals("")){
 			vplugin.globallyIgnoredEWType = new ArrayList<String>( Arrays.asList(IRList.split( "@@" )));
@@ -234,7 +238,8 @@ public class VPRightClickMenu implements ActionListener{
 			else
 				jm.setText(jmText.substring(0,jmIndex-1));
 
-			while(jm.getMenuComponentCount()>2){// clearing the subMenu4's checkboxes
+			// clearing the subMenu4's checkboxes
+			while(jm.getMenuComponentCount()>2){
 				jm.remove(2);
 			}
 		}
@@ -314,7 +319,12 @@ public class VPRightClickMenu implements ActionListener{
 			EWMtext=EWMtext.replace("@@", " : ");
 		else if (ignList==vplugin.ignoredElements) {
 			PathwayElement pe=ValidatorPlugin.pth.getElementById(EWMtext);
-			EWMtext=EWMtext+" : "+pe.getObjectType();
+			if(pe!=null){
+				EWMtext=EWMtext+" : "+pe.getObjectType();
+			}
+			else 
+				EWMtext=EWMtext+" : "+"Non-highlightable Component";
+			
 		}
 
 		JCheckBoxMenuItem subMenuItemCBMI= new JCheckBoxMenuItem(EWMtext);
