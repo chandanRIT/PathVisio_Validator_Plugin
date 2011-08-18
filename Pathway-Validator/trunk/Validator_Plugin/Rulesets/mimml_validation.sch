@@ -159,7 +159,7 @@ limitations under the License.
 				@type='RestrictedCopy' or
 				@type='ExplicitComplex' or
 				@type='ImplicitComplex'	
-			" diagnostics="vis-id" role="error"></iso:assert>		
+			" diagnostics="vis-id" role="error">Entity: <iso:value-of select="@type"/> is not a standardized MIM entity type.</iso:assert>		
 		</iso:rule>
 	</iso:pattern>
 
@@ -185,7 +185,7 @@ limitations under the License.
 				mimVis:Point/@arrowHead='BranchingLeft' or
 				mimVis:Point/@arrowHead='BranchingRight' or
 				mimVis:Point/@arrowHead='Line'
-			" diagnostics="vis-id" role="error"></iso:assert>		
+			" diagnostics="vis-id" role="error">Arrowhead: <iso:value-of select="mimVis:Point/@arrowHead"/> is not a standardized MIM arrowhead type.</iso:assert>		
 		</iso:rule>
 	</iso:pattern>
 
@@ -196,7 +196,7 @@ limitations under the License.
 			<iso:assert test="@type='InTrans' or
 				@type='Annotation' or
 				@type='Invisible'
-			" diagnostics="vis-id" role="error"></iso:assert>		
+			" diagnostics="vis-id" role="error">Anchor: <iso:value-of select="mimVis:Point/@arrowHead"/> is not a standardized MIM anchor type.</iso:assert>		
 		</iso:rule>
 	</iso:pattern>
 
@@ -206,7 +206,7 @@ limitations under the License.
 			<iso:let name="vis-id" value="@visId"/>			
 			<iso:assert test="@type='EntityWithFeatures' or
 				@type='Generic'
-			" diagnostics="vis-id" role="error"></iso:assert>		
+			" diagnostics="vis-id" role="error">Group: <iso:value-of select="mimVis:Point/@arrowHead"/> is not a standardized MIM group type.</iso:assert>		
 		</iso:rule>
 	</iso:pattern>
 	
@@ -226,7 +226,7 @@ limitations under the License.
 				@type='occursIn' or 
 				@type='isDescribedBy' or 
 				@type='other'				
-			" diagnostics="vis-id" role="error"></iso:assert>		
+			" diagnostics="vis-id" role="error">RelationshipXRef should have one of the types: is, isPartOf, hasPart, isIsomerOf, isHomologTo, encodes, isEncodedBy, hasVersion, isVersionOf, occursIn, isDescribedBy, or other.</iso:assert>		
 		</iso:rule>
 	</iso:pattern>
 
@@ -241,7 +241,7 @@ limitations under the License.
 				@type='DNARegion' or 
 				@type='Protein' or 
 				@type='SmallMolecule'
-			" diagnostics="vis-id" role="error"></iso:assert>		
+			" diagnostics="vis-id" role="error">EntityControlledVocabulary should have one of the types: RNA, RNARegion, DNA, DNARegion, Protein, or SmallMolecule.</iso:assert>		
 		</iso:rule>
 	</iso:pattern>
 	

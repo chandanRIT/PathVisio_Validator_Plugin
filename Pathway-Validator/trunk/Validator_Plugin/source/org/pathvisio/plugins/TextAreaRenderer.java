@@ -6,6 +6,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer; 
 import javax.swing.table.TableColumn; 
 import javax.swing.table.TableColumnModel; 
+
+import org.pathvisio.model.PathwayElement;
+
 import java.awt.Component; 
 import java.util.ArrayList;
 import java.util.Enumeration; 
@@ -21,22 +24,21 @@ import java.util.Map;
  * This interface defines the method required by any object that 
  * would like to be a renderer for cells in a JTable. 
  * 
- * @author Manivel 
  * @see JTable 
  * @see JTextArea 
  */ 
  
 public class TextAreaRenderer extends JTextArea implements TableCellRenderer { 
     private final DefaultTableCellRenderer renderer = new DefaultTableCellRenderer(); 
-    ArrayList<String> graphIdList;
+    ValidatorPlugin vplugin;
     // Column heights are placed in this Map 
     private final Map<JTable, Map<Object, Map<Object, Integer>>> tablecellSizes = new HashMap<JTable, Map<Object, Map<Object, Integer>>>(); 
  
     /** 
      * Creates a text area renderer. 
      */ 
-    public TextAreaRenderer(ArrayList<String> graphIdList) { 
-        this.graphIdList=graphIdList;
+    public TextAreaRenderer(ValidatorPlugin vpPlugin) { 
+        this.vplugin=vpPlugin;
     	setLineWrap(true); 
         setWrapStyleWord(true); 
         //setMargin(new Insets(5, 6, 5, 8));
@@ -77,14 +79,19 @@ public class TextAreaRenderer extends JTextArea implements TableCellRenderer {
         }
         
         //for setting tooltip for each row of Table
-        if(graphIdList.size()!=0){
+        String ttText=null;
+        if(vplugin.graphIdsList.size()!=0){
         	//ToolTipManager.sharedInstance().setEnabled(true);
-        	String ttText=graphIdList.get(row);
-        	//if(ttText.equals("null")) ttText="--";
-        	setToolTipText(!ttText.equals("null")&& !ttText.equals("") ? ttText : "----");
-        }else{//ToolTipManager.sharedInstance().setEnabled(false);
-        setToolTipText(null);	 
+        	ttText=vplugin.graphIdsList.get(row);
+        	ttText=(!ttText.equals("null")&& !ttText.equals("") ? ttText : "----");
+        	
+        	if(!ttText.equals("----") && 
+        			ValidatorPlugin.eng.getActivePathway().getElementById(ttText)==null )
+        		ttText+=" : Non-highlightable Id";
+        	setToolTipText(ttText);
+        	
         }
+        setToolTipText(ttText);
         return this; 
     } 
  

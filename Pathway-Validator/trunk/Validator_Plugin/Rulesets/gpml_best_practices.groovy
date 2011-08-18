@@ -33,7 +33,7 @@ String[] ruleOrganism(Pathway pw) { // checks for the "Organism" attribute in th
 	
     	if(pw.getMappInfo().getOrganism()==null){
     		result= new String[3];
-    		//result[0]="warning"; // if the result[0] is not set (left as null), then the default value for role is taken as an "error"
+    		//result[0]="error"; // if the result[0] is not set (left as null), then the default value for role is taken as an "error"
     		result[1]="Diagrams should have an organism.";
 		}
     	else System.out.println("organism found = "+pw.getMappInfo().getOrganism());
@@ -46,7 +46,7 @@ String[] ruleAuthor(Pathway pw) { //checks for the "Author" attribute in the "Pa
     	String[] result=null;
 	
     	if(pw.getMappInfo().getAuthor()==null){
-    		result= ["warning","Diagrams should have an author.",null];// the groovy way
+    		result= ["error","Diagrams should have an author.",null];// the groovy way
     		//result=new String[3];
 			//result[0]="warning";
     		//result[1]="Diagrams should have an author.";
@@ -89,7 +89,7 @@ ArrayList<String[]> ruleDataBaseAnnotation(Pathway pw) { //checks every "Xref" t
 				//result[0]= "error";
 				//result[1]= "Datanodes should include database annotations.";
 				//result[2]= pwe.getGraphId();
-				String[] result = ["error","Datanodes should include database annotations",pwe.getGraphId()];//the groovy way
+				String[] result = ["error","Datanodes should include database annotations.",pwe.getGraphId()];//the groovy way
 
 				totalResultForThisRule.add(result);
     		}
