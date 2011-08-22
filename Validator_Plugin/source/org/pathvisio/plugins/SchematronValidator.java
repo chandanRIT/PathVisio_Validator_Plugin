@@ -23,6 +23,7 @@ import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.plugins.VPUtility.RuleNotSupportedException;
+import org.pathvisio.sbgn.SbgnFormat;
 import org.xml.sax.SAXException;
 
 class SchematronValidator {
@@ -47,7 +48,7 @@ class SchematronValidator {
 	 * @throws SAXException
 	 */
 	void exportAndValidate(final SaxonTransformer tempSaxTrnfr,
-			final MIMFormat mimf, Pathway pwObject, File exportedPwFile,File schemaFile) 
+			final MIMFormat mimf, SbgnFormat sbgnf, Pathway pwObject, File exportedPwFile,File schemaFile) 
 	throws ConverterException,IOException,ParserConfigurationException,
 	TransformerException,SAXException{
 
@@ -69,10 +70,10 @@ class SchematronValidator {
 		else if(VPUtility.schemaFileType.equalsIgnoreCase("mimVis")){
 			mimf.doExport(exportedPwFile, pwObject);
 			System.out.println("mimVis export called");
-		}/*else if(VPUtility.schemaFileType.equalsIgnoreCase("sbgn")){
-			//sbgnf.doExport(exportedPwFile,pwObject);
+		}else if(VPUtility.schemaFileType.equalsIgnoreCase("sbgn")){
+			sbgnf.doExport(exportedPwFile,pwObject);
 			System.out.println("sbgn export called");
-		}*/
+		}
 		
 
 		//}
@@ -121,7 +122,8 @@ class SchematronValidator {
 		//System.out.println("Default Phase - "+dp);
 
 		if( !( (VPUtility.schemaFileType=mySHandler.getType()).equalsIgnoreCase("gpml") || 
-				VPUtility.schemaFileType.equalsIgnoreCase("mimVis") ) )
+				VPUtility.schemaFileType.equalsIgnoreCase("mimVis") || 
+				VPUtility.schemaFileType.equalsIgnoreCase("sbgn")) )
 			throw new VPUtility.RuleNotSupportedException(VPUtility.schemaFileType);
 		//System.out.println("Schema Type = "+mySHandler.getType());
 

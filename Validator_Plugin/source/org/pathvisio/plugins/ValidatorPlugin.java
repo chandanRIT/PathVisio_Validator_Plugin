@@ -10,26 +10,18 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -56,6 +48,8 @@ import org.pathvisio.model.PathwayElement;
 import org.pathvisio.plugin.Plugin;
 import org.pathvisio.plugins.VPUtility.RuleNotSupportedException;
 import org.pathvisio.preferences.PreferenceManager;
+import org.pathvisio.sbgn.SbgnFormat;
+import org.pathvisio.sbgn.SbgnShapes;
 import org.pathvisio.util.ProgressKeeper;
 import org.pathvisio.view.VPathwayElement;
 import org.pathvisio.view.VPathwayListener;
@@ -78,7 +72,7 @@ ItemListener, ComponentListener
 	static Pathway pth; // "Pathway" object reference
 	static SaxonTransformer saxTfr ; 
 	private  static MIMFormat mimf;//=new MIMFormat();
-	//private static SbgnFormat sbgnf;
+	private static SbgnFormat sbgnf;
 	private static JFileChooser chooser; // for "Choose Ruleset" button
 	private final static JButton valbutton=new JButton("Validate"); // the "Validate" button
 	private final static JButton chooseSchema=new JButton("Choose Ruleset"); // "Choose Ruleset" button
@@ -378,7 +372,7 @@ ItemListener, ComponentListener
 				pk.setTaskName("Validating pathway");
 
 				try{
-					schematronValidator.exportAndValidate(tempSaxTrnfr, mimf,eng.getActivePathway(), exportedPathwayFile, schemaFile);
+					schematronValidator.exportAndValidate(tempSaxTrnfr, mimf, sbgnf, eng.getActivePathway(), exportedPathwayFile, schemaFile);
 				}
 				catch (Exception e1) { //changed from ConverterException to catch all the errors
 					//System.out.println("Exception in validatepathway method--"+e1.getMessage());
@@ -487,10 +481,10 @@ ItemListener, ComponentListener
 					//if(saxParser==null)
 					saxParser=SAXParserFactory.newInstance().newSAXParser();
 					saxTfr= new SaxonTransformer(saxParser);SaxonTransformer.setInputFile(exportedPathwayFile);
-					//PreferenceManager.init();
-					//SbgnShapes.registerShapes();
+					PreferenceManager.init();
+					SbgnShapes.registerShapes();
 					mimf=new MIMFormat();
-					//sbgnf = new SbgnFormat(); 
+					sbgnf = new SbgnFormat(); 
 					
 					System.out.println("This thread for saxtranform completes its run");
 				} catch (TransformerConfigurationException e1) {
