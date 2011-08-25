@@ -12,6 +12,13 @@ extends DFS< Object, ArrayList<Position>> {
 	public void setup() { 
 		cycle = new ArrayList<Position>();
 		done = false;
+		prevFF=null;currFF=null;
+		System.out.println("runcount : "+ ++runCount);
+	}
+	
+	protected void visit(Position p) { 
+		super.visit(p);
+			
 	}
 	
 	protected void startVisit(VPNode v) {
@@ -31,6 +38,16 @@ extends DFS< Object, ArrayList<Position>> {
 		cycle.add(e);		// back edge e creates a cycle
 		cycleStart = graph.getOpposite(from, e);
 		cycle.add(cycleStart);	// first vertex completes the cycle
+		
+		if(++currFF.edgeIndex < graph.getIncidentEdges(currFF).size())
+			actualFF=currFF;
+		else{
+			actualFF.edgeIndex=0;
+			actualFF=prevFF;
+			actualFF.edgeIndex=1;
+		}
+		
+		System.out.println("a P c "+ actualFF+ " "+prevFF + " "+ currFF );
 		done = true;
 	}
 	
@@ -41,6 +58,8 @@ extends DFS< Object, ArrayList<Position>> {
 	public ArrayList<Position> finalResult(ArrayList<Position> r) {
 		// remove the vertices and edges from start to cycleStart
 		ArrayList<Position> tempCycle= new ArrayList<Position>(cycle);
+		//System.out.println("b4 removing "+tempCycle);
+		
 		if (!cycle.isEmpty()) {
 			for (Position p: tempCycle) {
 				if (p == cycleStart)

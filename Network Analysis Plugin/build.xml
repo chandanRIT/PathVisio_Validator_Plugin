@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
-<project name="JPlugin" default="build-install" basedir=".">
+<project name="NAplugin" default="build-install" basedir=".">
 	
-	<property name="base.name" value="JPlugin" />
+	<property name="base.name" value="NAplugin" />
 	<property name="jar.name" value="${base.name}.jar" />
     
 	<property environment="env" />
 	<property name="install.dir" value="${user.home}/.PathVisio/plugins" />
-	<property name="pathvisio.dir" value="../PathvisioTrunk" />
+	<property name="pathvisio.dir" value="../PathVisioJul29" />
 	<property name="lib.dir" value="${pathvisio.dir}/lib" />
-    <property name="JPlugin.lib" value="lib"/>
+    <property name="NAplugin.lib" value="lib"/>
 	<property name="images.dir" value="images"/>
 	
 	<path id="project.class.path">
@@ -19,9 +19,9 @@
 		</fileset>
 	</path>
 
-    <path id="JPlugin.path">
+    <path id="NAplugin.path">
        <path refid="project.class.path"/>
-       <fileset dir="${JPlugin.lib}">
+       <fileset dir="${NAplugin.lib}">
        		<include name="**/*.jar" />  
        </fileset>
      </path>
@@ -40,24 +40,19 @@
 
 	<target name="build" depends="prepare">
 		<javac srcdir="src" includes="**/*.java" debug="true" destdir="build">
-			<classpath refid="JPlugin.path" />
+			<classpath refid="NAplugin.path" />
 			<compilerarg value="-Xlint"/>
 		</javac>
 	</target>
 
     <target name="jar" depends="build">
-    
-    	
     	<jar jarfile="${jar.name}">
     		<manifest>
-    				<attribute name="PathVisio-Plugin-Class" value="org.pathvisio.plugins.GraphAnalysisPlugin"/>
+   				<attribute name="PathVisio-Plugin-Class" value="org.pathvisio.plugins.GraphAnalysisPlugin"/>
     		</manifest>
-    		    		
     		<fileset dir="build" includes="**/*.*" />
-			<zipgroupfileset dir="${JPlugin.lib}" includes="*.jar"/>
-    				
+			<zipgroupfileset dir="${NAplugin.lib}" includes="*.jar"/>
     	</jar>
-    
     </target>
 
 	<target name="install">
