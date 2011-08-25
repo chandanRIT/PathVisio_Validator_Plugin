@@ -1,5 +1,8 @@
 package org.pathvisio.plugins;
 
+import java.util.Iterator;
+import java.util.List;
+
 import edu.uci.ics.jung.graph.Graph;
 
 /** Generic DFS traversal of a graph using the template method pattern.
@@ -15,6 +18,10 @@ public class DFS<I, R> {
 	protected VPNode start;      // The start vertex for the DFS
 	protected I info;               // Information object passed to DFS
 	protected R visitResult;        // The result of a recursive traversal call
+	
+	protected int runCount;
+	protected VPDataNode actualFF,currFF,prevFF;
+	
 	
 	/** Mark a position (vertex or edge) as visited. */
 	protected void visit(Position p) { p.visitStatus=true; }
@@ -45,12 +52,17 @@ public class DFS<I, R> {
 	protected R finalResult(R r) { return r; /* default value */ }
 
 
+	protected void checkRoute(){
+		
+	}
+	
 	/** Execute a depth first search traversal on graph g, starting
 	 * from a start vertex s, passing in an information object (in) */
 	public R execute(Graph<VPNode, JPEdge> g, VPNode s, I in) {
 		graph = g;
 		start = s;
 		info = in;
+		//route=new StringBuilder();
 		for(VPNode v: graph.getVertices()) unVisit(v); // mark vertices as unvisited
 		for(JPEdge e: graph.getEdges()) unVisit(e);      // mark edges as unvisited
 		setup();           // perform any necessary setup prior to DFS traversal
@@ -63,10 +75,35 @@ public class DFS<I, R> {
 			startVisit(v);
 		if (!isDone()) {
 			visit(v);
-			for (JPEdge e: graph.getIncidentEdges(v)) {
+			int myEdgeIndex=0;
+			if(actualFF!=null && actualFF.equals(v)){
+				myEdgeIndex=actualFF.edgeIndex;
+				System.out.println("inside index chenge "+myEdgeIndex);
+			}
+			List<JPEdge> myList=NAP_Utility.wrapperForGraphIncidentEdges(graph, v, myEdgeIndex);
+			System.out.println("sublist "+myList);
+			Iterator<JPEdge> myIterator=myList.iterator();
+			while (myIterator.hasNext()) {
+				JPEdge e=myIterator.next();
+				
+				//String tempRoute=route.toString()+e.eId;
+				//System.out.println(" temproute " +tempRoute +"ignored routes "+ignoredRoutesList);
+				/*while(v.equals(node_b4BackTrack_snapshot) && ignoredRoutesList.contains(tempRoute)){
+					System.out.println("inside temproute while");
+					e=myIterator.next();
+					tempRoute=route.toString()+e.eId;
+				}*/
+				
 				if (!isVisited(e)) {
 					// found an unexplored edge, explore it
 					visit(e);
+					
+					if(myList.size()>1)
+						if(v instanceof VPDataNode){
+							prevFF=currFF;
+							currFF=(VPDataNode)v;
+						}	
+					
 					VPNode w = graph.getOpposite(v, e);
 					if (!isVisited(w)) {
 						// w is unexplored, this is a discovery edge

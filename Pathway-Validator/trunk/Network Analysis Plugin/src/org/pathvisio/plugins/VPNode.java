@@ -8,11 +8,21 @@ class Position {
 class VPNode extends Position{
 	int id;// 
 	String graphId; // all the nodes will have this
+	
+	@Override
+	public boolean equals(Object other){
+		if (other == null) return false;
+	    if (other == this) return true;
+	    if (this.getClass() != other.getClass())return false;
+	    VPNode otherVPNode = (VPNode)other;
+	    return this.graphId.equals(otherVPNode.graphId);
+	}
 }
 
 class VPDataNode extends VPNode{
 	static int count=0;
 	String dNodeType;
+	int edgeIndex;
 	
 	public VPDataNode(String gid, String dnt){
 		graphId=gid;
@@ -56,7 +66,7 @@ class VPAnchor extends VPNode{
 }
 
 // separate class Edge for the JUNG graph
-class JPEdge extends Position{
+class JPEdge extends Position implements Comparable<JPEdge>{
 	String[] nodesConnectedTo= new String[2];
 	static int count=0;
 	int eId;
@@ -68,6 +78,16 @@ class JPEdge extends Position{
 	}
 	
 	public String toString(){
-		return "E-" + eId;
+		return ("E-" + eId);
+	}
+
+	public int compareTo(JPEdge jpe) {
+		// TODO Auto-generated method stub
+		if(eId>jpe.eId) 
+			return 1;
+		else if(eId<jpe.eId) 
+			return -1;
+		else 
+			return 0;
 	}
 }
