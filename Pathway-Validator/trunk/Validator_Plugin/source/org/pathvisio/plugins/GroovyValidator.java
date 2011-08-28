@@ -8,19 +8,16 @@ import groovy.lang.GroovyShell;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.pathvisio.Engine;
 import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
-import org.pathvisio.view.VPathwayElement;
 
 /**
  * This class is responsible for validating Pathways against Groovy rulesets. It loads(parses)
@@ -31,12 +28,12 @@ public class GroovyValidator {
 
 	private Engine eng;
 	private JComboBox phaseBox;
-	private ArrayList<String> graphIdsList;
+	private List<String> graphIdsList;
 	private ValidatorPlugin vPlugin;
 	//private ValidatorPlugin.MyTableModel mytbm;
 	//private JTable jtb;
 	
-public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,ArrayList<String> graphIdsList) {
+public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,List<String> graphIdsList) {
 	// TODO Auto-generated constructor stub
 	this.eng=eng;
 	this.phaseBox=phaseBox;
@@ -49,9 +46,8 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
  * ignored rules and ewbox (Errors and Warnings combo-box) selection 
  * @param tempList the result containing the validation messages after rungGroovy is called
  */
- void sortGroovyResultsAndPrint(ArrayList<Object> tempList){
+ void sortGroovyResultsAndPrint(List<Object> tempList){
 		
-		Iterator<Object> tempIterator = tempList.iterator();
 		int counter=0;
 		String tempSt,graphId,combinedStrings;
 		String[] tempArray;
@@ -64,9 +60,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 		
 		eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
 	    
-		while (tempIterator.hasNext()) {
-	         	
-			 Object tempObject = tempIterator.next();
+		for(Object tempObject:tempList){
 	         counter++;
 	         
 	         if( tempObject instanceof ArrayList){
@@ -154,12 +148,8 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	private void printGroovy(String tempSt,String graphId,int[] ijkew){
 		
 		VPUtility.prevHighlight=true;
-		VPathwayElement vpe=null;
-		PathwayElement pe; 
-		//String imageUrl=imageUrlE;
 		ImageIcon EWIcon=VPUtility.eIcon;
 		ValidatorPlugin.pth=eng.getActivePathway();
-        //int higco=0; 
         
         if(tempSt.startsWith("Warning")){
         	EWIcon=VPUtility.wIcon; ijkew[4]++;
@@ -208,7 +198,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	 GroovyObject loadGroovy(File schemaFile) throws IOException,InstantiationException,IllegalAccessException{
 		
 		System.out.println("reached inside loadGroovy method");
-		ArrayList<String[]> tempArray;//=new ArrayList<String[]>();
+		List<String[]> tempArray;//=new ArrayList<String[]>();
 		
   	   	GroovyClassLoader loader =  new GroovyClassLoader(getClass().getClassLoader());
   	   	Class<GroovyObject> groovyClass=null;
@@ -238,9 +228,8 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	   		System.out.println("phaseSupport method not present"); return groovyObject;
 	   	}
 	   	
-	   	Iterator<String[]> tempIterator= tempArray.iterator();
-	   	while(tempIterator.hasNext()){
-	   		phaseBox.addItem(VPUtility.phaseLabelInCBox+(tempIterator.next())[0]);
+	   	for(String[] phaseArr: tempArray){
+	   		phaseBox.addItem(VPUtility.phaseLabelInCBox+phaseArr[0]);
 	   		//System.out.println(tempIterator.next());
 	   	}
 
@@ -255,7 +244,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
 	 void runGroovy(GroovyObject groovyObject) throws CompilationFailedException{
 		
 		System.out.println("--------------groovy---------------");
-		ArrayList<Object> tempArray=new ArrayList<Object>();
+		List<Object> tempArray=new ArrayList<Object>();
 		//phaseBoxSelection=2;
   	     	   
   	   	Pathway argPw= eng.getActivePathway();
@@ -294,7 +283,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Arr
   	   	
   	   	else { // this code runs only when there are phases present in the groovy rule 
   	   		
-  	   		ArrayList<String[]> phaseTotal;//=new ArrayList<Object>();
+  	   		List<String[]> phaseTotal;//=new ArrayList<Object>();
   	   		phaseTotal=(ArrayList<String[]>)(groovyObject.invokeMethod("phaseSupport", null));
   	   		String methodNamesWithCommas=  ((String[])phaseTotal.get(phaseBox.getSelectedIndex()-1))[1];
   	   		String[] methodNamesArray= methodNamesWithCommas.split( ",\\s*" );

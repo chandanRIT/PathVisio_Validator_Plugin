@@ -4,8 +4,7 @@ import gov.nih.nci.lmp.mimGpml.MIMFormat;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -22,7 +21,7 @@ import org.pathvisio.model.GpmlFormat;
 import org.pathvisio.model.ObjectType;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
-import org.pathvisio.plugins.VPUtility.RuleNotSupportedException;
+import org.pathvisio.plugins.VPUtility.RuleSetNotSupportedException;
 import org.pathvisio.sbgn.SbgnFormat;
 import org.xml.sax.SAXException;
 
@@ -70,15 +69,15 @@ class SchematronValidator {
 		else if(VPUtility.schemaFileType.equalsIgnoreCase("mimVis")){
 			mimf.doExport(exportedPwFile, pwObject);
 			System.out.println("mimVis export called");
-		}else if(VPUtility.schemaFileType.equalsIgnoreCase("sbgn")){
+		}
+		else if(VPUtility.schemaFileType.equalsIgnoreCase("sbgn")){
 			sbgnf.doExport(exportedPwFile,pwObject);
 			System.out.println("sbgn export called");
 		}
-		
-
+	
 		//}
 		//doExport=false;
-		SaxonTransformer.setschemaFile(schemaFile);
+		tempSaxTrnfr.setschemaFile(schemaFile);
 		//System.out.println("after mimf export and b4 execute");
 		tempSaxTrnfr.produceSvrlAndThenParse();
 		System.out.println("after  produce and parsing SVRL");
@@ -94,7 +93,7 @@ class SchematronValidator {
 	 * @throws RuleNotSupportedException 
 	 */
 	void parseSchemaAndSetValues(SAXParser saxParser, Transformer tfr1, File schemaFile,
-			JFrame pvFrame, JTextField schemaTitleTag, JComboBox phaseBox) throws SAXException,IOException, RuleNotSupportedException{
+			JFrame pvFrame, JTextField schemaTitleTag, JComboBox phaseBox) throws SAXException,IOException, RuleSetNotSupportedException{
 
 		SchemaHandler mySHandler=new SchemaHandler();
 
@@ -114,29 +113,25 @@ class SchematronValidator {
 
 		VPUtility.schemaString=mySHandler.getTheTitle();
 		VPUtility.cutSchemaTitleString(VPUtility.schemaString,schemaTitleTag);
-		//schemaTitleTag.setCaretPosition(0);
 		//System.out.println("Schema Title - "+mySHandler.getTheTitle());
 
 		String dp = mySHandler.getDefaultPhase();
 		tfr1.setParameter("phase",dp);
 		//System.out.println("Default Phase - "+dp);
 
-		if( !( (VPUtility.schemaFileType=mySHandler.getType()).equalsIgnoreCase("gpml") || 
-				VPUtility.schemaFileType.equalsIgnoreCase("mimVis") || 
-				VPUtility.schemaFileType.equalsIgnoreCase("sbgn")) )
-			throw new VPUtility.RuleNotSupportedException(VPUtility.schemaFileType);
+		if( !( VPUtility.SUPPORTED_RULESETS.contains((VPUtility.schemaFileType=mySHandler.getType()).toLowerCase()) ) )
+			throw new VPUtility.RuleSetNotSupportedException(VPUtility.schemaFileType);
 		//System.out.println("Schema Type = "+mySHandler.getType());
 
 		//setting groups in the phase-box 
 		VPUtility.resetPhaseBox(phaseBox);
-		ArrayList<String> phasesList=mySHandler.getPhases();
-		Iterator<String> tempIterator= phasesList.iterator();
-		while(tempIterator.hasNext()){
-			phaseBox.addItem(VPUtility.phaseLabelInCBox+tempIterator.next());
+		List<String> phasesList=mySHandler.getPhases();
+		for(String pText:phasesList){
+			phaseBox.addItem(VPUtility.phaseLabelInCBox+pText);
 			//System.out.println(tempIterator.next());
 		}
 
-		// to determine the index of the phaseBox based on value of default Phase(dp) 
+		// to set the selected index of the phaseBox  to default Phase(dp) 
 		VPUtility.changeOfSchema=true;
 		int phaseIndex;
 		if( (phaseIndex=phasesList.indexOf(dp))!=-1 ){
@@ -159,25 +154,23 @@ class SchematronValidator {
 	 * @param ignoredElements list for "Ignore Element"
 	 * @param ignoredSingleError list for "Ignore this Error/Warning"
 	 */
-	void printSchematron(Engine eng, ArrayList<String> graphIdsList, ArrayList<String> ignoredErrorTypesList,
-			ArrayList<String> globallyIgnoredEWType,ArrayList<String> ignoredElements,
-			ArrayList<String> ignoredSingleError){
+	void printSchematron(Engine eng, List<String> graphIdsList, List<String> ignoredErrorTypesList,
+			List<String> globallyIgnoredEWType,List<String> ignoredElements,
+			List<String> ignoredSingleError){
 
-		int highlightCount=0;
-		VPUtility.prevHighlight=true;
-		String tempSt,combined,tempsubSt;
-		ValidatorPlugin.pth=eng.getActivePathway();
-		Iterator<String> tempIterator = (ValidatorPlugin.saxTfr.diagnosticReference).iterator();
-		int i=0,j=0,k=0,eCount=0,wCount=0;
+		int highlightCount=0,eCount=0,wCount=0;
+		int[] ijk = new int[3]; 
+		String combined,tempsubSt;
 		ImageIcon EWIcon=VPUtility.eIcon; 
+		VPUtility.prevHighlight=true;
+		ValidatorPlugin.pth=eng.getActivePathway();
 		
 		//reset
 		vPlugin.clearTableRows();
 		graphIdsList.clear();
 		eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
 
-		while (tempIterator.hasNext()) {
-			tempSt=tempIterator.next();
+		for(String tempSt:ValidatorPlugin.saxTfr.getHandler().getDiagnosticReference()){
 			combined=tempSt;
 			String[] splitString=tempSt.split("@@");
 			tempSt=splitString[1];
@@ -194,17 +187,10 @@ class SchematronValidator {
 				EWIcon=VPUtility.eIcon;eCount++;
 			}
 
-			if(VPUtility.prevSelect==0){
-				vPlugin.mytbm.addRow(new Object[]{EWIcon,++i +".) "+tempSt});
+			if(VPUtility.prevSelect==0 || ( VPUtility.prevSelect==1 && tempSt.startsWith("Error") ) ||
+					( VPUtility.prevSelect==2 && tempSt.startsWith("Warning") ) ){
+				vPlugin.mytbm.addRow(new Object[]{EWIcon,++ijk[VPUtility.prevSelect] +".) "+tempSt});
 				//System.out.println("prevsel 0");
-			}
-			else if(VPUtility.prevSelect==1 && tempSt.startsWith("Error")){
-				//System.out.println("prevsel 1");
-				vPlugin.mytbm.addRow(new Object[]{EWIcon,++j +".) "+tempSt});
-			}
-			else if(VPUtility.prevSelect==2 && tempSt.startsWith("Warning")){
-				//System.out.println("prevsel 2");
-				vPlugin.mytbm.addRow(new Object[]{EWIcon,++k +".) "+tempSt});
 			}
 			else{
 				//System.out.println("not passed"); 
@@ -230,25 +216,27 @@ class SchematronValidator {
 		//refreshing the pathway , so that all the nodes highlighted appear highlighted
 		eng.getActiveVPathway().redraw();
 
-		if( (VPUtility.prevSelect==0 && i!=0) || (VPUtility.prevSelect==1 && j!=0) || (VPUtility.prevSelect==2 && k!=0) ){ 
+		if( ijk[VPUtility.prevSelect]!=0 ){ 
 			VPUtility.allIgnored=false;// this boolean required for disabling/enabling the right mouse click menuitems
 		}
 		else{ 
+			String zeroRowMessage=null;
+			Object zeroRowImage=null;
 			switch(VPUtility.prevSelect){
 			case 0:
-				vPlugin.mytbm.addRow(new Object[]{"","No Errors and Warnings"});
+				zeroRowImage=""; zeroRowMessage="No Errors and Warnings";
 				break;
 			case 1:	
-				vPlugin.mytbm.addRow(new Object[]{VPUtility.eIcon,"No Errors"});
+				zeroRowImage=VPUtility.eIcon; zeroRowMessage="No Errors";
 				break;
 			case 2:	
-				vPlugin.mytbm.addRow(new Object[]{VPUtility.wIcon,"No Warnings"});
+				zeroRowImage=VPUtility.wIcon; zeroRowMessage="No Warnings";
 				break;
 			}
+			vPlugin.mytbm.addRow(new Object[]{zeroRowImage,zeroRowMessage});
 			VPUtility.allIgnored=true;
 			vPlugin.jtb.setEnabled(false);
 		}
 	}
-
 
 }

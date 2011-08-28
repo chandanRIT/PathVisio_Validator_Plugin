@@ -27,7 +27,8 @@ import org.pathvisio.view.VPathwayListener;
 class VPUtility {
 
 	static final String USER_DIR = System.getProperty("user.home"),
-	rulesetTitleLabel="Title: ",phaseLabelInCBox="Group: ";
+	rulesetTitleLabel="Title: ",phaseLabelInCBox="Group: ",
+	SUPPORTED_RULESETS = "mimvis,sbgn,gpml"; // RuleSetNotSupported Exception uses this string to check for supported rulesets 
 	static ImageIcon eIcon;
 	static ImageIcon wIcon;
 	static boolean prevHighlight=true;
@@ -48,7 +49,6 @@ class VPUtility {
 	{
 		LAST_OPENED_SCHEMA_DIR (USER_DIR),
 		CHECK_BOX_STATUS ("0"),
-		APPLY_IGNORED_RULES_CHECKBOX ("0"),
 		SVRL_FILE (USER_DIR+ System.getProperty("file.separator")+"svrlOutput.svrl"),
 		GLOBALLY_IGNORED_RULES ("");
 
@@ -171,9 +171,9 @@ class VPUtility {
 	/**
 	 * Exception class for the case when the ruleset being used for validation is not yet supported.
 	 */
-	static class RuleNotSupportedException extends Exception{
+	static class RuleSetNotSupportedException extends Exception{
 		String rulesetType;
-		RuleNotSupportedException(String rulesetType){
+		RuleSetNotSupportedException(String rulesetType){
 			this.rulesetType=rulesetType;
 		}
 	}

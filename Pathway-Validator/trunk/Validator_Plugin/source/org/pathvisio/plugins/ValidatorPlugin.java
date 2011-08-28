@@ -13,6 +13,7 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -46,7 +47,7 @@ import org.pathvisio.gui.swing.PvDesktop;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.plugin.Plugin;
-import org.pathvisio.plugins.VPUtility.RuleNotSupportedException;
+import org.pathvisio.plugins.VPUtility.RuleSetNotSupportedException;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.sbgn.SbgnFormat;
 import org.pathvisio.sbgn.SbgnShapes;
@@ -63,7 +64,7 @@ import groovy.lang.GroovyObject;
  * 
  */
 public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventListener,
-ItemListener, ComponentListener
+	ItemListener, ComponentListener
 {
 	PvDesktop desktop;
 	private static File  schemaFile; // the file object pointing to the ruleset chosen from the chooser
@@ -84,7 +85,7 @@ ItemListener, ComponentListener
 	final JLabel wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
 	static final JTextField schemaTitleTag= new JTextField(VPUtility.rulesetTitleLabel);
 	private static GroovyObject grvyObject;
-	static ArrayList<Object> globGroovyResult;
+	static List<Object> globGroovyResult;
 	final VPUtility.MyTableModel mytbm=new VPUtility.MyTableModel();
 	final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
 	private GroovyValidator groovyValidator;
@@ -102,35 +103,14 @@ ItemListener, ComponentListener
 	};
 
 	private VPathwayListener vpwListener = new VPUtility.VPWListener(jtb);
-	final ArrayList<String> graphIdsList = new ArrayList<String>();
-	ArrayList<String> ignoredErrorTypesList;
-	ArrayList<String> ignoredElements;
-	ArrayList<String> ignoredSingleError;
-	ArrayList<String> globallyIgnoredEWType;
+	final List<String> graphIdsList = new ArrayList<String>();
+	List<String> ignoredErrorTypesList, ignoredElements, ignoredSingleError, globallyIgnoredEWType;
 	JPopupMenu popup;
-	JMenu subMenu4;
-	JMenu subMenu5;
-	JMenu subMenu6;
-	JMenu subMenu8;
+	JMenu subMenu4,subMenu5, subMenu6, subMenu8;
 	int[] checkedUnchecked;
 
 	public ValidatorPlugin(){
-
 		System.out.println("init callled");
-		//errorCounter=0;prevSelect=0;
-		//jta=new JEditorPane("text/html","");
-		//schemaFile=null;
-		//exportedPathwayFile=null;
-		//private JPanel mySideBarPanel ;
-		//private JScrollPane scrollPane;
-		//col1=new Color(255,0,0);col2=new Color(0,0,255);
-		//private final  SchematronTask st=new SchematronTask();
-		//saxTfr = new SaxonTransformer();
-		//mimf=new MIMFormat();
-		//chooser=new JFileChooser();
-		//valbutton=new JButton("Validate");
-		//chooseSchema=new JButton("Choose Ruleset"); 
-		//helloAction = new HelloAction();
 	}
 
 	public void init(PvDesktop desktop) 
@@ -372,7 +352,8 @@ ItemListener, ComponentListener
 				pk.setTaskName("Validating pathway");
 
 				try{
-					schematronValidator.exportAndValidate(tempSaxTrnfr, mimf, sbgnf, eng.getActivePathway(), exportedPathwayFile, schemaFile);
+					schematronValidator.exportAndValidate(tempSaxTrnfr, mimf,
+							sbgnf, eng.getActivePathway(), exportedPathwayFile, schemaFile);
 				}
 				catch (Exception e1) { //changed from ConverterException to catch all the errors
 					//System.out.println("Exception in validatepathway method--"+e1.getMessage());
@@ -394,7 +375,8 @@ ItemListener, ComponentListener
 	}
 
 	/**
-	 * a method which decides , whether to call Schematron or Groovy's print method
+	 * a method which decides , whether to call Schematron or Groovy's print 
+	 * method based on the ruleset(schemaFile) selected
 	 */
 	void printItOnTable(){
 		if(!VPUtility.schemaFileType.equalsIgnoreCase("groovy"))
@@ -443,7 +425,7 @@ ItemListener, ComponentListener
 	
 	/**
 	 * It resets the state of the UI elements (to default state)
-	 * @param resetSchemaTitleAlso flag based on which phaseBox and schemaTitleTag are reset. 
+	 * @param resetSchemaTitleAlso flag based on which phaseBox and schemaTitleTag are also reset. 
 	 */
 	void resetUI(boolean resetSchemaTitleAlso){
 		clearTableRows();
@@ -480,11 +462,13 @@ ItemListener, ComponentListener
 					System.out.println("This thread for saxtranform runs");
 					//if(saxParser==null)
 					saxParser=SAXParserFactory.newInstance().newSAXParser();
-					saxTfr= new SaxonTransformer(saxParser);SaxonTransformer.setInputFile(exportedPathwayFile);
+					saxTfr= new SaxonTransformer(saxParser);
+					saxTfr.setInputFile(exportedPathwayFile);
+					
 					PreferenceManager.init();
 					SbgnShapes.registerShapes();
-					mimf=new MIMFormat();
 					sbgnf = new SbgnFormat(); 
+					mimf=new MIMFormat();
 					
 					System.out.println("This thread for saxtranform completes its run");
 				} catch (TransformerConfigurationException e1) {
@@ -564,7 +548,7 @@ ItemListener, ComponentListener
 	 */
 	private void chooseRulesetButtonListener() throws InterruptedException,
 		IOException,IllegalAccessException,InstantiationException,
-		SAXException,CompilationFailedException,ClassNotFoundException, RuleNotSupportedException{
+		SAXException,CompilationFailedException,ClassNotFoundException, RuleSetNotSupportedException{
 		
 		//System.out.println("choose schema button pressed");
 		Thread threadForSax=null;
@@ -607,7 +591,7 @@ ItemListener, ComponentListener
 				svrlOutputChoose.setEnabled(true);
 				if(schematronValidator == null) 
 					schematronValidator=new SchematronValidator(vPlugin);
-				schematronValidator.parseSchemaAndSetValues(saxParser, saxTfr.transformer1, schemaFile,
+				schematronValidator.parseSchemaAndSetValues(saxParser, saxTfr.getTransformer1(), schemaFile,
 						desktop.getFrame(), schemaTitleTag, phaseBox);
 			}
 			// setting/clearing the rightclick related stuff
@@ -662,7 +646,7 @@ ItemListener, ComponentListener
 			resetUI(true);
 			e.printStackTrace();
 		}
-		catch(VPUtility.RuleNotSupportedException e){
+		catch(VPUtility.RuleSetNotSupportedException e){
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
 					"Ruleset: "+e.rulesetType+" is not yet supported." ,"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
@@ -762,9 +746,9 @@ ItemListener, ComponentListener
 		else if("svrlOutputChoose".equals(e.getActionCommand())){
 
 			if( ((JCheckBox)e.getSource()).isSelected() ){
-				SaxonTransformer.setProduceSvrl(true); 
+				saxTfr.setProduceSvrl(true); 
 			}else 
-				SaxonTransformer.setProduceSvrl(false);
+				saxTfr.setProduceSvrl(false);
 		}
 
 	}
@@ -792,10 +776,10 @@ ItemListener, ComponentListener
 				String temp=( (String)arg0.getItem() ).substring(7);
 
 				if(temp.equals("All")){
-					saxTfr.transformer1.setParameter("phase", "#ALL" );
+					saxTfr.getTransformer1().setParameter("phase", "#ALL" );
 				}
 				else{
-					saxTfr.transformer1.setParameter("phase", temp );
+					saxTfr.getTransformer1().setParameter("phase", temp );
 				}
 				//System.out.println("item selected --"+temp );
 			}
