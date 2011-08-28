@@ -7,10 +7,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn; 
 import javax.swing.table.TableColumnModel; 
 
-import org.pathvisio.model.PathwayElement;
 
 import java.awt.Component; 
-import java.util.ArrayList;
 import java.util.Enumeration; 
 import java.util.HashMap; 
 import java.util.Map; 

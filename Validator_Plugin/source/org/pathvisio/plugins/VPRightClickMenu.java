@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -271,14 +272,14 @@ public class VPRightClickMenu implements ActionListener{
 	 * @param subMenu the subMenu from which the items were selected to be reconsidered 
 	 * @param ignoredList the list corresponding to the subMenu
 	 */
-	void reConsiderTheIgnored(JMenu subMenu,ArrayList<String> ignoredList){
+	void reConsiderTheIgnored(JMenu subMenu,List<String> ignoredList){
 		int lengthOfIgnored=subMenu.getMenuComponentCount();
 		int index=lengthOfIgnored-1;
 		String subMenuText=subMenu.getText();
 		//System.out.println("total in submenu4 "+subMenu4.getMenuComponentCount());
 		while(index>1){
 			if( ( (JCheckBoxMenuItem)subMenu.getMenuComponent(index) ).getState() ){
-				ignoredList.remove(index-2);//since index has min of 2
+				ignoredList.remove(index-2);//since submenu index has min of 2 (0,1 are not removed)
 				subMenu.remove(index);
 			}
 			index--;
@@ -307,7 +308,7 @@ public class VPRightClickMenu implements ActionListener{
 	 * @param refreshTable indicates whether to add to the ignList and refresh the messages in the table or not,
 	 * set it to false when using this method in a loop.
 	 */
-	void addToSubMenu(JMenu subMenu,String EWMtext, ArrayList<String> ignList, boolean refreshTable){ // Error/Warning message Text : EWMText
+	void addToSubMenu(JMenu subMenu,String EWMtext, List<String> ignList, boolean refreshTable){ // Error/Warning message Text : EWMText
 		String subMenuText=subMenu.getText();
 		if(refreshTable)
 			ignList.add(EWMtext);

@@ -1,6 +1,7 @@
 package org.pathvisio.plugins;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,7 +16,7 @@ public class SchemaHandler extends DefaultHandler {
 	private String theTitle; // schema's title
 	private String defaultPhase;
 	private String type; // schema's type
-	private ArrayList<String> phases = new ArrayList<String>();
+	private List<String> phases = new ArrayList<String>();
 	private StringBuilder chars = new StringBuilder();
 	private int iso_ns_counter = 0;// <iso:ns> tag counter
 
@@ -74,11 +75,11 @@ public class SchemaHandler extends DefaultHandler {
 
 	// getters and setters are below
 
-	public void setPhases(ArrayList<String> phases) {
+	public void setPhases(List<String> phases) {
 		this.phases = phases;
 	}
 
-	public ArrayList<String> getPhases() {
+	public List<String> getPhases() {
 		return phases;
 	}
 

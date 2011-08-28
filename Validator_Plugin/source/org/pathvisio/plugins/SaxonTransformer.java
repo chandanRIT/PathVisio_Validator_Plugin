@@ -2,11 +2,8 @@ package org.pathvisio.plugins;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -30,29 +27,12 @@ import org.xml.sax.SAXException;
  */
 public class SaxonTransformer {
 
-	//private static String svrl;
-	private static File schemaFile, inputFile, svrlFile;
-
-	SAXParser saxParser;
+	private File schemaFile, inputFile, svrlFile;
+	private SAXParser saxParser;
 	private SVRLHandler handler ;
 	private TransformerFactory factory;// = new net.sf.saxon.TransformerFactoryImpl();
-	Transformer transformer1;
-	private static boolean produceSvrl = false;
-
-	/**
-	 * An ArrayList to store (String) message of diagnostic-reference found.
-	 */
-	public final ArrayList<String> diagnosticReference = new ArrayList<String>();
-
-	/**
-	 * An ArrayList to store (String) message of failed assertion found.
-	 */
-	private final ArrayList<String> failedAssertions = new ArrayList<String>();
-
-	/**
-	 * An ArrayList to store (String) message of successful report found.
-	 */
-	private final ArrayList<String> successfulReports = new ArrayList<String>();
+	private Transformer transformer1;
+	private boolean produceSvrl = false;
 
 	public SaxonTransformer(SAXParser saxParser) throws TransformerConfigurationException {
 		factory = new net.sf.saxon.TransformerFactoryImpl();
@@ -63,40 +43,26 @@ public class SaxonTransformer {
 		this.saxParser=saxParser;
 	}
 
-	public static void setProduceSvrl(boolean produceSvrl) {
-		SaxonTransformer.produceSvrl = produceSvrl;
+	public void setProduceSvrl(boolean produceSvrl) {
+		this.produceSvrl = produceSvrl;
 	}
 
-	public static boolean getProduceSvrl() {
-		return produceSvrl;
+	public void setschemaFile(File schemaFile) {
+		this.schemaFile = schemaFile;
 	}
 
-	public static File getSvrlFile() {
-		return svrlFile;
+	public void setInputFile(File inputFile) {
+		this.inputFile = inputFile;
 	}
 
-	public static void setSvrlFile(File svrlFile) {
-		SaxonTransformer.svrlFile = svrlFile;
+	public Transformer getTransformer1() {
+		return transformer1;
 	}
 
-	public static void setschemaFile(File schemaFile) {
-		SaxonTransformer.schemaFile = schemaFile;
+	public SVRLHandler getHandler() {
+		return handler;
 	}
-
-	public static File getschemaFile() {
-		return schemaFile;
-	}
-
-	public static void setInputFile(File inputFile) {
-		SaxonTransformer.inputFile = inputFile;
-	}
-
-	public static File getInputFile() {
-
-		return inputFile;
-
-	}
-
+	
 	/*public InputStream[] getFiles() {
 
 		// String isoName = "/XSLs/iso_svrl_for_xslt2.xsl";
@@ -105,8 +71,8 @@ public class SaxonTransformer {
 				getClass().getResourceAsStream("/resources/mimschema.sch"),
 				getClass().getResourceAsStream("/resources/example.mimml") };
 		return in;
-	}
-*/
+	}*/
+	
 	/*public URL getUrlToIso() {
 
 		return getClass().getResource("/iso_svrl_for_xslt2.xsl");
@@ -127,10 +93,6 @@ public class SaxonTransformer {
 		// String inputFileSystemId = new
 		// File(args[1]).toURL().toExternalForm();
 		
-		failedAssertions.clear();
-		successfulReports.clear();
-		diagnosticReference.clear();
-
 		// InputStream[] in=getFiles();
 
 		Source schemaSource = new StreamSource(schemaFile);
@@ -149,14 +111,13 @@ public class SaxonTransformer {
 				new StringReader(sw1.toString())));
 		StringWriter sw2 = new StringWriter();
 		Result result2 = new StreamResult(sw2);
-
 		transformer2.transform(inputSource, result2);
 		// to produce the svrl output in a file in the user's preferred directory
 		//if(svrlFile==null)
 			svrlFile = new File(PreferenceManager.getCurrent()
 					.get(VPUtility.SchemaPreference.SVRL_FILE));
 
-		if (getProduceSvrl()) {
+		if (produceSvrl) {
 			transformer2.transform(inputSource, new StreamResult(svrlFile));
 			// produceSvrl=false;
 		}
@@ -167,10 +128,8 @@ public class SaxonTransformer {
 		
 		System.out.println("svrl cretaed");
 		// System.out.println(sw2.toString());
-		
 		parseSVRL(removeXMLheader(sw2.toString()));
 		// printMessages();
-
 	}
 
 	/**
@@ -201,17 +160,21 @@ public class SaxonTransformer {
 	private void parseSVRL(String svrl) throws IOException, SAXException,
 			ParserConfigurationException {
 
-		if(handler==null) 
-			handler = new SVRLHandler(failedAssertions,
-				successfulReports, diagnosticReference);
+		//if(handler==null) 
+			handler = new SVRLHandler();
+		
+		/*else{
+			//reset the arraylists in the handler
+			handler.getDiagnosticReference().clear();
+			handler.getFailedAssertions().clear();
+			handler.getSuccessfulReports().clear();
+		}*/
 		// System.out.println(this.svrl);
 		InputSource is = new InputSource(
 				new StringReader(svrl));
 		is.setEncoding("UTF-16");
-		
 		//if(saxParser==null)saxParser= SAXParserFactory.newInstance().newSAXParser();
 		saxParser.parse(is, handler);
-
 	}
 
 	/*private void printMessages() {
@@ -221,7 +184,5 @@ public class SaxonTransformer {
 			// Logger.log.debug(tempIterator.next());
 			System.out.println(tempIterator.next());
 		}
-
-	}
-*/
+	}*/
 }

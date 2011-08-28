@@ -40,6 +40,7 @@ import java.util.ArrayList;
  * @author Willy Ekasalim
  * @version 9 February 2007
  */
+import java.util.List;
 
 /**
  * @author Xin Chen
@@ -126,17 +127,17 @@ public final class SVRLHandler extends DefaultHandler {
 	/**
 	 * An ArrayList to store (String) message of failed assertion found.
 	 */
-	private ArrayList<String> failedAssertions;
+	private final List<String> failedAssertions= new ArrayList<String>();
 
 	/**
 	 * An ArrayList to store (String) message of diagnostic-reference found.
 	 */
-	private ArrayList<String> diagnosticReference;
+	private final List<String> diagnosticReference=new ArrayList<String>();
 
 	/**
 	 * An ArrayList to store (String) message of successful reports found.
 	 */
-	private ArrayList<String> successfulReports;
+	private final List<String> successfulReports=new ArrayList<String>();
 
 	/***
 	 * indicate that the current parsed element is either FAILED_ASSERT_ELT or SUCCESSFUL_REPORT_ELT.
@@ -151,16 +152,18 @@ public final class SVRLHandler extends DefaultHandler {
 	public SVRLHandler() {
 	}
 
-	/**
-	 * Constructor for SVRLHandler that require reference of failedAssertions and successfulReports.
-	 * @param failedAssertions & successfulReports to store validation message result.
-	 */
-	public SVRLHandler(ArrayList<String> failedAssertions, ArrayList<String> successfulReports, ArrayList<String> diagnosticReference) {
-		this.failedAssertions = failedAssertions;
-		this.successfulReports = successfulReports;
-		this.diagnosticReference=diagnosticReference;
+	public List<String> getFailedAssertions() {
+		return failedAssertions;
 	}
 
+	public List<String> getDiagnosticReference() {
+		return diagnosticReference;
+	}
+
+	public List<String> getSuccessfulReports() {
+		return successfulReports;
+	}
+	
 	// Handler methods --------------------------------------------------------------------------------
 
 	/**
