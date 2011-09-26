@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mimVis:Diagram width="682.0" height="298.0" xmlns:mimVis="http://lmp.nci.nih.gov/mim/mimVisLevel1">
+    <mimVis:EntityGlyph visId="ba9b4" centerX="622.0" centerY="257.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="CLOCK">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="ffad4" centerX="239.0" centerY="134.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="E-Box">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="fea07" centerX="322.0" centerY="134.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="Per">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="cf7d8" centerX="459.0" centerY="134.0" width="60.0" height="20.0" color="000000" groupRef="f4828" type="SimplePhysicalEntity" displayName="PER">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="cd865" centerX="110.0" centerY="134.0" width="132.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="Per Regulatory Region">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="b5f14" centerX="459.0" centerY="176.0" width="60.0" height="20.0" color="000000" groupRef="f4828" type="SimplePhysicalEntity" displayName="CRY">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="c806e" centerX="239.0" centerY="176.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="E-Box">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="a1a80" centerX="322.0" centerY="176.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="Cry">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="ebbc8" centerX="110.0" centerY="176.0" width="132.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="Cry Regulatory Region">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="a27e6" centerX="508.00000000000006" centerY="73.33333333333334" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="CK1">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="a5197" centerX="549.333333333333" centerY="134.0" width="15.0" height="15.0" color="000000" type="SourceSink">
+        <mimVis:GenericProperty key="ShapeType" value="SourceSink"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="f7dd0" centerX="548.9999999999994" centerY="176.0" width="15.0" height="15.0" color="000000" type="SourceSink">
+        <mimVis:GenericProperty key="ShapeType" value="SourceSink"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="ce08b" centerX="240.0" centerY="216.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="E-Box">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="b1f52" centerX="323.0" centerY="216.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="Ccgs">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="f0764" centerX="111.0" centerY="216.0" width="132.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="CCGs Regulatory Region">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="d8956" centerX="459.0" centerY="216.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="CCG">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="a0a34" centerX="460.0" centerY="258.0" width="60.0" height="20.0" color="000000" type="SimplePhysicalEntity" displayName="BMAL1">
+        <mimVis:GenericProperty key="NumberOfAnchors" value="3"/>
+        <mimVis:GenericProperty key="ShapeType" value="RoundedRectangle"/>
+    </mimVis:EntityGlyph>
+    <mimVis:EntityGlyph visId="dbc1a" position="0.16504854368932037" color="000000" type="ExplicitComplex"/>
+    <mimVis:EntityGlyph visId="d64b8" position="0.7567567567567568" color="000000" type="ExplicitComplex"/>
+    <mimVis:EntityGlyph visId="f05d4" position="0.29785116063504197" color="000000" type="ExplicitComplex"/>
+    <mimVis:EntityGlyph visId="f4828" type="ImplicitComplex"/>
+    <mimVis:InteractionGlyph visId="id903ba82b" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="592.0" y="257.0" arrowHead="NonCovalentReversibleBinding" visRef="ba9b4" relX="-1.0" relY="0.0"/>
+        <mimVis:Point x="490.0" y="258.0" arrowHead="NonCovalentReversibleBinding" visRef="a0a34" relX="1.0" relY="0.0"/>
+        <mimVis:anchorRef>dbc1a</mimVis:anchorRef>
+        <mimVis:anchorRef>d64b8</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="idb49c12cf" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="352.0" y="134.0" arrowHead="Line" visRef="fea07" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="429.0" y="134.0" arrowHead="ProductionWithoutLoss" visRef="cf7d8" relX="-1.0" relY="0.0"/>
+        <mimVis:anchorRef>d4e61</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id2486f19a" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="176.0" y="134.0" arrowHead="FirstFeature" visRef="cd865" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="209.0" y="134.0" arrowHead="Line" visRef="ffad4" relX="-1.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id3e285572" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="269.0" y="134.0" arrowHead="Line" visRef="ffad4" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="292.0" y="134.0" arrowHead="NextFeature" visRef="fea07" relX="-1.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="da382" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="352.0" y="176.0" arrowHead="Line" visRef="a1a80" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="429.0" y="176.0" arrowHead="ProductionWithoutLoss" visRef="b5f14" relX="-1.0" relY="0.0"/>
+        <mimVis:anchorRef>f1995</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="d246a" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="269.0" y="176.0" arrowHead="Line" visRef="c806e" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="292.0" y="176.0" arrowHead="NextFeature" visRef="a1a80" relX="-1.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="f32f1" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="176.0" y="176.0" arrowHead="FirstFeature" visRef="ebbc8" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="209.0" y="176.0" arrowHead="Line" visRef="c806e" relX="-1.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id54a3d31f" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="575.0" y="257.0" arrowHead="Line" visRef="dbc1a" relX="0.0" relY="0.0"/>
+        <mimVis:Point x="470.57142857142856" y="30.0"/>
+        <mimVis:Point x="366.14285714285717" y="134.0" arrowHead="Stimulation" visRef="d4e61" relX="0.0" relY="0.0"/>
+        <mimVis:anchorRef>aeee1</mimVis:anchorRef>
+        <mimVis:anchorRef>c57ac</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="idc2e7f914" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="382.0" y="176.0" arrowHead="Stimulation" visRef="f1995" relX="0.0" relY="0.0"/>
+        <mimVis:Point x="382.4" y="122.0"/>
+        <mimVis:Point x="382.0" y="97.02459016393442"/>
+        <mimVis:Point x="366.14285714285717" y="72.04918032786884" arrowHead="BranchingLeft" visRef="aeee1" relX="0.0" relY="0.0"/>
+        <mimVis:anchorRef>b13b1</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id85e58dde" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="489.0" y="134.0" arrowHead="Line" visRef="cf7d8" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="541.8333129882812" y="134.0" arrowHead="StochiometricConversion" visRef="a5197" relX="-1.0" relY="0.0"/>
+        <mimVis:anchorRef>cb3da</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="c4388" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="489.0" y="176.0" arrowHead="Line" visRef="b5f14" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="541.5" y="176.0" arrowHead="StochiometricConversion" visRef="f7dd0" relX="-1.0" relY="0.0"/>
+        <mimVis:anchorRef>f4fa9</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id99ce31b9" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="508.0" y="83.33332824707031" arrowHead="Line" visRef="a27e6" relX="0.0" relY="1.0"/>
+        <mimVis:Point x="507.99999268348296" y="134.0" arrowHead="Stimulation" visRef="cb3da" relX="0.0" relY="0.0"/>
+        <mimVis:anchorRef>ec80f</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id596b1ce7" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="524.0000000000003" y="176.0" arrowHead="Stimulation" visRef="f4fa9" relX="0.0" relY="0.0"/>
+        <mimVis:Point x="521.3333333333333" y="122.66666666666667"/>
+        <mimVis:Point x="524.6666666666666" y="113.41095890410958"/>
+        <mimVis:Point x="507.99999268348296" y="111.48469120519047" arrowHead="BranchingLeft" visRef="ec80f" relX="0.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="e44b7" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="270.0" y="216.0" arrowHead="Line" visRef="ce08b" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="293.0" y="216.0" arrowHead="NextFeature" visRef="b1f52" relX="-1.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="b4992" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="177.0" y="216.0" arrowHead="FirstFeature" visRef="f0764" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="210.0" y="216.0" arrowHead="Line" visRef="ce08b" relX="-1.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="f3f2b" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="353.0" y="216.0" arrowHead="Line" visRef="b1f52" relX="1.0" relY="0.0"/>
+        <mimVis:Point x="429.0" y="216.0" arrowHead="ProductionWithoutLoss" visRef="d8956" relX="-1.0" relY="0.0"/>
+        <mimVis:anchorRef>d3b52</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="e3c99" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="396.0" y="216.0" arrowHead="Stimulation" visRef="d3b52" relX="0.0" relY="0.0"/>
+        <mimVis:Point x="396.0" y="151.0"/>
+        <mimVis:Point x="396.0" y="127.98948926402664"/>
+        <mimVis:Point x="382.0" y="99.25187885505703" arrowHead="BranchingLeft" visRef="b13b1" relX="0.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id63d6ad41" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="515.0540540540541" y="258.0" arrowHead="NonCovalentReversibleBinding" visRef="d64b8" relX="0.0" relY="0.0"/>
+        <mimVis:Point x="496.52702702702703" y="204.0"/>
+        <mimVis:Point x="478.0" y="194.0" arrowHead="NonCovalentReversibleBinding" visRef="f4828" relX="0.5" relY="1.0"/>
+        <mimVis:anchorRef>f05d4</mimVis:anchorRef>
+    </mimVis:InteractionGlyph>
+    <mimVis:InteractionGlyph visId="id81989726" color="000000">
+        <mimVis:GenericProperty key="ConnectorType" value="Elbow"/>
+        <mimVis:Point x="515.0540540540541" y="227.90093271312372" arrowHead="Line" visRef="f05d4" relX="0.0" relY="0.0"/>
+        <mimVis:Point x="546.0" y="228.0"/>
+        <mimVis:Point x="575.0" y="228.0" arrowHead="Inhibition" visRef="c57ac" relX="0.0" relY="0.0"/>
+    </mimVis:InteractionGlyph>
+    <mimVis:Anchor visId="d4e61" position="0.1836734693877551" type="Invisible"/>
+    <mimVis:Anchor visId="f1995" position="0.3896103896103896" type="Invisible"/>
+    <mimVis:Anchor visId="aeee1" position="0.8852459016393442" type="Invisible"/>
+    <mimVis:Anchor visId="c57ac" position="0.05371791479227308" type="Invisible"/>
+    <mimVis:Anchor visId="b13b1" position="0.6405928247564535" type="Invisible"/>
+    <mimVis:Anchor visId="cb3da" position="0.35962145110410304" type="Invisible"/>
+    <mimVis:Anchor visId="f4fa9" position="0.6666666666666738" type="Invisible"/>
+    <mimVis:Anchor visId="ec80f" position="0.5556190141463837" type="Invisible"/>
+    <mimVis:Anchor visId="d3b52" position="0.5657894736842105" type="Invisible"/>
+    <mimVis:MimBio>
+        <mimVis:title>Circadian Rhythm</mimVis:title>
+        <mimVis:identifier>20101103</mimVis:identifier>
+    </mimVis:MimBio>
+</mimVis:Diagram>

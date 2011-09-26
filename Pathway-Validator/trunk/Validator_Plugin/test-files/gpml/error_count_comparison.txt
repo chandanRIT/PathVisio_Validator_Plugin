@@ -1,0 +1,38 @@
+---
+file: 40489
+  - groovy: 
+    pass: 2
+    fail: 7
+  - schematron: 
+    pass: 2
+    fail: 7
+file: 43426
+  - groovy: 
+    pass: 1
+    fail: 4
+  - schematron: 
+    pass: 1
+    fail: 4
+file: 41299
+  - groovy: 
+    pass: 4
+    fail: 5
+  - schematron: 
+    pass: 4
+    fail: 5
+file: 41053
+  - groovy: 
+    pass: 1
+    fail: 10
+  - schematron: 
+    pass: 1
+    fail: 10
+file: 41084
+  - groovy: 
+    pass: 2
+    fail: 5
+  - schematron: 
+    pass: 2
+    fail: 5
+
+
