@@ -4,44 +4,62 @@
 Schematron validation for GPML Best Practices
 
 @author Augustin Luna
-@version 3 August 2011
 -->
 <iso:schema    
   xmlns:iso="http://purl.oclc.org/dsdl/schematron"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   defaultPhase="#ALL"
-  schemaVersion="0.1.2">
+  schemaVersion="0.1.3">
      
 	<iso:ns prefix="gpml" uri="http://genmapp.org/GPML/2010a"/>
 	<iso:ns prefix="bp" uri="http://www.biopax.org/release/biopax-level3.owl#"/>
 	
-	<iso:title>GPML Best Practices</iso:title>
+	<iso:title>Schematron - GPML Best Practices</iso:title>
+
+	<iso:phase id="pathway-level-checks">
+		<iso:active pattern="check-title"/>	
+		<iso:active pattern="check-author"/>	
+		<iso:active pattern="check-organism"/>	
+		<iso:active pattern="check-title"/>	
+	</iso:phase>
 
 	<!-- Check that the Name attribute is present and not empty -->	
 	<iso:pattern name="check-title" id="check-title">
 		<iso:rule context="gpml:Pathway">
-			<iso:assert test="@Name and not(@Name='')" role="error">Diagrams should have a title.</iso:assert>
+			<iso:assert 
+				id="check-title"
+				role="error"				
+				test="@Name and not(@Name='')">Diagrams should have a title.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 
 	<!-- Check that the Author attribute is present and not empty -->	
 	<iso:pattern name="check-author" id="check-author">
 		<iso:rule context="gpml:Pathway">
-			<iso:assert test="@Author and not(@Author='')" role="error">Diagrams should have an author.</iso:assert>
+			<iso:assert 
+				id="check-author"
+				role="error"				
+				test="@Author and not(@Author='')">Diagrams should have an author.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 
 	<!-- Check that the Organism attribute is present and not empty -->	
 	<iso:pattern name="check-organism" id="check-organism">
 		<iso:rule context="gpml:Pathway">
-			<iso:assert test="@Organism and not(@Organism='')" role="error">Diagrams should have an organism.</iso:assert>
+			<iso:assert 
+				id="check-organism"
+				role="error"				
+				test="@Organism and not(@Organism='')">Diagrams should have an organism.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 
 	<!-- Check that for the existence of a Biopax element -->	
 	<iso:pattern name="check-pub-xref" id="check-pub-xref">
 		<iso:rule context="gpml:Pathway">
-			<iso:assert test="gpml:Biopax" role="error">Diagrams should have references.</iso:assert>
+			<iso:assert 
+				id="check-pub-xref"
+				role="error"				
+				test="gpml:Biopax">Diagrams should have references.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 	
@@ -51,7 +69,11 @@ Schematron validation for GPML Best Practices
 			<iso:let name="graph-id" value="@GraphId"/>
 
 			<!-- Neither the Database or ID attributes should be empty -->
-			<iso:assert test="gpml:Xref[not(@Database='')] and gpml:Xref[not(@ID='')]"  role="error" diagnostics="graph-id">Datanodes should include database annotations.</iso:assert>
+			<iso:assert 
+				id="check-db-xref"
+				role="error"				
+				test="gpml:Xref[not(@Database='')] and gpml:Xref[not(@ID='')]"
+				diagnostics="graph-id">Datanodes should include database annotations.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 
@@ -61,7 +83,11 @@ Schematron validation for GPML Best Practices
 			<iso:let name="graph-id" value="@GraphId"/>
 
 			<!-- The TextLabel attribute should not be empty -->
-			<iso:assert test="@TextLabel and not(@TextLabel='')" role="error" diagnostics="graph-id">DataNodes should have a text label.</iso:assert>
+			<iso:assert 
+				id="check-labels"
+				role="error"	
+				test="@TextLabel and not(@TextLabel='')"
+				diagnostics="graph-id">DataNodes should have a text label.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 
@@ -77,7 +103,11 @@ Schematron validation for GPML Best Practices
 			<iso:let name="end-graph-ref" value="gpml:Graphics/gpml:Point[last()]/@GraphRef"/>
 			
 			<!-- Assert that the GraphRef attributes on the first and last points are present and not empty, otherwise output error message and identifier -->
-			<iso:assert test="$start-graph-ref and $end-graph-ref and not($start-graph-ref='') and not($end-graph-ref='')" role="error" diagnostics="graph-id">Lines should not be unattached.</iso:assert>
+			<iso:assert 
+				id="check-unattached-lines"
+				role="error"	
+				test="$start-graph-ref and $end-graph-ref and not($start-graph-ref='') and not($end-graph-ref='')" 
+				diagnostics="graph-id">Lines should be attached at both ends.</iso:assert>
 		</iso:rule> 
 	</iso:pattern> 
 	
