@@ -12,7 +12,7 @@ You need to have installed:
 * Ant
 
 Simply type "ant" from the source directory.
-This will result in the creation of ??DIR??/ValidatorPlugin.jar, 
+This will result in the creation of <project directory>/ValidatorPlugin.jar,
 which you can be added to the USER_HOME/.Pathvisio/plugins directory.
 
 FILES
@@ -20,12 +20,12 @@ FILES
 
 Here is an explanation of the directories in this project:
 
-images        - images used in the plugin
-lib           - Java libraries used with the plugin
-rulesets      - validation rulesets included with the plugin 
-source        - validator plugin source code 
-xsls          - Schematron stylesheets for converting 
-GroovySupport - ???
+images			- images used in the plugin
+lib				- Java libraries used with the plugin
+rulesets			- validation rulesets included with the plugin 
+source			- validator plugin source code 
+xsls				- Schematron stylesheets for converting 
+GroovySupport	- contains a file containing the Groovy script. This script is run while validating against Groovy rulesets.
 
 AUTHORS
 -------
