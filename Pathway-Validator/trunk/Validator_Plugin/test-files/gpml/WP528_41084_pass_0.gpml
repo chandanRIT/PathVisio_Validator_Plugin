@@ -152,14 +152,14 @@
   </Line>
   <Line GraphId="d554b">
     <Graphics ZOrder="12288" LineStyle="Broken" LineThickness="1.0">
-      <Point X="36.666666666666664" Y="486.7" />
-      <Point X="526.6666666666666" Y="486.7" />
+      <Point X="76.26190730184317" Y="473.8428649902344" GraphRef="a2f3d" RelX="1.0" RelY="0.0" />
+      <Point X="476.5952453613281" Y="474.3190612792969" GraphRef="ab5" RelX="-1.0" RelY="0.0" />
     </Graphics>
   </Line>
   <Line GraphId="ad5ae">
     <Graphics ZOrder="12288" LineStyle="Broken" LineThickness="1.0">
-      <Point X="36.666666666666664" Y="493.3666666666667" />
-      <Point X="526.6666666666666" Y="493.3666666666667" />
+      <Point X="104.04761743545532" Y="491.9381103515625" GraphRef="cb60c" RelX="1.0" RelY="0.0" />
+      <Point X="469.76190185546875" Y="493.3666687011719" GraphRef="a27" RelX="-1.0" RelY="0.0" />
     </Graphics>
   </Line>
   <Line GraphId="d82f8">
@@ -225,10 +225,16 @@
     </Graphics>
   </Line>
   <Label TextLabel="*Cytosol*" GraphId="ab5">
-    <Graphics CenterX="470.0" CenterY="473.3666666666667" Width="76.33333333333333" Height="19.0" ZOrder="28672" FillColor="ffffff" FontWeight="Bold" FontSize="12" Valign="Middle" />
+    <Graphics CenterX="514.7619047619036" CenterY="474.31904761904786" Width="76.33333333333333" Height="19.0" ZOrder="28672" FillColor="ffffff" FontWeight="Bold" FontSize="12" Valign="Middle" />
   </Label>
   <Label TextLabel="*Synaptic Cleft*" GraphId="a27">
-    <Graphics CenterX="493.3333333333333" CenterY="506.7" Width="123.33333333333333" Height="19.0" ZOrder="28672" FillColor="ffffff" FontWeight="Bold" FontSize="12" Valign="Middle" />
+    <Graphics CenterX="531.4285714285705" CenterY="493.3666666666665" Width="123.33333333333333" Height="19.0" ZOrder="28672" FillColor="ffffff" FontWeight="Bold" FontSize="12" Valign="Middle" />
+  </Label>
+  <Label TextLabel="*Cytosol*" GraphId="a2f3d">
+    <Graphics CenterX="38.09523809523816" CenterY="473.8428571428574" Width="76.33333333333333" Height="19.0" ZOrder="32771" FillColor="ffffff" FontWeight="Bold" FontSize="12" Valign="Middle" />
+  </Label>
+  <Label TextLabel="*Synaptic Cleft*" GraphId="cb60c">
+    <Graphics CenterX="55.35714285714283" CenterY="491.93809523809546" Width="97.38095238095235" Height="19.0" ZOrder="32772" FillColor="ffffff" FontWeight="Bold" FontSize="12" Valign="Middle" />
   </Label>
   <Group GroupId="dc39d" GraphId="d74e5" />
   <InfoBox CenterX="8.333333333333334" CenterY="11.666666666666666" />
