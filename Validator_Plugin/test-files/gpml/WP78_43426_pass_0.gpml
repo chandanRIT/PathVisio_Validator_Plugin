@@ -262,6 +262,7 @@ Source: Wikipedia ([[wikipedia:citric_acid_cycle]])</Comment>
     </Graphics>
   </Line>
   <Line GraphId="d4069">
+    <BiopaxRef>f90</BiopaxRef>
     <Graphics ZOrder="12288" LineStyle="Broken" LineThickness="1.0">
       <Point X="464.0" Y="33.0" GraphRef="be730" RelX="0.0" RelY="1.0" />
       <Point X="464.00001525878906" Y="85.9000015258789" GraphRef="d178a" RelX="0.0" RelY="-1.0" ArrowHead="Arrow" />
@@ -482,5 +483,18 @@ Source: Wikipedia ([[wikipedia:citric_acid_cycle]])</Comment>
   <Group GroupId="e6282" GraphId="fd0c9" />
   <Group GroupId="b1730" GraphId="e7f2d" />
   <InfoBox CenterX="4.5" CenterY="5.333333333333333" />
+  <Biopax>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="f90">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Formate assay in body fluids: application in methanol poisoning.</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Biochem Med</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1975</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Makar AB</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">McMartin KE</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Palese M</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tephly TR</bp:AUTHORS>
+    </bp:PublicationXref>
+  </Biopax>
 </Pathway>
 

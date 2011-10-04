@@ -3,7 +3,7 @@
   <Comment Source="WikiPathways-description">By summarizing published data together with our own results, this pathway shows a complicated relationships between transcriptional factors, miRNAs and some functional genes which are correlated together to generate a whole sight in early mouse development centered around Ptf1a, although there are some hypothetical relationships and the distinct development of dorsal and ventral pancreas in very early stage is neglected.</Comment>
   <Comment Source="WikiPathways-category">Molecular Function</Comment>
   <Comment Source="WikiPathways-category">Physiological Process</Comment>
-  <Graphics BoardWidth="832.0833333333333" BoardHeight="818.0" />
+  <Graphics BoardWidth="811.0" BoardHeight="884.2475280761719" />
   <DataNode TextLabel="Pdx1" GraphId="ab186" Type="GeneProduct">
     <Graphics CenterX="745.0" CenterY="438.0" Width="64.0333333333333" Height="20.0" ZOrder="32768" FontSize="10" Valign="Middle" Color="0000cc" />
     <Xref Database="Ensembl Mouse" ID="ENSMUSG00000029644" />
@@ -90,26 +90,26 @@
   </Line>
   <Line GraphId="d8ad9">
     <Graphics ZOrder="12288" LineThickness="1.0" Color="00cc00">
-      <Point X="120.0" Y="728.0" />
-      <Point X="192.0" Y="728.0" ArrowHead="Arrow" />
+      <Point X="118.9926528930664" Y="728.43310546875" GraphRef="b05c5" RelX="1.0" RelY="0.0" />
+      <Point X="194.0463104248047" Y="727.4559020996094" GraphRef="a353e" RelX="-1.0" RelY="0.0" ArrowHead="Arrow" />
     </Graphics>
   </Line>
   <Line GraphId="f63a2">
     <Graphics ZOrder="12288" LineThickness="1.0" Color="cc00cc">
-      <Point X="120.0" Y="772.0" />
-      <Point X="192.0" Y="772.0" ArrowHead="Arrow" />
+      <Point X="118.50611877441406" Y="771.9749145507812" GraphRef="fc905" RelX="1.0" RelY="0.0" />
+      <Point X="192.151123046875" Y="771.1457824707031" GraphRef="c9d11" RelX="-1.0" RelY="0.0" ArrowHead="Arrow" />
     </Graphics>
   </Line>
   <Line GraphId="cf67f">
     <Graphics ZOrder="12288" LineThickness="1.0" Color="cc00cc">
-      <Point X="120.0" Y="788.0" />
-      <Point X="192.0" Y="788.0" ArrowHead="TBar" />
+      <Point X="118.5655517578125" Y="789.1226806640625" GraphRef="da913" RelX="1.0" RelY="0.0" />
+      <Point X="194.9723663330078" Y="787.6066589355469" GraphRef="d3ec1" RelX="-1.0" RelY="0.0" ArrowHead="TBar" />
     </Graphics>
   </Line>
   <Line GraphId="c2cc3">
     <Graphics ZOrder="12288" LineThickness="1.0" Color="cc0000">
-      <Point X="120.0" Y="751.0" />
-      <Point X="192.0" Y="751.0" ArrowHead="TBar" />
+      <Point X="119.27445220947266" Y="752.0903930664062" GraphRef="dd739" RelX="1.0" RelY="0.0" />
+      <Point X="194.55734252929688" Y="750.7366027832031" GraphRef="f1b12" RelX="-1.0" RelY="0.0" ArrowHead="TBar" />
     </Graphics>
   </Line>
   <Line GraphId="c211f">
@@ -308,16 +308,16 @@
     <Graphics CenterX="631.5" CenterY="469.5" Width="131.0" Height="35.0" ZOrder="12328" FillColor="ffffff" FontSize="12" Valign="Middle" Color="0000cc" />
   </Label>
   <Label TextLabel="Symbols:" GraphId="b834a">
-    <Graphics CenterX="68.0" CenterY="725.0" Width="80.0" Height="20.0" ZOrder="28672" FillColor="ffffff" FontWeight="Bold" FontSize="13" Valign="Middle" />
+    <Graphics CenterX="32.94534489257451" CenterY="726.5077271013947" Width="80.0" Height="20.0" ZOrder="28672" FillColor="ffffff" FontWeight="Bold" FontSize="13" Valign="Middle" />
   </Label>
   <Label TextLabel="Documented interaction, positive" GraphId="a037b">
     <Graphics CenterX="317.5" CenterY="728.0" Width="195.0" Height="20.0" ZOrder="28672" FillColor="ffffff" FontSize="12" Valign="Middle" Color="009900" />
   </Label>
   <Label TextLabel="Proved interaction from our study, negative" GraphId="fed05">
-    <Graphics CenterX="344.5" CenterY="750.0" Width="241.0" Height="20.0" ZOrder="28672" FillColor="ffffff" FontSize="12" Valign="Middle" Color="cc0033" />
+    <Graphics CenterX="342.3463747307969" CenterY="751.0768126346017" Width="241.0" Height="20.0" ZOrder="28672" FillColor="ffffff" FontSize="12" Valign="Middle" Color="cc0033" />
   </Label>
   <Label TextLabel="Documented interaction, not in mouse" GraphId="f22ad">
-    <Graphics CenterX="332.5" CenterY="778.0" Width="237.0" Height="20.0" ZOrder="28672" FillColor="ffffff" FontSize="12" Valign="Middle" Color="cc00cc" />
+    <Graphics CenterX="331.42318736539835" CenterY="778.3589375448672" Width="237.0" Height="20.0" ZOrder="28672" FillColor="ffffff" FontSize="12" Valign="Middle" Color="cc00cc" />
   </Label>
   <Label TextLabel="Endocrine pancreas" GraphId="b7a4e">
     <Graphics CenterX="349.5" CenterY="657.0" Width="221.0" Height="68.0" ZOrder="28674" FillColor="ffffff" FontWeight="Bold" FontSize="16" Valign="Middle" ShapeType="RoundedRectangle" Color="990033" />
@@ -334,87 +334,43 @@
   <Label TextLabel="Low&#xA;level&#xA;" GraphId="a46f4">
     <Graphics CenterX="349.5" CenterY="334.0" Width="45.0" Height="32.0" ZOrder="28682" FillColor="ffffff" FontSize="10" Valign="Middle" ShapeType="RoundedRectangle" Color="00cc33" />
   </Label>
+  <Shape GraphId="a353e">
+    <Graphics CenterX="208.59702315325237" CenterY="727.4558985667029" Width="29.101433296582126" Height="30.43550165380384" ZOrder="16384" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="0.0" />
+  </Shape>
+  <Shape GraphId="f1b12">
+    <Graphics CenterX="209.10805444051056" CenterY="750.7365877267888" Width="29.101433296582126" Height="30.43550165380384" ZOrder="32811" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="0.0" />
+  </Shape>
+  <Shape GraphId="c9d11">
+    <Graphics CenterX="206.70183291635365" CenterY="771.1457765279378" Width="29.101433296582126" Height="30.43550165380384" ZOrder="32812" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="0.0" />
+  </Shape>
+  <Shape GraphId="d3ec1">
+    <Graphics CenterX="209.52308201900988" CenterY="787.6066523355477" Width="29.101433296582126" Height="30.43550165380384" ZOrder="32813" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="0.0" />
+  </Shape>
+  <Shape GraphId="b05c5">
+    <Graphics CenterX="107.36553725559881" CenterY="728.4331147814609" Width="23.2542350375956" Height="20.55982872346623" ZOrder="32814" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="0.0" />
+  </Shape>
+  <Shape GraphId="dd739">
+    <Graphics CenterX="107.30853902746846" CenterY="752.0904070665426" Width="22.801758012964342" Height="20.864969432137627" ZOrder="32815" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="6.2272885595666105" />
+  </Shape>
+  <Shape GraphId="fc905">
+    <Graphics CenterX="104.92847270834454" CenterY="771.9749558323132" Width="27.15529332728192" Height="21.11220515345233" ZOrder="32816" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="0.0" />
+  </Shape>
+  <Shape GraphId="da913">
+    <Graphics CenterX="103.5004653953553" CenterY="789.1226720616623" Width="30.130182491390833" Height="17.02085432740751" ZOrder="32817" FontSize="10" Valign="Middle" ShapeType="Oval" Color="ffffff" Rotation="0.0" />
+  </Shape>
   <Group GroupId="e5cdc" GraphId="ce7b4" Style="Group">
     <Comment>Acinar-specific genes</Comment>
   </Group>
   <InfoBox CenterX="0.0" CenterY="0.0" />
   <Biopax>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="fe4">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">17938243</bp:ID>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="fcb">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">16201968</bp:ID>
       <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Early pancreatic development requires the vertebrate Suppressor of Hairless (RBPJ) in the PTF1 bHLH complex</bp:TITLE>
-      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Genes Dev</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2007</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Masui, T</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Long, Q</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Beres, T M</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Magnuson, M A</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MacDonald, R J</bp:AUTHORS>
-    </bp:PublicationXref>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="ef2">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">17222338</bp:ID>
-      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wnt/beta-catenin signaling is required for development of the exocrine pancreas</bp:TITLE>
-      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BMC Dev Biol</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2007</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wells, J M</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Esni, F</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Boivin, G P</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aronow, B J</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stuart, W</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Combs, C</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sklenka, A</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leach, S D</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lowy, A M</bp:AUTHORS>
-    </bp:PublicationXref>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="b01">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10938085</bp:ID>
-      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Transcriptional and Translational Regulation of -Cell Differentiation Factor Nkx6.1</bp:TITLE>
-      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">J Biol Chem</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2000</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Watada H</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mirmira RG</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leung J</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">German MS</bp:AUTHORS>
-    </bp:PublicationXref>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="fd2">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">18834332</bp:ID>
-      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">P/CAF modulates the activity of the transcription factor p48/PTF1a involved in pancreatic acinar differentiation</bp:TITLE>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Interactions between hairy/enhancer of split-related proteins and the pancreatic  transcription factor Ptf1-p48 modulate function of the PTF1 transcriptional complex</bp:TITLE>
       <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Biochem J</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2008</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rodolosse, A</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Campos, M L</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rooman, I</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lichtenstein, M</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Real, F X</bp:AUTHORS>
-    </bp:PublicationXref>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="c4a">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">17803961</bp:ID>
-      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ptf1a and RBP-J cooperate in activating Pdx1 gene expression through binding to Area III</bp:TITLE>
-      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Biochem Biophys Res Commun</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2007</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Miyatsuka, T</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Matsuoka, T A</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Shiraiwa, T</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Yamamoto, T</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kojima, I</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kaneto, H</bp:AUTHORS>
-    </bp:PublicationXref>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="b7d">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">9603781</bp:ID>
-      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rat endocrine pancreatic development in relation to two homeobox gene products (Pdx-1 and Nkx 6.1)</bp:TITLE>
-      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">J Histochem Cytochem</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1998</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Oster A</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jensen J</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Serup P</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Galante P</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Madsen OD</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Larsson LI</bp:AUTHORS>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2006</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ghosh, B</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leach, S D</bp:AUTHORS>
     </bp:PublicationXref>
     <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="e50">
       <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">16122728</bp:ID>
@@ -452,26 +408,6 @@
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Yabe, D</bp:AUTHORS>
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Nakao, K</bp:AUTHORS>
     </bp:PublicationXref>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="f3a">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">18519637</bp:ID>
-      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Graded levels of Ptf1a differentially regulate endocrine and exocrine fates in the developing pancreas</bp:TITLE>
-      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Genes Dev</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2008</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dong, P D</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Provost, E</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leach, S D</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stainier, D Y</bp:AUTHORS>
-    </bp:PublicationXref>
-    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="fcb">
-      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">16201968</bp:ID>
-      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
-      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Interactions between hairy/enhancer of split-related proteins and the pancreatic  transcription factor Ptf1-p48 modulate function of the PTF1 transcriptional complex</bp:TITLE>
-      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Biochem J</bp:SOURCE>
-      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2006</bp:YEAR>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ghosh, B</bp:AUTHORS>
-      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leach, S D</bp:AUTHORS>
-    </bp:PublicationXref>
     <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="e18">
       <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">16386727</bp:ID>
       <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
@@ -484,6 +420,42 @@
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rousseau, G G</bp:AUTHORS>
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lemaigre, F P</bp:AUTHORS>
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Zaret, K S</bp:AUTHORS>
+    </bp:PublicationXref>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="c4a">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">17803961</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ptf1a and RBP-J cooperate in activating Pdx1 gene expression through binding to Area III</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Biochem Biophys Res Commun</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2007</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Miyatsuka, T</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Matsuoka, T A</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Shiraiwa, T</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Yamamoto, T</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kojima, I</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Kaneto, H</bp:AUTHORS>
+    </bp:PublicationXref>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="f3a">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">18519637</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Graded levels of Ptf1a differentially regulate endocrine and exocrine fates in the developing pancreas</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Genes Dev</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2008</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Dong, P D</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Provost, E</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leach, S D</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stainier, D Y</bp:AUTHORS>
+    </bp:PublicationXref>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="fd2">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">18834332</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">P/CAF modulates the activity of the transcription factor p48/PTF1a involved in pancreatic acinar differentiation</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Biochem J</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2008</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rodolosse, A</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Campos, M L</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rooman, I</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lichtenstein, M</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Real, F X</bp:AUTHORS>
     </bp:PublicationXref>
     <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="ad4">
       <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">17403901</bp:ID>
@@ -500,6 +472,58 @@
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wright, C V</bp:AUTHORS>
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stein, R W</bp:AUTHORS>
       <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gannon, M</bp:AUTHORS>
+    </bp:PublicationXref>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="b7d">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">9603781</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rat endocrine pancreatic development in relation to two homeobox gene products (Pdx-1 and Nkx 6.1)</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">J Histochem Cytochem</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1998</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Oster A</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Jensen J</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Serup P</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Galante P</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Madsen OD</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Larsson LI</bp:AUTHORS>
+    </bp:PublicationXref>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="b01">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">10938085</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Transcriptional and Translational Regulation of -Cell Differentiation Factor Nkx6.1</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">J Biol Chem</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2000</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Watada H</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mirmira RG</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leung J</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">German MS</bp:AUTHORS>
+    </bp:PublicationXref>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="ef2">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">17222338</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wnt/beta-catenin signaling is required for development of the exocrine pancreas</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">BMC Dev Biol</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2007</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Wells, J M</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Esni, F</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Boivin, G P</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Aronow, B J</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stuart, W</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Combs, C</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sklenka, A</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Leach, S D</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Lowy, A M</bp:AUTHORS>
+    </bp:PublicationXref>
+    <bp:PublicationXref xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:id="fe4">
+      <bp:ID rdf:datatype="http://www.w3.org/2001/XMLSchema#string">17938243</bp:ID>
+      <bp:DB rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PubMed</bp:DB>
+      <bp:TITLE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Early pancreatic development requires the vertebrate Suppressor of Hairless (RBPJ) in the PTF1 bHLH complex</bp:TITLE>
+      <bp:SOURCE rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Genes Dev</bp:SOURCE>
+      <bp:YEAR rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2007</bp:YEAR>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Masui, T</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Long, Q</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Beres, T M</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Magnuson, M A</bp:AUTHORS>
+      <bp:AUTHORS rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MacDonald, R J</bp:AUTHORS>
     </bp:PublicationXref>
   </Biopax>
 </Pathway>
