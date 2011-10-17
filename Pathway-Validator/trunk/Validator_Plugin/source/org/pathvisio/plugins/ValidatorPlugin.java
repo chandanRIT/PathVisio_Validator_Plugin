@@ -358,7 +358,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				catch (Exception e1) { //changed from ConverterException to catch all the errors
 					//System.out.println("Exception in validatepathway method--"+e1.getMessage());
 					JOptionPane.showMessageDialog(desktop.getFrame(), 
-							"Validation Exception in Schematron","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+							"Validation Exception in Schematron\n" + e1.getClass() + "\n" + e1.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 					e1.printStackTrace();
 					resetUI(false);
 					return null;
