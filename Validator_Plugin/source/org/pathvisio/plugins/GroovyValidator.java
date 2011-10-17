@@ -5,13 +5,16 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
 import groovy.lang.GroovyShell;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.pathvisio.Engine;
@@ -204,20 +207,26 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
   	   	Class<GroovyObject> groovyClass=null;
   	   	GroovyObject groovyObject=null;
   	   
-  	   	//try {
-  		   groovyClass = loader.parseClass(schemaFile);
-  		   VPUtility.schemaString=groovyClass.getSimpleName();
-  		   VPUtility.cutSchemaTitleString(VPUtility.schemaString,ValidatorPlugin.schemaTitleTag);
-  		   //ValidatorPlugin.schemaTitleTag.setCaretPosition(0);
- 		   groovyObject = (GroovyObject) groovyClass.newInstance();
-  	   	/*}
-  	   	catch (Exception e1) {
-  		   System.out.println("Exception @ groovy = "+e1.getMessage());
-  		 JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-		 vPlugin.resetUI();  
-  		 e1.printStackTrace();
-  	   	}*/
+  	   	// read the code from file.
+  	   	StringBuilder code = new StringBuilder();
+  	   	BufferedReader reader = new BufferedReader (new FileReader (schemaFile));
+  	   	String line;
+  	   	try
+  	   	{
+	  	   	while (((line = reader.readLine()) != null))
+	  	   		code.append(line);
+  	   	}
+  	   	finally
+  	   	{
+  	   		reader.close();
+  	   	}
+  	   	
+  	   	// we use the parseClass(String) instead of parseClass(File), to prevent problems with File names that are illegal as class names.
+   		groovyClass = loader.parseClass(code.toString());
+   		VPUtility.schemaString=schemaFile.getName();
+   		VPUtility.cutSchemaTitleString(VPUtility.schemaString,ValidatorPlugin.schemaTitleTag);
+   		//ValidatorPlugin.schemaTitleTag.setCaretPosition(0);
+   		groovyObject = (GroovyObject) groovyClass.newInstance();
   	   	
   	   	VPUtility.resetPhaseBox(phaseBox);
 	   
@@ -269,16 +278,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
   	   		binding.setVariable("argPw",argPw );
   	   		GroovyShell shell = new GroovyShell(binding);
   
-  	   		//try {
-  	   			//running groovy script from a file named GroovyScriptKC.kc
-  	   			shell.evaluate(getClass().getResourceAsStream("/GroovyScriptKC.kc"));
-  	   		/*} catch (CompilationFailedException e) {
-  	   			System.out.println("CompilationFailedException in the groovyshell code");
-  	   			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"Validation Exception in Groovy","Validator Plugin",JOptionPane.ERROR_MESSAGE);
-  	   			vPlugin.resetUI();
-  	   			e.printStackTrace();
-  	   		}*/ 
+   			shell.evaluate(getClass().getResourceAsStream("/GroovyScriptKC.kc"));
   	   	}
   	   	
   	   	else { // this code runs only when there are phases present in the groovy rule 
