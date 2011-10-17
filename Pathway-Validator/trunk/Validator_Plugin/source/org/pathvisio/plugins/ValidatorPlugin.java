@@ -610,51 +610,51 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			chooseRulesetButtonListener();
 		} catch (InterruptedException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the SaxonTranformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"problem with the SaxonTranformer\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"Ruleset/serialized file not accesible","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"Ruleset/serialized file not accesible\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"problem with the Groovy Ruleset\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (InstantiationException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"problem with the Groovy Ruleset\n" + e.getMessage(),"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (SAXException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Schematron Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"Schematron Ruleset is not valid XML\n" + e.getMessage(),"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
 		catch (CompilationFailedException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem while compiling Groovy Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"Compilation exception in Groovy Ruleset:\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
 		catch (ClassNotFoundException e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with deserialization","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"problem with deserialization\n" + e.getMessage(), "Validator Plugin", JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
 		catch(VPUtility.RuleSetNotSupportedException e){
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"Ruleset: "+e.rulesetType+" is not yet supported." ,"Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"Ruleset: " + e.rulesetType + " is not yet supported." ,"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
-					"problem with the Ruleset","Validator Plugin",JOptionPane.ERROR_MESSAGE);
+					"Problem with the Ruleset:\n" + e.getClass().getName() + "\n" + e.getMessage(), "Validator Plugin", JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
