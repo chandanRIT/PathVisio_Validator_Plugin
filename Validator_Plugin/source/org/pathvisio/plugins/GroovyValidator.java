@@ -214,7 +214,10 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
   	   	try
   	   	{
 	  	   	while (((line = reader.readLine()) != null))
+	  	   	{
 	  	   		code.append(line);
+	  	   		code.append('\n');
+	  	   	}
   	   	}
   	   	finally
   	   	{
