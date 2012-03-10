@@ -84,7 +84,7 @@ public class TextAreaRenderer extends JTextArea implements TableCellRenderer {
         	ttText=(!ttText.equals("null")&& !ttText.equals("") ? ttText : "----");
         	
         	if(!ttText.equals("----") && 
-        			ValidatorPlugin.eng.getActivePathway().getElementById(ttText)==null )
+        			vplugin.getEngine().getActivePathway().getElementById(ttText)==null )
         		ttText+=" : Non-highlightable Id";
         	setToolTipText(ttText);
         	

@@ -169,9 +169,9 @@ public class VPRightClickMenu implements ActionListener{
 				VPathwayElement vpe = null;
 				if( (vpe=vplugin.highlightNode(gId,VPUtility.col1))!=null ){
 					//to focus on the highlighted  element
-					ValidatorPlugin.eng.getActiveVPathway().getWrapper()
+					vplugin.getEngine().getActiveVPathway().getWrapper()
 					.scrollCenterTo((int)vpe.getVBounds().getCenterX(),(int)vpe.getVBounds().getCenterY());
-					ValidatorPlugin.eng.getActiveVPathway().redraw();
+					vplugin.getEngine().getActiveVPathway().redraw();
 				}
 			} 
 			else 
@@ -319,7 +319,7 @@ public class VPRightClickMenu implements ActionListener{
 		if(ignList==vplugin.ignoredSingleError)
 			EWMtext=EWMtext.replace("@@", " : ");
 		else if (ignList==vplugin.ignoredElements) {
-			PathwayElement pe=ValidatorPlugin.pth.getElementById(EWMtext);
+			PathwayElement pe = vplugin.getEngine().getActivePathway().getElementById(EWMtext);
 			if(pe!=null){
 				EWMtext=EWMtext+" : "+pe.getObjectType();
 			}
