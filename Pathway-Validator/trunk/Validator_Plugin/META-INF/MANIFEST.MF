@@ -10,7 +10,8 @@ Bundle-ClassPath: Pathway-Validator.jar,
  lib/mimVis_ValidatorPluginMod.jar,
  lib/saxon9-dom.jar,
  lib/saxon9.jar,
- lib/xbean.jar
+ lib/xbean.jar,
+ lib/groovy.jar
 Export-Package: org.pathvisio.plugins
 Require-Bundle: org.pathvisio.core;bundle-version="2.0.11",
  org.sbgn;bundle-version="0.2.0",
@@ -18,8 +19,7 @@ Require-Bundle: org.pathvisio.core;bundle-version="2.0.11",
  org.pathvisio.desktop;bundle-version="2.0.11",
  org.pathvisio.sbgn;bundle-version="1.0.0",
  org.bridgedb;bundle-version="1.1.0",
- com.springsource.org.jdom;bundle-version="1.1.0",
- groovy;bundle-version="1.8.4"
+ com.springsource.org.jdom;bundle-version="1.1.0"
 Import-Package: junit.framework;resolution:=optional,
  org.osgi.framework;version="1.5.0"
 Bundle-Activator: org.pathvisio.plugins.Activator

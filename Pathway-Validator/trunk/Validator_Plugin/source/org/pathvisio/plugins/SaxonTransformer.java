@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -38,8 +39,10 @@ public class SaxonTransformer {
 		factory = new net.sf.saxon.TransformerFactoryImpl();
 		System.setProperty("javax.xml.transform.TransformerFactory",
 				"net.sf.saxon.TransformerFactoryImpl");
+		URL url = getClass().getResource("/iso_svrl_for_xslt2.xsl");
+		if (url == null) throw new Error("Resource 'iso_svrl_for_xslt2.xsl' not found");
 		transformer1 = factory
-				.newTransformer(new StreamSource(getClass().getResource("/iso_svrl_for_xslt2.xsl").toString()));
+				.newTransformer(new StreamSource(url.toString()));
 		this.saxParser=saxParser;
 	}
 

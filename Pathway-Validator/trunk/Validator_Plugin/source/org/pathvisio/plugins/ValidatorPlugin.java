@@ -46,7 +46,6 @@ import org.pathvisio.core.Engine;
 import org.pathvisio.core.Engine.ApplicationEventListener;
 import org.pathvisio.gui.ProgressDialog;
 import org.pathvisio.desktop.PvDesktop;
-import org.pathvisio.core.model.Pathway;
 import org.pathvisio.core.model.PathwayElement;
 import org.pathvisio.desktop.plugin.Plugin;
 import org.pathvisio.core.preferences.PreferenceManager;
@@ -67,38 +66,36 @@ import groovy.lang.GroovyObject;
 public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventListener,
 	ItemListener, ComponentListener
 {
-	PvDesktop desktop;
-	private static File  schemaFile; // the file object pointing to the ruleset chosen from the chooser
-	private static File exportedPathwayFile; // "Pathway" object is exported in XML format(gpml/mimml/sbgnml) to this file 
-	static Engine eng; // "Engine" object reference passed to the plugin will be stored in this 
-	static Pathway pth; // "Pathway" object reference
-	static SaxonTransformer saxTfr ; 
-	private  static MIMFormat mimf;//=new MIMFormat();
-	private static SbgnFormat sbgnf;
-	private static JFileChooser chooser; // for "Choose Ruleset" button
-	private final static JButton valbutton=new JButton("Validate"); // the "Validate" button
-	private final static JButton chooseSchema=new JButton("Choose Ruleset"); // "Choose Ruleset" button
-	final static JComboBox ewBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
-	private final static JComboBox phaseBox = new JComboBox(new String[]{VPUtility.phaseLabelInCBox+"All"});
+	private PvDesktop desktop;
+	private File schemaFile; // the file object pointing to the ruleset chosen from the chooser
+	private File exportedPathwayFile; // "Pathway" object is exported in XML format(gpml/mimml/sbgnml) to this file 
+	private Engine eng; // "Engine" object reference passed to the plugin will be stored in this 
+	SaxonTransformer saxTfr ; 
+	private MIMFormat mimf;//=new MIMFormat();
+	private SbgnFormat sbgnf;
+	private JFileChooser chooser; // for "Choose Ruleset" button
+	private final JButton valbutton = new JButton("Validate"); // the "Validate" button
+	private final JButton chooseSchema = new JButton("Choose Ruleset"); // "Choose Ruleset" button
+	final JComboBox ewBox = new JComboBox(new String[]{"Errors & Warnings","Errors only","Warnings only"});
+	private final JComboBox phaseBox = new JComboBox(new String[]{VPUtility.phaseLabelInCBox+"All"});
 	private final ValidatorHelpAction vhelpAction= new ValidatorHelpAction();// for  help->Validator Help
-	static JButton highlightAllButton; 
+	JButton highlightAllButton; 
 	final JLabel eLabel=new JLabel("Errors:0",new ImageIcon(getClass().getResource("/error.png")),SwingConstants.CENTER);
 	final JLabel wLabel=new JLabel("Warnings:0",new ImageIcon(getClass().getResource("/warning.png")),SwingConstants.CENTER);
-	static final JTextField schemaTitleTag= new JTextField(VPUtility.rulesetTitleLabel);
-	private static GroovyObject grvyObject;
-	static List<Object> globGroovyResult;
+	final JTextField schemaTitleTag= new JTextField(VPUtility.rulesetTitleLabel);
+	private GroovyObject grvyObject;
+	List<Object> globGroovyResult;
 	final VPUtility.MyTableModel mytbm=new VPUtility.MyTableModel();
-	final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
+	private final JCheckBox svrlOutputChoose= new JCheckBox(" Generate SVRL file",false);
 	private GroovyValidator groovyValidator;
 	private SchematronValidator schematronValidator;
 	private VPRightClickMenu vpRCMenu;
-	private ValidatorPlugin vPlugin=this;
 	private SAXParser saxParser;
 	//private File serializedInfoFile= new File(System.getProperty("user.home"), "GloballyIgnored.ser");
 	//private ObjectOutputStream oos;
 	
 	final JTable jtb = new JTable(mytbm){
-		public Class getColumnClass(int column){  
+		public Class<?> getColumnClass(int column){  
 			return getValueAt(0, column).getClass();  
 		}  
 	};
@@ -144,7 +141,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				exportedPathwayFile.deleteOnExit();
 			} catch (Exception e) {
 				System.out.println("Exception in creating current pathway temp file "+e);
-				JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+				JOptionPane.showMessageDialog(desktop.getFrame(), 
 						"Could not generate the export file ","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
@@ -219,7 +216,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			}
 		});
 
-		jtb.getColumnModel().getColumn(1).setCellRenderer(new TextAreaRenderer(vPlugin));
+		jtb.getColumnModel().getColumn(1).setCellRenderer(new TextAreaRenderer(this));
 
 		//create a scrollpane and adding jtable to the pane
 		final JScrollPane scrollPane = new JScrollPane(jtb);
@@ -311,7 +308,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			}
 			catch (Exception ex)
 			{
-				JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+				JOptionPane.showMessageDialog(desktop.getFrame(), 
 						"could not launch the page","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 				ex.printStackTrace();
 			}	
@@ -332,7 +329,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		} catch (Exception e)//InterruptedException,ExecutionException
 		{
 			System.out.println("ExecutionException in ValidatorPlugin---"+e.getMessage());
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"Validation Exception in Schematron","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(false);
 			return;
@@ -352,8 +349,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				pk.setTaskName("Validating pathway");
 
 				try{
-					schematronValidator.exportAndValidate(tempSaxTrnfr, mimf,
-							sbgnf, eng.getActivePathway(), exportedPathwayFile, schemaFile);
+					schematronValidator.exportAndValidate(eng, tempSaxTrnfr, mimf,
+							sbgnf, exportedPathwayFile, schemaFile);
 				}
 				catch (Exception e1) { //changed from ConverterException to catch all the errors
 					//System.out.println("Exception in validatepathway method--"+e1.getMessage());
@@ -390,7 +387,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	 * It highlights a particular element in the Pathway corresponding to the String passed to it. 
 	 */
 	VPathwayElement highlightNode(String gId, Color col){
-		PathwayElement pe=pth.getElementById(gId);
+		PathwayElement pe = eng.getActivePathway().getElementById(gId);
 		VPathwayElement vpe = null;
 
 		if(pe!=null) {
@@ -473,16 +470,16 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 					System.out.println("This thread for saxtranform completes its run");
 				} catch (TransformerConfigurationException e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					JOptionPane.showMessageDialog(desktop.getFrame(), 
 							"problem while configuring Saxon Transformer","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 					resetUI(true);
 				} catch (ParserConfigurationException e) {
-					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					JOptionPane.showMessageDialog(desktop.getFrame(), 
 							"problem while configuring SaxParser","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 					resetUI(true);
 					e.printStackTrace();
 				} catch (SAXException e) {
-					JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+					JOptionPane.showMessageDialog(desktop.getFrame(), 
 							"SaxException occured","Validator Plugin",JOptionPane.ERROR_MESSAGE);
 					resetUI(true);
 					e.printStackTrace();
@@ -505,7 +502,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 
 		if(chooser==null){
 			chooser=new JFileChooser();
-			vpRCMenu=new VPRightClickMenu(vPlugin);
+			vpRCMenu=new VPRightClickMenu(this);
 			vpRCMenu.createAndInitialize_RightClickMenuUI();
 
 			threadForSax=create_SAXTFR_InAThread();
@@ -582,7 +579,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 				VPUtility.schemaFileType="groovy";
 				//phaseBox.setEnabled(false);
 				if(groovyValidator==null)
-					groovyValidator=new GroovyValidator(vPlugin,eng,phaseBox,graphIdsList);
+					groovyValidator=new GroovyValidator(this,eng,phaseBox,graphIdsList);
 				grvyObject=groovyValidator.loadGroovy(schemaFile);
 
 			}
@@ -590,7 +587,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			else {
 				svrlOutputChoose.setEnabled(true);
 				if(schematronValidator == null) 
-					schematronValidator=new SchematronValidator(vPlugin);
+					schematronValidator=new SchematronValidator(this);
 				schematronValidator.parseSchemaAndSetValues(saxParser, saxTfr.getTransformer1(), schemaFile,
 						desktop.getFrame(), schemaTitleTag, phaseBox);
 			}
@@ -609,51 +606,51 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		try {
 			chooseRulesetButtonListener();
 		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"problem with the SaxonTranformer\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"Ruleset/serialized file not accesible\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"problem with the Groovy Ruleset\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"problem with the Groovy Ruleset\n" + e.getMessage(),"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		} catch (SAXException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"Schematron Ruleset is not valid XML\n" + e.getMessage(),"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
 		catch (CompilationFailedException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"Compilation exception in Groovy Ruleset:\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
 		catch (ClassNotFoundException e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"problem with deserialization\n" + e.getMessage(), "Validator Plugin", JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
 		catch(VPUtility.RuleSetNotSupportedException e){
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"Ruleset: " + e.rulesetType + " is not yet supported." ,"Validator Plugin",JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
 		}
 		catch (Throwable e) {
-			JOptionPane.showMessageDialog(vPlugin.desktop.getFrame(), 
+			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"Problem with the Ruleset:\n" + e.getClass().getName() + "\n" + e.getMessage(), "Validator Plugin", JOptionPane.ERROR_MESSAGE);
 			resetUI(true);
 			e.printStackTrace();
@@ -807,6 +804,11 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	public void componentShown(ComponentEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public Engine getEngine()
+	{
+		return eng;
 	}
 
 }	

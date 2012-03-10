@@ -109,9 +109,9 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
 		 }
 		
 		if(ijkew[5]>0)
-			ValidatorPlugin.highlightAllButton.setEnabled(true);
+			vPlugin.highlightAllButton.setEnabled(true);
 		else	
-			ValidatorPlugin.highlightAllButton.setEnabled(false);
+			vPlugin.highlightAllButton.setEnabled(false);
 		
 		vPlugin.eLabel.setText("Errors:"+ijkew[3]); vPlugin.wLabel.setText("Warnings:"+ijkew[4]);
 		
@@ -138,7 +138,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
 			VPUtility.allIgnored=true;
 			vPlugin.jtb.setEnabled(false);
 		}
-		ValidatorPlugin.ewBox.setEnabled(true);//ValidatorPlugin.highlightAllButton.setEnabled(true);
+		vPlugin.ewBox.setEnabled(true);//ValidatorPlugin.highlightAllButton.setEnabled(true);
         System.out.println("-----------groovy part end-------------- ");
 }
 	
@@ -152,7 +152,6 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
 		
 		VPUtility.prevHighlight=true;
 		ImageIcon EWIcon=VPUtility.eIcon;
-		ValidatorPlugin.pth=eng.getActivePathway();
         
         if(tempSt.startsWith("Warning")){
         	EWIcon=VPUtility.wIcon; ijkew[4]++;
@@ -227,7 +226,7 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
   	   	// we use the parseClass(String) instead of parseClass(File), to prevent problems with File names that are illegal as class names.
    		groovyClass = loader.parseClass(code.toString());
    		VPUtility.schemaString=schemaFile.getName();
-   		VPUtility.cutSchemaTitleString(VPUtility.schemaString,ValidatorPlugin.schemaTitleTag);
+   		VPUtility.cutSchemaTitleString(VPUtility.schemaString, vPlugin.schemaTitleTag);
    		//ValidatorPlugin.schemaTitleTag.setCaretPosition(0);
    		groovyObject = (GroovyObject) groovyClass.newInstance();
   	   	
@@ -299,8 +298,8 @@ public GroovyValidator(ValidatorPlugin vPlugin,Engine eng,JComboBox phaseBox,Lis
   	   		tempArray.remove(null);
   	   	}
   	   	
-  	   	ValidatorPlugin.globGroovyResult=tempArray; 	   	
-  	   	sortGroovyResultsAndPrint(ValidatorPlugin.globGroovyResult);
+  	   	vPlugin.globGroovyResult=tempArray; 	   	
+  	   	sortGroovyResultsAndPrint(vPlugin.globGroovyResult);
  	}
 
 }

@@ -46,8 +46,8 @@ class SchematronValidator {
 	 * @throws TransformerException
 	 * @throws SAXException
 	 */
-	void exportAndValidate(final SaxonTransformer tempSaxTrnfr,
-			final MIMFormat mimf, SbgnFormat sbgnf, Pathway pwObject, File exportedPwFile,File schemaFile) 
+	void exportAndValidate(Engine engine, final SaxonTransformer tempSaxTrnfr,
+			final MIMFormat mimf, SbgnFormat sbgnf, File exportedPwFile,File schemaFile) 
 	throws ConverterException,IOException,ParserConfigurationException,
 	TransformerException,SAXException{
 
@@ -55,7 +55,8 @@ class SchematronValidator {
 		System.out.println("b4 export called: "+VPUtility.schemaFileType);
 		//if(!doExport){
 		
-		for(PathwayElement pwe: pwObject.getDataObjects()){
+		Pathway pwObject = engine.getActivePathway();
+		for(PathwayElement pwe : pwObject.getDataObjects()){
 	  		
   	   		if( pwe.getObjectType()==ObjectType.LINE && ( pwe.getGraphId()=="" | pwe.getGraphId()==null) ){
   	   			pwe.setGeneratedGraphId();
@@ -81,7 +82,7 @@ class SchematronValidator {
 		//System.out.println("after mimf export and b4 execute");
 		tempSaxTrnfr.produceSvrlAndThenParse();
 		System.out.println("after  produce and parsing SVRL");
-		printSchematron(ValidatorPlugin.eng, vPlugin.graphIdsList, vPlugin.ignoredErrorTypesList,vPlugin.globallyIgnoredEWType, 
+		printSchematron(engine, vPlugin.graphIdsList, vPlugin.ignoredErrorTypesList,vPlugin.globallyIgnoredEWType, 
 				vPlugin.ignoredElements,vPlugin.ignoredSingleError);
 		//}
 		//else runGroovy(grvyObject);
@@ -154,7 +155,7 @@ class SchematronValidator {
 	 * @param ignoredElements list for "Ignore Element"
 	 * @param ignoredSingleError list for "Ignore this Error/Warning"
 	 */
-	void printSchematron(Engine eng, List<String> graphIdsList, List<String> ignoredErrorTypesList,
+	void printSchematron(Engine engine, List<String> graphIdsList, List<String> ignoredErrorTypesList,
 			List<String> globallyIgnoredEWType,List<String> ignoredElements,
 			List<String> ignoredSingleError){
 
@@ -163,14 +164,13 @@ class SchematronValidator {
 		String combined,tempsubSt;
 		ImageIcon EWIcon=VPUtility.eIcon; 
 		VPUtility.prevHighlight=true;
-		ValidatorPlugin.pth=eng.getActivePathway();
 		
 		//reset
 		vPlugin.clearTableRows();
 		graphIdsList.clear();
-		eng.getActiveVPathway().resetHighlight();//unhighlight all nodes
+		engine.getActiveVPathway().resetHighlight();//unhighlight all nodes
 
-		for(String tempSt:ValidatorPlugin.saxTfr.getHandler().getDiagnosticReference()){
+		for(String tempSt : vPlugin.saxTfr.getHandler().getDiagnosticReference()){
 			combined=tempSt;
 			String[] splitString=tempSt.split("@@");
 			tempSt=splitString[1];
@@ -206,15 +206,15 @@ class SchematronValidator {
 		}
 		
 		if(highlightCount>0)
-			ValidatorPlugin.highlightAllButton.setEnabled(true);
+			vPlugin.highlightAllButton.setEnabled(true);
 		else 
-			ValidatorPlugin.highlightAllButton.setEnabled(false);
+			vPlugin.highlightAllButton.setEnabled(false);
 			
 		vPlugin.eLabel.setText("Errors:"+eCount); 
 		vPlugin.wLabel.setText("Warnings:"+wCount);
 
 		//refreshing the pathway , so that all the nodes highlighted appear highlighted
-		eng.getActiveVPathway().redraw();
+		engine.getActiveVPathway().redraw();
 
 		if( ijk[VPUtility.prevSelect]!=0 ){ 
 			VPUtility.allIgnored=false;// this boolean required for disabling/enabling the right mouse click menuitems
