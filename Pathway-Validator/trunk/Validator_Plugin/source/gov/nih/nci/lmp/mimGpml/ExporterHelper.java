@@ -70,23 +70,23 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 
-import org.pathvisio.biopax.BiopaxElementManager;
-import org.pathvisio.biopax.reflect.BiopaxElement;
-import org.pathvisio.debug.Logger;
-import org.pathvisio.model.AnchorType;
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.GroupStyle;
-import org.pathvisio.model.LineType;
-import org.pathvisio.model.MLine;
-import org.pathvisio.model.ObjectType;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
-import org.pathvisio.model.GraphLink.GraphRefContainer;
-import org.pathvisio.model.PathwayElement.Comment;
-import org.pathvisio.model.PathwayElement.MAnchor;
-import org.pathvisio.model.PathwayElement.MPoint;
-import org.pathvisio.preferences.GlobalPreference;
-import org.pathvisio.preferences.PreferenceManager;
+import org.pathvisio.core.biopax.BiopaxElementManager;
+import org.pathvisio.core.biopax.reflect.BiopaxElement;
+import org.pathvisio.core.debug.Logger;
+import org.pathvisio.core.model.AnchorType;
+import org.pathvisio.core.model.ConverterException;
+import org.pathvisio.core.model.GroupStyle;
+import org.pathvisio.core.model.LineType;
+import org.pathvisio.core.model.MLine;
+import org.pathvisio.core.model.ObjectType;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
+import org.pathvisio.core.model.GraphLink.GraphRefContainer;
+import org.pathvisio.core.model.PathwayElement.Comment;
+import org.pathvisio.core.model.PathwayElement.MAnchor;
+import org.pathvisio.core.model.PathwayElement.MPoint;
+import org.pathvisio.core.preferences.GlobalPreference;
+import org.pathvisio.core.preferences.PreferenceManager;
 
 /**
  * Methods for the export of MIMML.
@@ -896,8 +896,8 @@ public class ExporterHelper extends CommonHelper {
 
 		Collection<BiopaxElement> bpElemColl = refMgr.getElements();
 
-		for (org.pathvisio.biopax.reflect.BiopaxElement bpElem : bpElemColl) {
-			org.pathvisio.biopax.reflect.PublicationXref gpmlPubXRef = (org.pathvisio.biopax.reflect.PublicationXref) bpElem;
+		for (org.pathvisio.core.biopax.reflect.BiopaxElement bpElem : bpElemColl) {
+			org.pathvisio.core.biopax.reflect.PublicationXref gpmlPubXRef = (org.pathvisio.core.biopax.reflect.PublicationXref) bpElem;
 
 			PublicationXRefType mimPubXRef = mb.addNewPublicationXRef();
 
@@ -930,7 +930,7 @@ public class ExporterHelper extends CommonHelper {
 	private ArrayList<String> mapBiopaxRefs(PathwayElement pwElem) {
 		ArrayList<String> mimBioRefIds = new ArrayList<String>();
 
-		for (org.pathvisio.biopax.reflect.PublicationXref gpmlPubXRef : pwElem
+		for (org.pathvisio.core.biopax.reflect.PublicationXref gpmlPubXRef : pwElem
 				.getBiopaxReferenceManager().getPublicationXRefs()) {
 
 			// Add ID to the list being returned

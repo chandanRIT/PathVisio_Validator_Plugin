@@ -54,26 +54,26 @@ import org.bridgedb.DataSource;
 
 import org.apache.commons.collections.BidiMap;
 
-import org.pathvisio.debug.Logger;
-import org.pathvisio.model.AnchorType;
-import org.pathvisio.model.ConnectorType;
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.DataNodeType;
-import org.pathvisio.model.GroupStyle;
-import org.pathvisio.model.LineType;
-import org.pathvisio.model.MLine;
-import org.pathvisio.model.ObjectType;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
-import org.pathvisio.model.ShapeType;
-import org.pathvisio.model.PathwayElement.Comment;
-import org.pathvisio.model.PathwayElement.MAnchor;
-import org.pathvisio.model.PathwayElement.MPoint;
-import org.pathvisio.biopax.BiopaxReferenceManager;
-import org.pathvisio.biopax.BiopaxElementManager;
-import org.pathvisio.biopax.reflect.PublicationXref;
-import org.pathvisio.util.FileUtils;
-import org.pathvisio.view.ShapeRegistry;
+import org.pathvisio.core.debug.Logger;
+import org.pathvisio.core.model.AnchorType;
+import org.pathvisio.core.model.ConnectorType;
+import org.pathvisio.core.model.ConverterException;
+import org.pathvisio.core.model.DataNodeType;
+import org.pathvisio.core.model.GroupStyle;
+import org.pathvisio.core.model.LineType;
+import org.pathvisio.core.model.MLine;
+import org.pathvisio.core.model.ObjectType;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
+import org.pathvisio.core.model.ShapeType;
+import org.pathvisio.core.model.PathwayElement.Comment;
+import org.pathvisio.core.model.PathwayElement.MAnchor;
+import org.pathvisio.core.model.PathwayElement.MPoint;
+import org.pathvisio.core.biopax.BiopaxReferenceManager;
+import org.pathvisio.core.biopax.BiopaxElementManager;
+import org.pathvisio.core.biopax.reflect.PublicationXref;
+import org.pathvisio.core.util.FileUtils;
+import org.pathvisio.core.view.ShapeRegistry;
 
 /**
  * Class for the import of MIMML.
@@ -974,7 +974,7 @@ public class ImporterHelper extends CommonHelper {
 
 				BiopaxElementManager refMgr = pw.getBiopaxElementManager();
 
-				org.pathvisio.biopax.reflect.PublicationXref gpmlXRef = new PublicationXref();
+				org.pathvisio.core.biopax.reflect.PublicationXref gpmlXRef = new PublicationXref();
 
 				Logger.log.debug("PubXRef Id1: " + mimPubXRef.getId());
 

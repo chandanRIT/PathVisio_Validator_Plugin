@@ -15,10 +15,10 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.DefaultTableModel;
 
-import org.pathvisio.preferences.Preference;
-import org.pathvisio.view.VPathwayElement;
-import org.pathvisio.view.VPathwayEvent;
-import org.pathvisio.view.VPathwayListener;
+import org.pathvisio.core.preferences.Preference;
+import org.pathvisio.core.view.VPathwayElement;
+import org.pathvisio.core.view.VPathwayEvent;
+import org.pathvisio.core.view.VPathwayListener;
 
 /**
  * Contains variables & constants, few common functions, 
@@ -189,9 +189,9 @@ class VPUtility {
 
 		public void vPathwayEvent(VPathwayEvent e) {
 			// TODO Auto-generated method stub
-			org.pathvisio.view.MouseEvent me;
+			org.pathvisio.core.view.MouseEvent me;
 			if( ((me=e.getMouseEvent())!=null) && 
-					me.getType()==org.pathvisio.view.MouseEvent.MOUSE_DOWN ){
+					me.getType()==org.pathvisio.core.view.MouseEvent.MOUSE_DOWN ){
 				System.out.println("Pathway area clicked");
 				jtb.clearSelection();
 			}

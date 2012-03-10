@@ -17,10 +17,10 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
 import org.codehaus.groovy.control.CompilationFailedException;
-import org.pathvisio.Engine;
-import org.pathvisio.model.ObjectType;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
+import org.pathvisio.core.Engine;
+import org.pathvisio.core.model.ObjectType;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
 
 /**
  * This class is responsible for validating Pathways against Groovy rulesets. It loads(parses)

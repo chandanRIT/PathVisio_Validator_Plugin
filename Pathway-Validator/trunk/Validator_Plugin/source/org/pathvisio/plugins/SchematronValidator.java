@@ -15,12 +15,12 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 
-import org.pathvisio.Engine;
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.GpmlFormat;
-import org.pathvisio.model.ObjectType;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
+import org.pathvisio.core.Engine;
+import org.pathvisio.core.model.ConverterException;
+import org.pathvisio.core.model.GpmlFormat;
+import org.pathvisio.core.model.ObjectType;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
 import org.pathvisio.plugins.VPUtility.RuleSetNotSupportedException;
 import org.pathvisio.sbgn.SbgnFormat;
 import org.xml.sax.SAXException;
