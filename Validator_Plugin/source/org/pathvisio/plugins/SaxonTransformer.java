@@ -16,7 +16,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.pathvisio.preferences.PreferenceManager;
+import org.pathvisio.core.preferences.PreferenceManager;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 

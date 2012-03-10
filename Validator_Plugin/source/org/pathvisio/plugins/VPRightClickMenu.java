@@ -14,9 +14,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import org.pathvisio.model.PathwayElement;
-import org.pathvisio.preferences.PreferenceManager;
-import org.pathvisio.view.VPathwayElement;
+import org.pathvisio.core.model.PathwayElement;
+import org.pathvisio.core.preferences.PreferenceManager;
+import org.pathvisio.core.view.VPathwayElement;
 
 /**
  * This class is related to the right click related UI and events on the jtable. It also is responsible 

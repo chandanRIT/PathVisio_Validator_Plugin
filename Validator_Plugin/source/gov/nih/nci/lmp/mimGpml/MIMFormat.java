@@ -44,12 +44,12 @@ import java.io.IOException;
 
 import org.apache.xmlbeans.*;
 
-import org.pathvisio.debug.Logger;
+import org.pathvisio.core.debug.Logger;
 
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayExporter;
-import org.pathvisio.model.PathwayImporter;
+import org.pathvisio.core.model.ConverterException;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayExporter;
+import org.pathvisio.core.model.PathwayImporter;
 
 /**
  * Initiate the MIMML format within Pathvisio 

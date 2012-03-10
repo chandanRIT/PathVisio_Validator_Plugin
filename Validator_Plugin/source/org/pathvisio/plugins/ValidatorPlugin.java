@@ -1,6 +1,7 @@
 package org.pathvisio.plugins;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,6 +13,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -38,24 +41,22 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.codehaus.groovy.control.CompilationFailedException;
-import org.jdesktop.swingworker.SwingWorker;
-import org.pathvisio.ApplicationEvent;
-import org.pathvisio.Engine;
-import org.pathvisio.Engine.ApplicationEventListener;
-import org.pathvisio.gui.swing.ProgressDialog;
-import org.pathvisio.gui.swing.PvDesktop;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
-import org.pathvisio.plugin.Plugin;
+import org.pathvisio.core.ApplicationEvent;
+import org.pathvisio.core.Engine;
+import org.pathvisio.core.Engine.ApplicationEventListener;
+import org.pathvisio.gui.ProgressDialog;
+import org.pathvisio.desktop.PvDesktop;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
+import org.pathvisio.desktop.plugin.Plugin;
+import org.pathvisio.core.preferences.PreferenceManager;
 import org.pathvisio.plugins.VPUtility.RuleSetNotSupportedException;
-import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.sbgn.SbgnFormat;
 import org.pathvisio.sbgn.SbgnShapes;
-import org.pathvisio.util.ProgressKeeper;
-import org.pathvisio.view.VPathwayElement;
-import org.pathvisio.view.VPathwayListener;
+import org.pathvisio.core.util.ProgressKeeper;
+import org.pathvisio.core.view.VPathwayElement;
+import org.pathvisio.core.view.VPathwayListener;
 import org.xml.sax.SAXException;
-import edu.stanford.ejalbert.BrowserLauncher;
 import gov.nih.nci.lmp.mimGpml.MIMFormat;
 import groovy.lang.GroovyObject;
 
@@ -306,8 +307,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 		{	
 			try
 			{
-				BrowserLauncher bl = new BrowserLauncher(null);
-				bl.openURLinBrowser("http://pathvisio.org/wiki/PathwayValidatorHelp");
+				Desktop.getDesktop().browse(new URL("http://pathvisio.org/wiki/PathwayValidatorHelp").toURI());
 			}
 			catch (Exception ex)
 			{
