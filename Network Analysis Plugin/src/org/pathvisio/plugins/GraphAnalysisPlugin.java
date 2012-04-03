@@ -29,13 +29,14 @@ import javax.swing.border.Border;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 
-import org.pathvisio.ApplicationEvent;
-import org.pathvisio.Engine;
-import org.pathvisio.Engine.ApplicationEventListener;
-import org.pathvisio.gui.swing.PvDesktop;
-import org.pathvisio.model.GpmlFormat;
-import org.pathvisio.plugin.Plugin;
-import org.pathvisio.view.VPathwayElement;
+import org.pathvisio.core.ApplicationEvent;
+import org.pathvisio.core.Engine;
+import org.pathvisio.core.Engine.ApplicationEventListener;
+import org.pathvisio.desktop.PvDesktop;
+import org.pathvisio.desktop.plugin.Plugin;
+import org.pathvisio.core.model.GpmlFormat;
+
+import org.pathvisio.core.view.VPathwayElement;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -437,7 +438,7 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 
 		mainPanel.add(inputPanel,BorderLayout.NORTH);
 		mainPanel.add(resultsPanel,BorderLayout.CENTER);
-		sidebarTabbedPane.add("Jplugin",mainPanel);
+		sidebarTabbedPane.add("Network",mainPanel);
 
 		sidebarTabbedPane.setSelectedComponent(mainPanel);
 	}

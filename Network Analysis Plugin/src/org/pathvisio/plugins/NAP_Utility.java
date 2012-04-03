@@ -14,14 +14,14 @@ import java.util.Map;
 import javax.swing.JTextField;
 
 import org.apache.commons.collections15.Transformer;
-import org.pathvisio.Engine;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
-import org.pathvisio.view.Graphics;
-import org.pathvisio.view.VPathway;
-import org.pathvisio.view.VPathwayElement;
-import org.pathvisio.view.VPathwayEvent;
-import org.pathvisio.view.VPathwayListener;
+import org.pathvisio.core.Engine;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
+import org.pathvisio.core.view.Graphics;
+import org.pathvisio.core.view.VPathway;
+import org.pathvisio.core.view.VPathwayElement;
+import org.pathvisio.core.view.VPathwayEvent;
+import org.pathvisio.core.view.VPathwayListener;
 
 import edu.uci.ics.jung.algorithms.scoring.ClosenessCentrality;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
@@ -243,9 +243,9 @@ class NAP_Utility {
 		private JTextField jtfLastFocussed=GAplugin.tf1;
 		
 		public void vPathwayEvent(VPathwayEvent e) {
-			org.pathvisio.view.MouseEvent me;
+			org.pathvisio.core.view.MouseEvent me;
 			if( ((me=e.getMouseEvent())!=null) && 
-					me.getType()==org.pathvisio.view.MouseEvent.MOUSE_DOWN ){
+					me.getType()==org.pathvisio.core.view.MouseEvent.MOUSE_DOWN ){
 				//System.out.println("Pathway area clicked");
 				VPathwayElement vpwe;
 				if((vpwe=e.getAffectedElement())!=null && vpwe instanceof Graphics){
