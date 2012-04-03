@@ -1,27 +1,32 @@
 <?xml version="1.0"?>
-<project name="NAplugin" default="build-install" basedir=".">
+<project name="NWAplugin" default="build-install" basedir=".">
 	
-	<property name="base.name" value="NAplugin" />
+	<property name="base.name" value="NWAplugin" />
 	<property name="jar.name" value="${base.name}.jar" />
     
 	<property environment="env" />
 	<property name="install.dir" value="${user.home}/.PathVisio/plugins" />
-	<property name="pathvisio.dir" value="../PathVisioJul29" />
-	<property name="lib.dir" value="${pathvisio.dir}/lib" />
-    <property name="NAplugin.lib" value="lib"/>
+	<property name="pathvisio.dir" value="../.." />
+		<property name="lib.dir" value="${pathvisio.dir}/lib" />
+    <property name="NWAplugin.lib" value="lib"/>
 	<property name="images.dir" value="images"/>
 	
 	<path id="project.class.path">
-		<pathelement location="${pathvisio.dir}/pathvisio.jar" />
+		<fileset dir="E://pathvisioplugin//trunk//modules">
+					<include name="org.pathvisio.core.jar"/>
+					<include name="org.pathvisio.desktop.jar"/>
+					<include name="org.pathvisio.gui.jar"/>
+				</fileset>
+				
 		<pathelement location="build" />
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
 
-    <path id="NAplugin.path">
+    <path id="NWAplugin.path">
        <path refid="project.class.path"/>
-       <fileset dir="${NAplugin.lib}">
+       <fileset dir="${NWAplugin.lib}">
        		<include name="**/*.jar" />  
        </fileset>
      </path>
@@ -29,18 +34,12 @@
 	<target name="prepare">
 		<mkdir dir="build" />
 				
-			<fail message="Can't find ${pathvisio.dir}/pathvisio.jar, please specify the path to pathvisio with -Dpathvisio.dir=....">
-				<condition>
-					<not>
-						<available file="${pathvisio.dir}/pathvisio.jar" />
-					</not>
-				</condition>
-			</fail>
+			
 	</target>
 
 	<target name="build" depends="prepare">
-		<javac srcdir="src" includes="**/*.java" debug="true" destdir="build">
-			<classpath refid="NAplugin.path" />
+		<javac srcdir="src" includes="**/*.java" debug="true" destdir="build" source="1.5" target="1.5">
+			<classpath refid="NWAplugin.path" />
 			<compilerarg value="-Xlint"/>
 		</javac>
 	</target>
@@ -51,7 +50,7 @@
    				<attribute name="PathVisio-Plugin-Class" value="org.pathvisio.plugins.GraphAnalysisPlugin"/>
     		</manifest>
     		<fileset dir="build" includes="**/*.*" />
-			<zipgroupfileset dir="${NAplugin.lib}" includes="*.jar"/>
+			<zipgroupfileset dir="${NWAplugin.lib}" includes="*.jar"/>
     	</jar>
     </target>
 
