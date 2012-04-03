@@ -1,7 +1,7 @@
 import java.util.ArrayList;
-import org.pathvisio.model.ObjectType;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
+import org.pathvisio.core.model.ObjectType;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
 
 ArrayList<String[]> phaseSupport(){  // this method must be present with the same signature to allow for phase-specific validation
     	String[] phase1=["demoPhase1","ruleTitle , ruleOrganism, ruleAuthor"]; // Each individual phase is defined as a String Array, where the first  String element is the Phase's name , second is the comma (,) separated list of rules under this Phase
