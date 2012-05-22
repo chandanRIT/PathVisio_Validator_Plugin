@@ -755,11 +755,12 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	 *	basically to clear the panel and reset values on this event
 	 */
 	public void applicationEvent(ApplicationEvent e) {
-
-		if( e.getType()==ApplicationEvent.PATHWAY_OPENED || e.getType()==ApplicationEvent.PATHWAY_NEW){
+		switch(e.getType()) {
+		case PATHWAY_NEW:
+		case PATHWAY_OPENED:
 			resetUI(false);
 			eng.getActiveVPathway().addVPathwayListener(vpwListener);
-			
+			break;
 		}
 	}
 

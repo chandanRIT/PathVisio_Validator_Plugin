@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project name="PathwayValidator" default="jar" basedir=".">
+
+   <macrodef name="iterate">
+		<attribute name="target"/>
+		<sequential>
+			<subant target="@{target}">
+				<filelist dir=".">
+					<file name="Validator_Plugin/build.xml"/>
+					<!-- <file name="Network Analysis Plugin/build.xml"/> -->
+				</filelist>
+			</subant>
+		</sequential>
+	</macrodef>
+
+	<target name="clean" description="Remove all intermediate files.">
+		<iterate target="clean"/>
+	</target>
+
+	<target name="dist-clean" description="Remove all intermediate files.">
+		<iterate target="dist-clean"/>
+	</target>
+
+	<target name="build" description="Compile project">
+		<iterate target="build"/>
+	</target>
+
+	<target name="jar" description="Generate jar files">
+		<iterate target="jar"/>
+	</target>
+
+</project>

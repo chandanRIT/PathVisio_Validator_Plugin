@@ -42,14 +42,9 @@ package gov.nih.nci.lmp.mimGpml;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.xmlbeans.*;
-
-import org.pathvisio.core.debug.Logger;
-
+import org.pathvisio.core.model.AbstractPathwayFormat;
 import org.pathvisio.core.model.ConverterException;
 import org.pathvisio.core.model.Pathway;
-import org.pathvisio.core.model.PathwayExporter;
-import org.pathvisio.core.model.PathwayImporter;
 
 /**
  * Initiate the MIMML format within Pathvisio 
@@ -61,7 +56,7 @@ import org.pathvisio.core.model.PathwayImporter;
  * @since 1.0
  * 
  */
-public class MIMFormat implements PathwayExporter, PathwayImporter {
+public class MIMFormat extends AbstractPathwayFormat {
 
 	/** The extensions to add to the Pathvisio interface. */
 	private final String[] EXTENSIONS = new String[] { "mimml" };
@@ -111,4 +106,5 @@ public class MIMFormat implements PathwayExporter, PathwayImporter {
 		
 		return result;
 	}
+
 }
