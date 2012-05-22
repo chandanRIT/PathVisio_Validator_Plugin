@@ -443,12 +443,15 @@ public class GraphAnalysisPlugin implements Plugin , ApplicationEventListener {
 		sidebarTabbedPane.setSelectedComponent(mainPanel);
 	}
 
-	public void applicationEvent(ApplicationEvent e) {
-
-		if( e.getType()==ApplicationEvent.PATHWAY_OPENED || e.getType()==ApplicationEvent.PATHWAY_NEW){
+	public void applicationEvent(ApplicationEvent e) 
+	{
+		switch(e.getType()) {
+		case PATHWAY_NEW:
+		case PATHWAY_OPENED:
 			System.out.println("another pathway opened");
 			resultsArea.setText("");tf1.setText("");tf2.setText("");
 			engine.getActiveVPathway().addVPathwayListener(vpwListener);
+			break;
 		}
 
 	}
