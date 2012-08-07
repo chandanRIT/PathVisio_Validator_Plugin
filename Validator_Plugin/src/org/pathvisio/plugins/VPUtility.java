@@ -27,6 +27,7 @@ import org.pathvisio.core.preferences.Preference;
 import org.pathvisio.core.view.VPathwayElement;
 import org.pathvisio.core.view.VPathwayEvent;
 import org.pathvisio.core.view.VPathwayListener;
+import org.sbgn.SbgnUtil;
 
 /**
  * Contains variables & constants, few common functions, 
@@ -53,7 +54,7 @@ class VPUtility {
 	
 	public static URL getResourceURL(String name)
 	{
-		URL url = VPUtility.class.getClassLoader().getResource(name);
+		URL url = SbgnUtil.class.getClassLoader().getResource(name);
 		if (url == null) Logger.log.error ("Couldn't load resource '" + name + "'");
 		return url;
 	}
