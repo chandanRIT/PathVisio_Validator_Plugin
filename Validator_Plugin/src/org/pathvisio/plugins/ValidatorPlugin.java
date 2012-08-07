@@ -46,6 +46,7 @@ import org.pathvisio.core.Engine;
 import org.pathvisio.core.Engine.ApplicationEventListener;
 import org.pathvisio.gui.ProgressDialog;
 import org.pathvisio.desktop.PvDesktop;
+import org.pathvisio.core.model.Pathway;
 import org.pathvisio.core.model.PathwayElement;
 import org.pathvisio.desktop.plugin.Plugin;
 import org.pathvisio.core.preferences.PreferenceManager;
@@ -91,6 +92,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	private SchematronValidator schematronValidator;
 	private VPRightClickMenu vpRCMenu;
 	private SAXParser saxParser;
+	private String ruletype;
 	//private File serializedInfoFile= new File(System.getProperty("user.home"), "GloballyIgnored.ser");
 	//private ObjectOutputStream oos;
 	
@@ -106,7 +108,9 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	JPopupMenu popup;
 	JMenu subMenu4,subMenu5, subMenu6, subMenu8;
 	int[] checkedUnchecked;
-
+	private String ftype;
+	private String ftyp;
+	
 	public ValidatorPlugin(){
 		System.out.println("init callled");
 	}
@@ -425,8 +429,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	 * @param resetSchemaTitleAlso flag based on which phaseBox and schemaTitleTag are also reset. 
 	 */
 	void resetUI(boolean resetSchemaTitleAlso){
-		clearTableRows();
-		
+		clearTableRows();	
+			
 		if(resetSchemaTitleAlso){
 			schemaTitleTag.setText(VPUtility.rulesetTitleLabel);
 			VPUtility.schemaString="";
@@ -541,17 +545,23 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	/**
 	 *  "chooseRuleset" method delegates to this method. This does the handling of events related to 
 	 *  "Choose Ruleset" button.
+	 * @throws IOException 
+	 * @throws InterruptedException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws RuleSetNotSupportedException 
+	 * @throws SAXException 
 	 * @throws RuleNotSupportedException 
 	 */
-	private void chooseRulesetButtonListener() throws InterruptedException,
-		IOException,IllegalAccessException,InstantiationException,
-		SAXException,CompilationFailedException,ClassNotFoundException, RuleSetNotSupportedException{
+	private void chooseRulesetButtonListener() throws ClassNotFoundException, InterruptedException, IOException, InstantiationException, IllegalAccessException, SAXException, RuleSetNotSupportedException 
+	{
 		
 		//System.out.println("choose schema button pressed");
 		Thread threadForSax=null;
 		threadForSax=chooseButtonInitialisation();
 
-		int returnVal = chooser.showOpenDialog(desktop.getFrame());
+	int returnVal = chooser.showOpenDialog(desktop.getFrame());
 
 		//wait for the transformer creation in the thread to complete 
 		if(threadForSax!=null){
@@ -567,8 +577,10 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			phaseBox.setSelectedIndex(0);
 			VPUtility.changeOfSchema=false;
 			ewBox.setSelectedIndex(0);
+			Pathway fpe = eng.getActivePathway();
 			
 			schemaFile=chooser.getSelectedFile();
+			
 			System.out.println("You chose this schematron file: "+schemaFile.getName());
 			//System.out.println("schema is of type: "+(VPUtility.schemaFileType=whichSchema(schemaFile)));
 
@@ -594,8 +606,94 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			// setting/clearing the rightclick related stuff
 			vpRCMenu.clearRightClickStuff();
 			validateButtonListener();
-			PreferenceManager.getCurrent().setFile(VPUtility.SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
+		//	PreferenceManager.getCurrent().setFile(VPUtility.SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
+		
+	}
+	}
+	/**
+	 *  "chooseRuleset" method delegates to this method. This does the handling of events related to 
+	 *  "Choose Ruleset" button.
+	 * @throws RuleNotSupportedException 
+	 */
+	private void chooseRulesetListener() throws InterruptedException,
+		IOException,IllegalAccessException,InstantiationException,
+		SAXException,CompilationFailedException,ClassNotFoundException, RuleSetNotSupportedException{
+		
+		//System.out.println("choose schema button pressed");
+		Thread threadForSax=null;
+		threadForSax=chooseButtonInitialisation();
+
+		//wait for the transformer creation in the thread to complete 
+		if(threadForSax!=null){
+			threadForSax.join();
+			threadForSax=null;
 		}
+		System.out.println("after thread's join");
+		
+		
+			// reset
+			//stopping the changes made by changing the state of phasebox to 0
+			VPUtility.changeOfSchema=true;
+			phaseBox.setSelectedIndex(0);
+			VPUtility.changeOfSchema=false;
+			ewBox.setSelectedIndex(0);
+			Pathway fpe = eng.getActivePathway();
+			
+			schemaFile=chooser.getSelectedFile();
+			System.out.println(fpe.getMappInfo().getDynamicProperty(SbgnFormat.PROPERTY_SBGN_LANGUAGE));
+			ftype=fpe.getMappInfo().getDynamicProperty(SbgnFormat.PROPERTY_SBGN_LANGUAGE);
+			ftyp=fpe.getMappInfo().getDynamicProperty(mimf.getName());
+			if(ftype!=null)
+			{
+				if(ftype.equalsIgnoreCase("process description")){
+					ruletype="sbgn_pd.sch";	
+				}
+				else if(ftype.equalsIgnoreCase("activity flow")){
+					ruletype="sbgn_af.sch";				
+				}
+				else if(ftype.equalsIgnoreCase("entity relationship")){
+					ruletype="sbgn_er.sch";		
+				}
+			}
+			
+			else if(ftyp!=null)
+				{
+					if(ftype.equalsIgnoreCase("MIM Markup Language")){				
+						ruletype="mimml_validation.sch";
+				} 
+			}			
+			else if(ftype==null && ftyp==null)
+			{
+				ruletype="gpml_best_practices.sch";				
+			}
+			schemaFile=VPUtility.getFile(ruletype);
+			System.out.println("You chose this schematron file: "+schemaFile.getName());
+			//System.out.println("schema is of type: "+(VPUtility.schemaFileType=whichSchema(schemaFile)));
+
+			String schemaFileSubString=(schemaFile.toString().substring(schemaFile.toString().length()-3));
+			//if the file chosen is of type ".groovy", then do Groovy specific logic
+			if(schemaFileSubString.equalsIgnoreCase("ovy") ){
+				svrlOutputChoose.setEnabled(false);
+				VPUtility.schemaFileType="groovy";
+				//phaseBox.setEnabled(false);
+				if(groovyValidator==null)
+					groovyValidator=new GroovyValidator(this,eng,phaseBox,graphIdsList);
+				grvyObject=groovyValidator.loadGroovy(schemaFile);
+
+			}
+			// if the chosen file is of type ".sch" (schema file)
+			else {
+				svrlOutputChoose.setEnabled(true);
+				if(schematronValidator == null) 
+					schematronValidator=new SchematronValidator(this);
+				schematronValidator.parseSchemaAndSetValues(saxParser, saxTfr.getTransformer1(), schemaFile,
+						desktop.getFrame(), schemaTitleTag, phaseBox);
+			}
+			// setting/clearing the rightclick related stuff
+			vpRCMenu.clearRightClickStuff();
+			validateButtonListener();
+		//	PreferenceManager.getCurrent().setFile(VPUtility.SchemaPreference.LAST_OPENED_SCHEMA_DIR, schemaFile);
+		
 	}
 	
 	/**
@@ -604,7 +702,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	 */
 	private void chooseRuleset(){
 		try {
-			chooseRulesetButtonListener();
+			chooseRulesetListener();
 		} catch (InterruptedException e) {
 			JOptionPane.showMessageDialog(desktop.getFrame(), 
 					"problem with the SaxonTranformer\n" + e.getMessage(), "Validator Plugin",JOptionPane.ERROR_MESSAGE);
@@ -668,15 +766,17 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			VPUtility.col1= new Color(255,0,0);
 			VPUtility.col2=new Color(0,0,255);
 		}
-
-		// check whether a schema is chosen or not 
-		if(schemaFile==null){
+		if(!eng.hasVPathway()){
 			JOptionPane.showMessageDialog(desktop.getFrame(), 
-				"Please choose a Ruleset and then press Validate");
+			"Please open a Pathway to start validation");
+			desktop.getSwingEngine().openPathway();
+			return;
+		}else{
+			if( schemaFile==null){
 			chooseRuleset();
 			return;
 		}
-		
+		}
 		//check "Choose Ruleset" success
 		if(VPUtility.schemaString.equals("")){
 			JOptionPane.showMessageDialog(desktop.getFrame(), 
@@ -686,13 +786,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			
 
 		// check if a pathway is opened
-		if(!eng.hasVPathway()){
-			JOptionPane.showMessageDialog(desktop.getFrame(), 
-			"Please open a Pathway to start validation");
-			desktop.getSwingEngine().openPathway();
-			return;
-		}
-
+		
 		//if the control reaches here, then every thing's fine until choose ruleset
 		//reset values (default option), when "Validate" is pressed
 		ewBox.setEnabled(true);ewBox.setSelectedIndex(0);
@@ -712,14 +806,23 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	/////////////////////////////////////////////////////////////////////////////////
 
 	public void actionPerformed(ActionEvent e) {
-		// Listener method for "Validate" button
+	// Listener method for "Validate" button
 		if ("validate".equals(e.getActionCommand())) { // "Validate" button preseed
 			validateButtonListener();
+			schemaFile=null;
 		}
 
 		// Listener method for "Choose Ruleset" button
 		else if ("choose".equals(e.getActionCommand())) { // "Choose Ruleset" button pressed 
-			chooseRuleset();
+			try {
+				schemaFile=null;
+				chooseRulesetButtonListener();
+			} catch (ClassNotFoundException | InstantiationException
+					| IllegalAccessException | InterruptedException
+					| IOException | SAXException | RuleSetNotSupportedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 		// Listener for "Hightlight All" button 
@@ -753,8 +856,8 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 	/**
 	 * Override method for receiving events when a pathway is opened/closed/loaded
 	 *	basically to clear the panel and reset values on this event
-	 */
-	public void applicationEvent(ApplicationEvent e) {
+	*/
+		public void applicationEvent(ApplicationEvent e) {
 		switch(e.getType()) {
 		case PATHWAY_NEW:
 		case PATHWAY_OPENED:
@@ -763,7 +866,7 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			break;
 		}
 	}
-
+	
 	// overridden method for ItemListener interface, invoked for change in phasebox selection
 	public void itemStateChanged(ItemEvent arg0) {  
 

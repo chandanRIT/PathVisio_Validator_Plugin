@@ -3,6 +3,13 @@ package org.pathvisio.plugins;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -15,6 +22,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.DefaultTableModel;
 
+import org.pathvisio.core.debug.Logger;
 import org.pathvisio.core.preferences.Preference;
 import org.pathvisio.core.view.VPathwayElement;
 import org.pathvisio.core.view.VPathwayEvent;
@@ -42,6 +50,35 @@ class VPUtility {
 	static String schemaString;
 	//static VPWListener vpwListener;//=new VPUtility.VPWListener();
 
+	
+	public static URL getResourceURL(String name)
+	{
+		URL url = VPUtility.class.getClassLoader().getResource(name);
+		if (url == null) Logger.log.error ("Couldn't load resource '" + name + "'");
+		return url;
+	}
+	
+	 public static File getFile(String filename) throws IOException {
+    	 File outFile = new File(System.getProperty("java.io.tmpdir"),filename);  // File to write to               
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+				getResourceURL(filename).openStream()));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+
+        //... Loop as long as there are input lines.
+        String line = null;
+        while ((line=reader.readLine()) != null) {
+            writer.write(line);
+            writer.newLine();   // Write system dependent end of line.
+        }
+
+        //... Close reader and writer.
+        reader.close();  // Close to unlock.
+        writer.close();  // Close to unlock and flush to disk.
+        
+        return outFile;
+    }
+
+	
 	/**
 	 * This is used in storing and retrieving all the plugin's preferences
 	 */
