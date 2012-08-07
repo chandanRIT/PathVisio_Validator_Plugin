@@ -817,10 +817,9 @@ public class ValidatorPlugin implements Plugin,ActionListener, ApplicationEventL
 			try {
 				schemaFile=null;
 				chooseRulesetButtonListener();
-			} catch (ClassNotFoundException | InstantiationException
-					| IllegalAccessException | InterruptedException
-					| IOException | SAXException | RuleSetNotSupportedException e1) {
-				// TODO Auto-generated catch block
+			} 
+			catch (Exception e1) 
+			{
 				e1.printStackTrace();
 			}
 		}
