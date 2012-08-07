@@ -49,12 +49,24 @@ class VPUtility {
 	static VPathwayElement prevPwe;
 	static String schemaFileType;
 	static String schemaString;
+	private static URL url;
 	//static VPWListener vpwListener;//=new VPUtility.VPWListener();
 
 	
 	public static URL getResourceURL(String name)
 	{
-		URL url = SbgnUtil.class.getClassLoader().getResource(name);
+		
+		if(name.equalsIgnoreCase("sbgn_pd.sch")||name.equalsIgnoreCase("sbgn_af.sch")
+				||name.equalsIgnoreCase("sbgn_er.sch"))
+		{
+			 url = SbgnUtil.class.getClassLoader().getResource(name);
+		}
+		if(name.equalsIgnoreCase("mimml_validation.sch")||name.equalsIgnoreCase("gpml_best_practices.sch"))
+		{
+			url = VPUtility.class.getClassLoader().getResource(name);
+		}
+		
+		
 		if (url == null) Logger.log.error ("Couldn't load resource '" + name + "'");
 		return url;
 	}
