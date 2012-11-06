@@ -1,27 +1,24 @@
 <?xml version="1.0"?>
-<project name="NWAplugin" default="build-install" basedir=".">
+<project name="NWAplugin" default="jar" basedir=".">
 	
-	<property name="base.name" value="NWAplugin" />
+	<property name="base.name" value="org.pathvisio.plugins.NWAplugin" />
 	<property name="jar.name" value="${base.name}.jar" />
     
 	<property environment="env" />
 	<property name="install.dir" value="${user.home}/.PathVisio/plugins" />
-	<property name="pathvisio.dir" value="../.." />
-		<property name="lib.dir" value="${pathvisio.dir}/lib" />
+	<property name="pathvisio.dir" value="../pathvisio" />
+	<property name="lib.dir" value="${pathvisio.dir}/lib" />
     <property name="NWAplugin.lib" value="lib"/>
 	<property name="images.dir" value="images"/>
 	
 	<path id="project.class.path">
-		<fileset dir="E://pathvisioplugin//trunk//modules">
-					<include name="org.pathvisio.core.jar"/>
-					<include name="org.pathvisio.desktop.jar"/>
-					<include name="org.pathvisio.gui.jar"/>
-				</fileset>
-				
-		<pathelement location="build" />
-		<fileset dir="${lib.dir}">
-			<include name="**/*.jar" />
+		<fileset dir="${pathvisio.dir}/modules">
+			<include name="**/*.jar"/>
 		</fileset>
+		<fileset dir="${pathvisio.dir}/lib">	
+		</fileset>
+		<fileset dir="lib">	
+		</fileset>		
 	</path>
 
     <path id="NWAplugin.path">
@@ -32,9 +29,7 @@
      </path>
 	
 	<target name="prepare">
-		<mkdir dir="build" />
-				
-			
+		<mkdir dir="build" />	
 	</target>
 
 	<target name="build" depends="prepare">
@@ -45,13 +40,13 @@
 	</target>
 
     <target name="jar" depends="build">
-    	<jar jarfile="${jar.name}">
+    	<jar jarfile="${jar.name}" manifest="META-INF/MANIFEST.MF">
     		<manifest>
    				<attribute name="PathVisio-Plugin-Class" value="org.pathvisio.plugins.GraphAnalysisPlugin"/>
     		</manifest>
     		<fileset dir="build" includes="**/*.*" />
 			<zipgroupfileset dir="${NWAplugin.lib}" includes="*.jar"/>
-    	</jar>
+    	</jar>    	
     </target>
 
 	<target name="install">
