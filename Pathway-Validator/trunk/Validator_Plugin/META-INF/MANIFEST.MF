@@ -3,25 +3,20 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Pathway-Validator
 Bundle-SymbolicName: Pathway-Validator
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: Pathway-Validator.jar,
- lib/activation.jar,
- lib/commons-collections-3.2.1.jar,
- lib/jsr173_1.0_api.jar,
+Bundle-ClassPath: lib/commmons-collections-3.2.1.jar,
  lib/mimVis_ValidatorPluginMod.jar,
  lib/saxon9-dom.jar,
  lib/saxon9.jar,
- lib/xbean.jar,
- lib/groovy-1.8.4.jar,
- lib/antlr-2.7.7.jar,
- lib/asm-commons-3.2.jar
-Export-Package: org.pathvisio.plugins
+ lib/xbean.jar
+Export-Package: org.pathvisio.validator
 Require-Bundle: org.pathvisio.core;bundle-version="2.0.11",
  org.sbgn;bundle-version="0.2.0",
  org.pathvisio.gui;bundle-version="2.0.11",
  org.pathvisio.desktop;bundle-version="2.0.11",
  org.pathvisio.sbgn;bundle-version="1.0.0",
  org.bridgedb;bundle-version="1.1.0",
- com.springsource.org.jdom;bundle-version="1.1.0"
+ com.springsource.org.jdom;bundle-version="1.1.0",
+ groovy-all;bundle-version="1.8.6"
 Import-Package: junit.framework;resolution:=optional,
  org.osgi.framework;version="1.5.0"
-Bundle-Activator: org.pathvisio.plugins.Activator
+Bundle-Activator: org.pathvisio.validator.Activator

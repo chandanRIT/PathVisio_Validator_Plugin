@@ -70,8 +70,8 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 
-import org.pathvisio.core.biopax.BiopaxElementManager;
 import org.pathvisio.core.biopax.reflect.BiopaxElement;
+import org.pathvisio.core.biopax.BiopaxElementManager;
 import org.pathvisio.core.debug.Logger;
 import org.pathvisio.core.model.AnchorType;
 import org.pathvisio.core.model.ConverterException;
