@@ -70,8 +70,8 @@ import org.pathvisio.core.model.PathwayElement.Comment;
 import org.pathvisio.core.model.PathwayElement.MAnchor;
 import org.pathvisio.core.model.PathwayElement.MPoint;
 import org.pathvisio.core.biopax.BiopaxReferenceManager;
-import org.pathvisio.core.biopax.BiopaxElementManager;
-import org.pathvisio.core.biopax.reflect.PublicationXref;
+import org.pathvisio.core.biopax.BiopaxElement;
+import org.pathvisio.core.biopax.PublicationXref;
 import org.pathvisio.core.util.FileUtils;
 import org.pathvisio.core.view.ShapeRegistry;
 
@@ -972,9 +972,9 @@ public class ImporterHelper extends CommonHelper {
 
 				Logger.log.debug("PubXRef xmlText: " + mimPubXRef.xmlText());
 
-				BiopaxElementManager refMgr = pw.getBiopaxElementManager();
+				BiopaxElement refMgr = pw.getBiopax();
 
-				org.pathvisio.core.biopax.reflect.PublicationXref gpmlXRef = new PublicationXref();
+				org.pathvisio.core.biopax.PublicationXref gpmlXRef = new PublicationXref();
 
 				Logger.log.debug("PubXRef Id1: " + mimPubXRef.getId());
 
