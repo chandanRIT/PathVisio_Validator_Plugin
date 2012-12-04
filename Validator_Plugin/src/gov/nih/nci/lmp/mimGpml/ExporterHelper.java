@@ -70,8 +70,8 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 
-import org.pathvisio.core.biopax.reflect.BiopaxElement;
-import org.pathvisio.core.biopax.BiopaxElementManager;
+import org.pathvisio.core.biopax.BiopaxElement;
+import org.pathvisio.core.biopax.BiopaxNode;
 import org.pathvisio.core.debug.Logger;
 import org.pathvisio.core.model.AnchorType;
 import org.pathvisio.core.model.ConverterException;
@@ -892,12 +892,14 @@ public class ExporterHelper extends CommonHelper {
 	 *            the pathway element
 	 */
 	private void mapBiopax(PathwayElement pwElem) {
-		BiopaxElementManager refMgr = pw.getBiopaxElementManager();
+		BiopaxElement refMgr = pw.getBiopax();
 
-		Collection<BiopaxElement> bpElemColl = refMgr.getElements();
+		Collection<BiopaxNode> bpElemColl = refMgr.getElements();
 
-		for (org.pathvisio.core.biopax.reflect.BiopaxElement bpElem : bpElemColl) {
-			org.pathvisio.core.biopax.reflect.PublicationXref gpmlPubXRef = (org.pathvisio.core.biopax.reflect.PublicationXref) bpElem;
+		for (org.pathvisio.core.biopax.BiopaxNode bpElem : bpElemColl) 
+		{
+			if (!(bpElem instanceof org.pathvisio.core.biopax.PublicationXref)) continue; 
+			org.pathvisio.core.biopax.PublicationXref gpmlPubXRef = (org.pathvisio.core.biopax.PublicationXref) bpElem;
 
 			PublicationXRefType mimPubXRef = mb.addNewPublicationXRef();
 
@@ -930,7 +932,7 @@ public class ExporterHelper extends CommonHelper {
 	private ArrayList<String> mapBiopaxRefs(PathwayElement pwElem) {
 		ArrayList<String> mimBioRefIds = new ArrayList<String>();
 
-		for (org.pathvisio.core.biopax.reflect.PublicationXref gpmlPubXRef : pwElem
+		for (org.pathvisio.core.biopax.PublicationXref gpmlPubXRef : pwElem
 				.getBiopaxReferenceManager().getPublicationXRefs()) {
 
 			// Add ID to the list being returned
