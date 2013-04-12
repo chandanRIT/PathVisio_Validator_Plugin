@@ -28,7 +28,7 @@
 			<include name="com.google.collect*.jar" />
 		</fileset>
 		<fileset dir="${org.pathvisio.sbgn.dir}/dist">
-			<include name="SBGN.jar" />
+			<include name="org.pathvisio.sbgn.jar" />
 		</fileset>
 		<fileset dir="${pathvisio.dir}/lib">
 			<!-- <include name="**/*.jar" /> -->
