@@ -4,7 +4,7 @@
   <property name="common.bundles" value="../common-bundles"/>  
   <property name="org.pathvisio.sbgn.dir" value="../org.pathvisio.sbgn"/>  
   <property name="pathvisio.dir" value="../.."/>  
-  <import file="${pathvisio.dir}/plugin-common-future.xml"/>
+  <import file="${pathvisio.dir}/plugin-common.xml"/>
 
     <property name="validator.lib" value="lib"/>
 	<property name="validator.images" value="images"/>
