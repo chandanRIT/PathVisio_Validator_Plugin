@@ -1,4 +1,4 @@
-PathVisio Validator Plugin
+PathVisio Validator Plugin (Plugin page: http://pathvisio.org/wiki/PathwayValidatorHelp)
 -------
 
 The PathVisio Validator plugin aims to simplify the task of producing biological pathway diagrams using standardized graphical notations, such as Molecular Interaction Maps or the Systems Biology Graphical Notation. This plugin assists in the creation of pathway diagrams by ensuring correct usage of a notation thereby reducing ambiguity when diagrams are shared amongst biologists. Rulesets needed in the validation process, can be generated for any graphical notation that a user desires, using either Schematron or Groovy. The plugin also provides support for filtering validation results, validating on a subset of rules, and distinguishing errors and warnings. 
